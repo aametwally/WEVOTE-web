@@ -1,4 +1,3 @@
-
 'use strict';
 
 angular.module('wevoteApp', ['ui.router'])
@@ -13,7 +12,7 @@ angular.module('wevoteApp', ['ui.router'])
                         templateUrl : 'views/header.html'
                     },
                     'content': {
-                        template : '<h1>To be Completed</h1>',
+                        templateUrl : "views/main.html",
                         controller  : 'MainController'
                     },
                     'footer': {
@@ -22,11 +21,11 @@ angular.module('wevoteApp', ['ui.router'])
                 }
             })
 
-            .state('app.help', {
+            .state('app.info', {
                 url:'help',
                 views: {
                     'content@': {
-                        template: '<h1>To be Completed</h1>'
+                        template: '<h1>Help To be Completed</h1>'
                     }
                 }
             })
@@ -35,7 +34,7 @@ angular.module('wevoteApp', ['ui.router'])
                 url:'feedback',
                 views: {
                     'content@': {
-                        template: '<h1>To be Completed</h1>'
+                        template: '<h1>Feedback To be Completed</h1>'
                     }
                 }
             })
