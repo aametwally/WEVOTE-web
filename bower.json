@@ -1,0 +1,32 @@
+{
+  "name": "wevote",
+  "authors": [
+    "Asem Alaa <asem_alla@msn.com>",
+    "Ahmed Abdelhadi <ametwa2@uic.edu>"
+  ],
+  "description": "Taxonomic classification method of the metagenomic DNA reads",
+  "main": "",
+  "keywords": [
+    "Taxonomy",
+    "Genomic",
+    "Databases",
+    "Shotgun",
+    "Sequencing"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "font-awesome": "^4.7.0",
+    "angular": "^1.6.4",
+    "angular-ui-router": "^1.0.3"
+  }
+}
