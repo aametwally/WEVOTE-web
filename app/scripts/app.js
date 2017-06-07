@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('wevoteApp', ['ui.router'])
+angular.module('wevoteApp', ['ui.router','angularFileUpload'])
 
     .config(function($stateProvider, $urlRouterProvider) {
         $stateProvider

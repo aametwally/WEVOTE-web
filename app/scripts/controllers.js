@@ -27,8 +27,18 @@ angular.module('wevoteApp')
 
     }])
 
-    .controller('HeaderController', ['$scope', function ($scope) {
+    .controller('UploadController', ['$scope', 'angularUploader',
+        function ($scope, angularUploader) {
+            $scope.readsUploader =
+                angularUploader.getFileUploader( 'uploaded/reads' , "input reads");
+            $scope.databaseUploader =
+                angularUploader.getFileUploader( 'uploaded/database' , "external database");
 
+            $scope.uploaders = [$scope.readsUploader,$scope.databaseUploader ]
+        }])
+
+
+    .controller('HeaderController', ['$scope', function ($scope) {
     }])
 
     .controller('InfoController', ['$scope', function ($scope) {
