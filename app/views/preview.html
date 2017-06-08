@@ -1,0 +1,21 @@
+<div class="form-group" ng-class="{'has-error has-feedback':
+                    (inputForm.emailid.$error.required || inputForm.emailid.$invalid) && !inputForm.emailid.$pristine}">
+    <label for="emailid" class="col-sm-2 control-label">Email</label>
+    <div class="col-sm-10">
+        <input type="email" class="form-control" id="emailid"
+               name="emailid" placeholder="Email"
+               ng-model="newExperiment.email" required>
+        <span ng-show="(inputForm.emailid.$error.required || inputForm.emailid.$invalid) && !inputForm.emailid.$pristine"
+              class="glyphicon glyphicon-remove form-control-feedback"
+              aria-hidden="true"></span>
+        <span ng-show="(inputForm.emailid.$error.required || inputForm.emailid.$invalid) && !inputForm.emailid.$pristine"
+              class="help-block">Enter a valid email address</span>
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" ng-disabled="inputForm.$invalid"
+                class="btn btn-primary">Post Experiment
+        </button>
+    </div>
+</div>

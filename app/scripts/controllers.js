@@ -8,24 +8,45 @@ angular.module('wevoteApp')
 
     }])
 
-    .controller('InputController', ['$scope', function ($scope) {
-        var emptyInput = {
-            readsFile: "",
-            genomes: "",
-            customGenomesFiles: "",
-            email: "",
-            description: ""
-        };
-        $scope.newExperiment = emptyInput;
+    .controller('InputController', ['$scope', 'availableDatabaseFactory',
+        function ($scope, availableDatabaseFactory) {
 
-        $scope.postExperiment = function () {
-            console.log('postExperiment() invoked.');
-            console.log($scope.newExperiment);
+
+            var emptyInput = {
+                readsFile: "",
+                dataset: "",
+                externalDatabase: "",
+                email: "",
+                description: ""
+            };
+
+            $scope.availableDatabase = availableDatabaseFactory.getAvailableDatabase();
+
             $scope.newExperiment = emptyInput;
-            $scope.inputForm.$setPristine();
-        };
 
+            $scope.postExperiment = function () {
+                console.log('postExperiment() invoked.');
+                console.log($scope.newExperiment);
+                $scope.newExperiment = emptyInput;
+                $scope.inputForm.$setPristine();
+            };
+
+        }])
+
+    .controller('DatasetUploaderController', ['$scope', 'fileUploaderFactory', function ($scope, fileUploaderFactory) {
+        var datasetUploader = fileUploaderFactory.getFileUploader(
+            'uploaded/dataset', 'Drop dataset here', 'External dataset uploader');
+
+        $scope.uploader = datasetUploader;
     }])
+
+    .controller('DatabaseUploaderController', ['$scope', 'fileUploaderFactory', function ($scope, fileUploaderFactory) {
+        var databaseUploader = fileUploaderFactory.getFileUploader(
+            'uploaded/database', 'Drop external database here', 'External database uploader');
+
+        $scope.uploader = databaseUploader;
+    }])
+
 
     .controller('HeaderController', ['$scope', function ($scope) {
 

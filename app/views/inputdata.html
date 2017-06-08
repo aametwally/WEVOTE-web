@@ -1,0 +1,35 @@
+
+
+    <div class="form-group">
+        <div class="col-sm-12 col-md-5">
+            <div ng-include="'views/fileupload.html'"
+                 ng-controller="DatasetUploaderController" nv-file-drop=""
+                 uploader="uploader" filters="queueLimit, customFilter">
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-5">
+            <div ng-include="'views/fileupload.html'"
+                 ng-controller="DatabaseUploaderController" nv-file-drop=""
+                 uploader="uploader" filters="queueLimit, customFilter">
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-2">
+            <p>include database from the server:</p>
+            <div class="well well-scrollable">
+                <ul class="pull-left list-unstyled">
+                    <li class=pull-left" ng-repeat="data in availableDatabase">
+                        <div class="checkbox">
+                            <label class="checkbox-inline">
+                                <input ng-model="data.selected" type="checkbox" name="approve" value="">
+                                <span class="label label-warning">{{data.name}}</span>
+                            </label>
+                        </div>
+                    </li>
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+
+
