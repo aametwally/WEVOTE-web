@@ -14,37 +14,42 @@ angular.module('wevoteApp')
 
             var emptyInput = {
                 readsFile: "",
-                dataset: "",
-                externalDatabase: "",
-                email: "",
-                description: ""
+                source: "client",
+                config: {
+                    taxonomy:"",
+                    scoreThreshold:"",
+                    nAgreed:"",
+                    penalty:"",
+                    algorithms:""
+                },
+                preview: {
+                    email: "",
+                    description: ""
+                }
             };
 
             $scope.availableDatabase = availableDatabaseFactory.getAvailableDatabase();
 
-            $scope.newExperiment = emptyInput;
+            $scope.experiment = emptyInput;
 
             $scope.postExperiment = function () {
                 console.log('postExperiment() invoked.');
-                console.log($scope.newExperiment);
-                $scope.newExperiment = emptyInput;
+                console.log($scope.experiment);
+                $scope.experiment = emptyInput;
                 $scope.inputForm.$setPristine();
             };
 
         }])
 
-    .controller('DatasetUploaderController', ['$scope', 'fileUploaderFactory', function ($scope, fileUploaderFactory) {
+    .controller('ReadsUploaderController', ['$scope', 'fileUploaderFactory', function ($scope, fileUploaderFactory) {
         var datasetUploader = fileUploaderFactory.getFileUploader(
-            'uploaded/dataset', 'Drop dataset here', 'External dataset uploader');
+            'uploaded/dataset', 'Drop reads file here', 'External dataset uploader', false);
 
         $scope.uploader = datasetUploader;
     }])
 
-    .controller('DatabaseUploaderController', ['$scope', 'fileUploaderFactory', function ($scope, fileUploaderFactory) {
-        var databaseUploader = fileUploaderFactory.getFileUploader(
-            'uploaded/database', 'Drop external database here', 'External database uploader');
-
-        $scope.uploader = databaseUploader;
+    .controller('ConfigController', ['$scope', 'algorithmsFactory', function ($scope,algorithmsFactory) {
+        $scope.supportedAlgorithms = algorithmsFactory.getSupportedAlgorithms();
     }])
 
 
