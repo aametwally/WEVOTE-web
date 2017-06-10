@@ -19,7 +19,7 @@ angular
 
             uploader.label = label;
             uploader.description = description;
-
+            uploader.atLeastSingleFileUploaded = false;
             // FILTERS
 
             uploader.filters.push({
@@ -63,9 +63,11 @@ angular
             };
             uploader.onCompleteItem = function (fileItem, response, status, headers) {
                 console.info('onCompleteItem', fileItem, response, status, headers);
+                this.atLeastSingleFileUploaded = true;
             };
             uploader.onCompleteAll = function () {
                 console.info('onCompleteAll');
+                this.atLeastSingleFileUploaded = true;
             };
 
             console.info('uploader', uploader);

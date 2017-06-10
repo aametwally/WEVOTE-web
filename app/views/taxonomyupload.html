@@ -1,3 +1,4 @@
+<!--<div ng-include ng-controller="AppController" nv-file-drop="" uploader="uploader" filters="queueLimit, customFilter">-->
 <div class="form-group">
     <div class="col-xs-11 col-sm-12">
         <div ng-show="uploader.isHTML5">
@@ -16,8 +17,6 @@
                 <th ng-show="uploader.isHTML5">Size</th>
                 <th ng-show="uploader.isHTML5">Progress</th>
                 <th>Status</th>
-                <th>#Reads</th>
-                <th>L(bp)</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -37,8 +36,6 @@
                     <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
                     <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
                 </td>
-                <td>todo</td>
-                <td>todo</td>
                 <td nowrap>
 
                     <button type="button" class="btn btn-success btn-xs" ng-click="item.upload()"

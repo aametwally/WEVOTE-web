@@ -8,53 +8,85 @@ angular.module('wevoteApp')
 
     }])
 
-    .controller('InputController', ['$scope', 'availableDatabaseFactory',
-        function ($scope, availableDatabaseFactory) {
+    .controller('InputController', ['$scope', 'availableDatabaseFactory', 'algorithmsFactory',
+        function ($scope, availableDatabaseFactory, algorithmsFactory) {
 
+            var readsSources = [
+                {value: "client", label: "Upload reads file"},
+                {value: "server", label: "Use simulated reads from the server"}];
+
+            var taxonomySources = [
+                {value: "NCBI", label: "Use NCBI taxonomy database"},
+                {value: "custom", label: "Upload custom taxonomy database"}];
+
+            $scope.readsSources = readsSources;
+            $scope.taxonomySources = taxonomySources;
 
             var emptyInput = {
                 readsFile: "",
-                source: "client",
+                readsSource: readsSources[0].value,
+                taxonomySource: taxonomySources[0].value,
                 config: {
-                    taxonomy:"",
-                    scoreThreshold:"",
-                    nAgreed:"",
-                    penalty:"",
-                    algorithms:""
+                    taxonomy: taxonomySources[0].value,
+                    minScore: 0,
+                    minNumAgreed: 0,
+                    penalty: 2,
+                    algorithms: ""
                 },
-                preview: {
-                    email: "",
-                    description: ""
-                }
+                email: "",
+                description: ""
             };
 
             $scope.availableDatabase = availableDatabaseFactory.getAvailableDatabase();
-
+            $scope.supportedAlgorithms = algorithmsFactory.getSupportedAlgorithms();
+            $scope.supportedAlgorithms.forEach(function (alg) {
+                alg.used = true;
+            });
+            $scope.usedAlgorithms = function () {
+                return $scope.supportedAlgorithms.filter(function (alg) {
+                    return alg.used;
+                });
+            };
             $scope.experiment = emptyInput;
 
+            $scope.noAlgorithmChosen = false;
             $scope.postExperiment = function () {
                 console.log('postExperiment() invoked.');
                 console.log($scope.experiment);
-                $scope.experiment = emptyInput;
-                $scope.inputForm.$setPristine();
+                $scope.experiment.config.algorithms = $scope.usedAlgorithms();
+                $scope.noAlgorithmChosen = $scope.usedAlgorithms().length === 0;
+                if (!$scope.noAlgorithmChosen) {
+                    $scope.experiment = emptyInput;
+                    $scope.inputForm.$setPristine();
+                }
             };
 
+            $scope.readsUploader = {};
+            $scope.readsUploaderPostValidation = true;
+            $scope.taxonomyUploader = {};
+            $scope.taxonomyUploaderPostValidation = true;
         }])
 
     .controller('ReadsUploaderController', ['$scope', 'fileUploaderFactory', function ($scope, fileUploaderFactory) {
         var datasetUploader = fileUploaderFactory.getFileUploader(
             'uploaded/dataset', 'Drop reads file here', 'External dataset uploader', false);
 
+        $scope.readsUploader = datasetUploader;
         $scope.uploader = datasetUploader;
     }])
 
-    .controller('ConfigController', ['$scope', 'algorithmsFactory', function ($scope,algorithmsFactory) {
-        $scope.supportedAlgorithms = algorithmsFactory.getSupportedAlgorithms();
+    .controller('TaxonomyUploaderController', ['$scope', 'fileUploaderFactory', function ($scope, fileUploaderFactory) {
+        var taxonomyUploader = fileUploaderFactory.getFileUploader(
+            'uploaded/taxonomy', 'Drop taxonomy file here', 'Custom taxonomy uploader', false);
+
+        $scope.taxonomyUploader = taxonomyUploader;
+        $scope.uploader = taxonomyUploader;
     }])
 
-
     .controller('HeaderController', ['$scope', function ($scope) {
-
+        $("#loginButton").click(function () {
+            $("#loginModal").modal('toggle');
+        });
     }])
 
     .controller('InfoController', ['$scope', function ($scope) {
