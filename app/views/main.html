@@ -2,7 +2,11 @@
 
     <div class="row row-content">
         <div class="col-xs-12 col-md-6">
-                <div ng-include="'views/input.html'" ng-controller="InputController"></div>
+            <div ng-controller="InputController">
+                <div ng-if="!showInput" class="{{error? 'alert alert-danger' :'alert alert-warning'}}"
+                     role="alert">{{message}}</div>
+                <div ng-if="showInput" ng-include="'views/input.html'"></div>
+            </div>
         </div>
     </div>
 </div>

@@ -5,7 +5,9 @@
 angular.module('wevoteApp')
 
     .controller('MainController', ['$scope', function ($scope) {
-
+        $scope.showInput = false;
+        $scope.error = false;
+        $scope.message = "Loading ...";
     }])
 
     .controller('InputController', ['$scope', 'availableDatabaseFactory', 'algorithmsFactory',
@@ -37,11 +39,45 @@ angular.module('wevoteApp')
                 description: ""
             };
 
-            $scope.availableDatabase = availableDatabaseFactory.getAvailableDatabase();
-            $scope.supportedAlgorithms = algorithmsFactory.getSupportedAlgorithms();
-            $scope.supportedAlgorithms.forEach(function (alg) {
-                alg.used = true;
-            });
+            $scope.availableDatabase = {};
+            $scope.supportedAlgorithms = {};
+            $scope.availableDatabaseLoaded = false;
+            $scope.supportedAlgorithmsLoaded = false;
+
+            $scope.areDataLoaded = function () {
+                return $scope.availableDatabaseLoaded &&
+                    $scope.supportedAlgorithmsLoaded ;
+            };
+
+            availableDatabaseFactory.getAvailableDatabase()
+                .then(
+                    function (response) {
+                        $scope.availableDatabase = response.data;
+                        $scope.availableDatabaseLoaded = true;
+                        $scope.showInput = $scope.areDataLoaded();
+                        console.log($scope.showInput);
+                    },
+                    function (response) {
+                        $scope.error = true;
+                        $scope.message = "Error: " + response.status + " " + response.statusText;
+                    });
+
+            algorithmsFactory.getSupportedAlgorithms()
+                .then(
+                    function (response) {
+                        $scope.supportedAlgorithms = response.data;
+                        $scope.supportedAlgorithms.forEach(function (alg) {
+                            alg.used = true;
+                        });
+                        $scope.supportedAlgorithmsLoaded = true;
+                        $scope.showInput = $scope.areDataLoaded();
+                        console.log($scope.showInput);
+                    },
+                    function (response) {
+                        $scope.error = true;
+                        $scope.message = "Error: " + response.status + " " + response.statusText;
+                    });
+
             $scope.usedAlgorithms = function () {
                 return $scope.supportedAlgorithms.filter(function (alg) {
                     return alg.used;
