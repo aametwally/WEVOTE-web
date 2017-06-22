@@ -3,25 +3,31 @@
  */
 'use strict';
 
-angular.module('wevoteApp')
-    .service('angularUploader' , ['FileUploader' ,
-    function(FileUploader){
 
-        this.getFileUploader = function( targetUrl , label ){
+angular
+
+    .module('wevoteApp')
+
+    .factory('fileUploaderFactory', ['FileUploader', function (FileUploader) {
+        var fileUploaderFactory = {};
+
+        fileUploaderFactory.getFileUploader = function (url, label, description, multipleFileUploader) {
+            multipleFileUploader = (multipleFileUploader !== undefined) ? multipleFileUploader : true;
             var uploader = new FileUploader({
-                url: targetUrl
+                url: url
             });
 
-            uploader.label = label ;
-
+            uploader.label = label;
+            uploader.description = description;
+            uploader.atLeastSingleFileUploaded = false;
             // FILTERS
+
             uploader.filters.push({
-                    name: 'customFilter',
-                    fn: function (item /*{File|FileLikeObject}*/, options) {
-                        return this.queue.length < 10;
-                    }
+                name: 'customFilter',
+                fn: function (item /*{File|FileLikeObject}*/, options) {
+                    return this.queue.length < 10;
                 }
-            );
+            });
 
             // CALLBACKS
 
@@ -30,6 +36,9 @@ angular.module('wevoteApp')
             };
             uploader.onAfterAddingFile = function (fileItem) {
                 console.info('onAfterAddingFile', fileItem);
+                if (!multipleFileUploader) {
+                    this.queue = [fileItem];
+                }
             };
             uploader.onAfterAddingAll = function (addedFileItems) {
                 console.info('onAfterAddingAll', addedFileItems);
@@ -54,17 +63,108 @@ angular.module('wevoteApp')
             };
             uploader.onCompleteItem = function (fileItem, response, status, headers) {
                 console.info('onCompleteItem', fileItem, response, status, headers);
+                this.atLeastSingleFileUploaded = true;
             };
             uploader.onCompleteAll = function () {
                 console.info('onCompleteAll');
+                this.atLeastSingleFileUploaded = true;
             };
 
             console.info('uploader', uploader);
 
             return uploader;
         };
+
+        return fileUploaderFactory;
     }])
 
+    .factory('availableDatabaseFactory', [function () {
+        var availableDatabaseFac = {};
+        var data = [
+            {
+                _id: 0,
+                name: 'HiSeq',
+                size: '2333'
+            },
+            {
+                _id: 1,
+                name: 'MiSeq',
+                size: '2333'
+            },
+            {
+                _id: 2,
+                name: 'simBA5',
+                size: '2333'
+            },
+            {
+                _id: 3,
+                name: 'simHC20',
+                size: '2333'
+            },
+            {
+                _id: 4,
+                name: 'HC1',
+                size: '2333'
+            },
+            {
+                _id: 5,
+                name: 'HC2',
+                size: '2333'
+            },
+            {
+                _id: 6,
+                name: 'LC1',
+                size: '2333'
+            },
+            {
+                _id: 7,
+                name: 'LC2',
+                size: '2333'
+            },
+            {
+                _id: 8,
+                name: 'LC3',
+                size: '2333'
+            },
+            {
+                _id: 9,
+                name: 'LC4',
+                size: '2333'
+            }
 
+        ];
+        availableDatabaseFac.getAvailableDatabase = function () {
+            return data;
+        };
+
+        return availableDatabaseFac;
+    }])
+
+    .factory('algorithmsFactory', [function () {
+        var supportedAlgorithmsFac = {};
+        var supportedAlgorithms = [
+            {
+                name: 'Kraken'
+            },
+            {
+                name: 'BLASTN'
+            },
+            {
+                name: 'TIPP'
+            },
+            {
+                name: 'CLARK'
+            },
+            {
+                name: 'MetaPhlAn'
+            }
+        ];
+
+        supportedAlgorithmsFac.getSupportedAlgorithms = function(){
+            return supportedAlgorithms;
+        };
+
+        return supportedAlgorithmsFac;
+    }]);
 
 ;
