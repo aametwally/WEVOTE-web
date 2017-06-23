@@ -4,12 +4,21 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var mongoose = require('mongoose');
 
-var index = require('./routes/index');
-var users = require('./routes/users');
-var simulatedReads = require('./routes/simulatedReads');
-var algorithms = require('./routes/algorithms');
+var url = 'mongodb://localhost:27071/wevote';
+mongoose.connect( url );
+var db = mongoose.connection;
+db.on('error', console.error.bind( console ,'connection error:'));
+db.once('open',function(){
+  console.log("Connected correctly to the server.");
+});
 
+
+var reads = require('./routes/reads');
+var taxonomy = require('./routes/taxonomy');
+var algorithm = require('./routes/algorithm');
+var experiment = require('./routes/experiment');
 
 var app = express();
 
@@ -25,10 +34,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// app.use('/', index);
-// app.use('/users', users);
-app.use('/sreads' ,simulatedReads);
-app.use('/algorithms' , algorithms );
+
+app.use('/reads' ,reads);
+app.use('/algorithm' , algorithm );
+app.use('/experiment' , experiment );
+app.use('/taxonomy' , taxonomy );
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
