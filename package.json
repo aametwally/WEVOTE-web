@@ -21,6 +21,7 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/asem_abdelaziz/wevote#readme",
   "devDependencies": {
+    "bower": "^1.8.0",
     "browser-sync": "^2.18.12",
     "del": "^2.2.2",
     "gulp": "^3.9.1",
