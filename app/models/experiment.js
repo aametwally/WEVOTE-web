@@ -3,9 +3,15 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 
+var algorithmSchema = new Schema({
+    name: String , 
+    use: Boolean
+});
+
+
 var configSchema = new Schema({
     algorithms:{
-        type: [String],
+        type: [algorithmSchema],
         required: true
     },
     minScore:{
