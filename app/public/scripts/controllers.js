@@ -13,13 +13,25 @@ angular.module('wevoteApp')
     .controller('InputController', ['$scope', 'availableDatabaseFactory', 'algorithmsFactory',
         function ($scope, availableDatabaseFactory, algorithmsFactory) {
 
-            var readsSources = [
-                {value: "client", label: "Upload reads file"},
-                {value: "server", label: "Use simulated reads from the server"}];
+            var readsSources = [{
+                    value: "client",
+                    label: "Upload reads file"
+                },
+                {
+                    value: "server",
+                    label: "Use simulated reads from the server"
+                }
+            ];
 
-            var taxonomySources = [
-                {value: "NCBI", label: "Use NCBI taxonomy database"},
-                {value: "custom", label: "Upload custom taxonomy database"}];
+            var taxonomySources = [{
+                    value: "NCBI",
+                    label: "Use NCBI taxonomy database"
+                },
+                {
+                    value: "custom",
+                    label: "Upload custom taxonomy database"
+                }
+            ];
 
             $scope.readsSources = readsSources;
             $scope.taxonomySources = taxonomySources;
@@ -46,37 +58,35 @@ angular.module('wevoteApp')
 
             $scope.areDataLoaded = function () {
                 return $scope.availableDatabaseLoaded &&
-                    $scope.supportedAlgorithmsLoaded ;
+                    $scope.supportedAlgorithmsLoaded;
             };
 
-            availableDatabaseFactory.getAvailableDatabase()
-                .then(
-                    function (response) {
-                        $scope.availableDatabase = response.data;
-                        $scope.availableDatabaseLoaded = true;
-                        $scope.showInput = $scope.areDataLoaded();
-                        console.log($scope.showInput);
-                    },
-                    function (response) {
-                        $scope.error = true;
-                        $scope.message = "Error: " + response.status + " " + response.statusText;
-                    });
+            availableDatabaseFactory.getAvailableDatabase().query(
+                function (response) {
+                    $scope.availableDatabase = response;
+                    $scope.availableDatabaseLoaded = true;
+                    $scope.showInput = $scope.areDataLoaded();
+                    console.log($scope.showInput);
+                },
+                function (response) {
+                    $scope.error = true;
+                    $scope.message = "Error: " + response.status + " " + response.statusText;
+                });
 
-            algorithmsFactory.getSupportedAlgorithms()
-                .then(
-                    function (response) {
-                        $scope.supportedAlgorithms = response.data;
-                        $scope.supportedAlgorithms.forEach(function (alg) {
-                            alg.used = true;
-                        });
-                        $scope.supportedAlgorithmsLoaded = true;
-                        $scope.showInput = $scope.areDataLoaded();
-                        console.log($scope.showInput);
-                    },
-                    function (response) {
-                        $scope.error = true;
-                        $scope.message = "Error: " + response.status + " " + response.statusText;
+            algorithmsFactory.getSupportedAlgorithms().query(
+                function (response) {
+                    $scope.supportedAlgorithms = response;
+                    $scope.supportedAlgorithms.forEach(function (alg) {
+                        alg.used = true;
                     });
+                    $scope.supportedAlgorithmsLoaded = true;
+                    $scope.showInput = $scope.areDataLoaded();
+                    console.log($scope.showInput);
+                },
+                function (response) {
+                    $scope.error = true;
+                    $scope.message = "Error: " + response.status + " " + response.statusText;
+                });
 
             $scope.usedAlgorithms = function () {
                 return $scope.supportedAlgorithms.filter(function (alg) {
@@ -101,7 +111,8 @@ angular.module('wevoteApp')
             $scope.readsUploaderPostValidation = true;
             $scope.taxonomyUploader = {};
             $scope.taxonomyUploaderPostValidation = true;
-        }])
+        }
+    ])
 
     .controller('ReadsUploaderController', ['$scope', 'fileUploaderFactory', function ($scope, fileUploaderFactory) {
         var datasetUploader = fileUploaderFactory.getFileUploader(

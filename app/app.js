@@ -6,7 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 
-var url = 'mongodb://localhost:27071/wevote';
+var url = 'mongodb://localhost:27017/wevote';
 mongoose.connect( url );
 var db = mongoose.connection;
 db.on('error', console.error.bind( console ,'connection error:'));
@@ -20,9 +20,13 @@ var taxonomy = require('./routes/taxonomy');
 var algorithm = require('./routes/algorithm');
 var experiment = require('./routes/experiment');
 
+var initializeDB = require('./models/initdb')
+
+initializeDB.clear();
+initializeDB.init();
 var app = express();
 
-// view engine setup
+// // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 

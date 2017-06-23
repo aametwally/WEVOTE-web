@@ -79,18 +79,18 @@ angular
         return fileUploaderFactory;
     }])
 
-    .factory('availableDatabaseFactory', ['baseURL', '$http', function (baseURL, $http) {
+    .factory('availableDatabaseFactory', ['baseURL', '$resource', function (baseURL, $resource) {
         var availableDatabaseFac = {};
         availableDatabaseFac.getAvailableDatabase = function () {
-            return $http.get(baseURL + "reads");
+            return $resource(baseURL+"reads",null,  {'update':{method:'PUT' }});
         };
         return availableDatabaseFac;
     }])
 
-    .factory('algorithmsFactory', ['baseURL', '$http', function (baseURL, $http) {
+    .factory('algorithmsFactory', ['baseURL', '$resource', function (baseURL, $resource) {
         var supportedAlgorithmsFac = {};
         supportedAlgorithmsFac.getSupportedAlgorithms = function () {
-            return $http.get( baseURL + "algorithms" );
+            return $resource(baseURL+"algorithm",null,  {'update':{method:'PUT' }});
         };
         return supportedAlgorithmsFac;
     }])

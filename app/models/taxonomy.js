@@ -5,13 +5,23 @@ var Schema = mongoose.Schema;
 
 var taxonomySchema = new Schema({
     name: String , 
-    description: String, 
+    description: {
+        type: String,
+        default:""
+    }, 
     onServer: {
         type: Boolean , 
         default: true
     } ,
-    uri: String,
-    data: String
+    uri: {
+        type: String,
+        default:""
+    },
+    data: {
+        type: String,
+        default:""
+    },
+    size: Number
 });
 
 
