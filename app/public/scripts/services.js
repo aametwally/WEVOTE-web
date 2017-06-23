@@ -26,13 +26,13 @@ angular
 
             uploader.filters.push({
                 name: 'customFilter',
-                fn: function (item /*{File|FileLikeObject}*/, options) {
+                fn: function (item /*{File|FileLikeObject}*/ , options) {
                     return this.queue.length < 10;
                 }
             });
 
             // CALLBACKS
-            uploader.onWhenAddingFileFailed = function (item /*{File|FileLikeObject}*/, filter, options) {
+            uploader.onWhenAddingFileFailed = function (item /*{File|FileLikeObject}*/ , filter, options) {
                 console.info('onWhenAddingFileFailed', item, filter, options);
             };
             uploader.onAfterAddingFile = function (fileItem) {
@@ -82,7 +82,11 @@ angular
     .factory('availableDatabaseFactory', ['baseURL', '$resource', function (baseURL, $resource) {
         var availableDatabaseFac = {};
         availableDatabaseFac.getAvailableDatabase = function () {
-            return $resource(baseURL+"reads",null,  {'update':{method:'PUT' }});
+            return $resource(baseURL + "reads", null, {
+                'update': {
+                    method: 'PUT'
+                }
+            });
         };
         return availableDatabaseFac;
     }])
@@ -90,9 +94,21 @@ angular
     .factory('algorithmsFactory', ['baseURL', '$resource', function (baseURL, $resource) {
         var supportedAlgorithmsFac = {};
         supportedAlgorithmsFac.getSupportedAlgorithms = function () {
-            return $resource(baseURL+"algorithm",null,  {'update':{method:'PUT' }});
+            return $resource(baseURL + "algorithm", null, {
+                'update': {
+                    method: 'PUT'
+                }
+            });
         };
         return supportedAlgorithmsFac;
+    }])
+
+    .factory('experimentFactory', ['baseURL', '$resource', function (baseURL, $resource) {
+        var experimentFac = {};
+        experimentFac.submit = function (formdata) {
+            return $resource(baseURL + "experiment").save({},formdata);
+        };
+        return experimentFac;
     }])
 
 ;

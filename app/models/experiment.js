@@ -12,12 +12,6 @@ var configSchema = new Schema({
         type: [Algorithm.schema],
         required: true
     },
-    minScore: {
-        type: Number,
-        min: 0,
-        max: 5,
-        default: 0
-    },
     minNumAgreed: {
         type: Number,
         min: 0,
@@ -39,9 +33,11 @@ var statusSchema = new Schema({
     progress: {
         type: Number,
         min: 0,
-        max: 100
+        max: 100,
+        default:0 
     }
 });
+
 
 var experimentSchema = new Schema({
     user: {
@@ -63,7 +59,7 @@ var experimentSchema = new Schema({
         type: Reads.schema,
         required: true
     },
-    taxonomySource: {
+    taxonomy: {
         type: Taxonomy.schema,
         required: true
     },

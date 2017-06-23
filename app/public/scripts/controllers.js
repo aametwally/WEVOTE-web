@@ -10,8 +10,9 @@ angular.module('wevoteApp')
         $scope.message = "Loading ...";
     }])
 
-    .controller('InputController', ['$scope', 'availableDatabaseFactory', 'algorithmsFactory',
-        function ($scope, availableDatabaseFactory, algorithmsFactory) {
+    .controller('InputController', ['$scope', 'availableDatabaseFactory', 'algorithmsFactory', 'experimentFactory',
+        function ($scope, availableDatabaseFactory, algorithmsFactory, experimentFactory) {
+            $scope.inputForm = {};
 
             var readsSources = [{
                     value: "client",
@@ -36,19 +37,37 @@ angular.module('wevoteApp')
             $scope.readsSources = readsSources;
             $scope.taxonomySources = taxonomySources;
 
+
             var emptyInput = {
-                readsFile: "",
+                user: "public",
+                email: "",
+                description: "",
+                private: false,
                 readsSource: readsSources[0].value,
                 taxonomySource: taxonomySources[0].value,
+                reads: {
+                    name: "",
+                    description: "",
+                    onServer: true,
+                    uri: "",
+                    data: "",
+                    size: ""
+                },
+                taxonomy: {
+                    name: "",
+                    description: "",
+                    onServer: true,
+                    uri: "",
+                    data: "",
+                    size: ""
+                },
                 config: {
-                    taxonomy: taxonomySources[0].value,
                     minScore: 0,
                     minNumAgreed: 0,
                     penalty: 2,
                     algorithms: ""
-                },
-                email: "",
-                description: ""
+                }
+
             };
 
             $scope.availableDatabase = {};
@@ -93,7 +112,7 @@ angular.module('wevoteApp')
                     return alg.used;
                 });
             };
-            $scope.experiment = emptyInput;
+            $scope.experiment = JSON.parse(JSON.stringify(emptyInput));
 
             $scope.noAlgorithmChosen = false;
             $scope.postExperiment = function () {
@@ -101,12 +120,18 @@ angular.module('wevoteApp')
                 console.log($scope.experiment);
                 $scope.experiment.config.algorithms = $scope.usedAlgorithms();
                 $scope.noAlgorithmChosen = $scope.usedAlgorithms().length === 0;
+
+
                 if (!$scope.noAlgorithmChosen) {
-                    $scope.experiment = emptyInput;
-                    $scope.inputForm.$setPristine();
+                    experimentFactory.submit($scope.experiment);
+                    $scope.experiment = JSON.parse(JSON.stringify(emptyInput));
+
+                    $scope.inputForm.form.$setPristine();
+                    $scope.inputForm.form.$setUntouched();
                 }
             };
 
+           
             $scope.readsUploader = {};
             $scope.readsUploaderPostValidation = true;
             $scope.taxonomyUploader = {};
