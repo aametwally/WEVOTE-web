@@ -141,7 +141,7 @@ angular.module('wevoteApp')
 
     .controller('ReadsUploaderController', ['$scope', 'fileUploaderFactory', function ($scope, fileUploaderFactory) {
         var datasetUploader = fileUploaderFactory.getFileUploader(
-            'uploaded/dataset', 'Drop reads file here', 'External dataset uploader', false);
+            'upload/reads', 'Drop reads file here', 'External dataset uploader', false);
 
         $scope.readsUploader = datasetUploader;
         $scope.uploader = datasetUploader;

@@ -19,6 +19,7 @@ var reads = require('./routes/reads');
 var taxonomy = require('./routes/taxonomy');
 var algorithm = require('./routes/algorithm');
 var experiment = require('./routes/experiment');
+var upload = require('./routes/upload');
 
 var initializeDB = require('./models/initdb')
 
@@ -43,6 +44,7 @@ app.use('/reads' ,reads);
 app.use('/algorithm' , algorithm );
 app.use('/experiment' , experiment );
 app.use('/taxonomy' , taxonomy );
+app.use('/upload' , upload );
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

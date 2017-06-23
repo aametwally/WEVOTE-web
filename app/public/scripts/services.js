@@ -64,6 +64,8 @@ angular
             };
             uploader.onCompleteItem = function (fileItem, response, status, headers) {
                 console.info('onCompleteItem', fileItem, response, status, headers);
+                console.log(response );
+                console.log(headers);
                 this.atLeastSingleFileUploaded = true;
             };
             uploader.onCompleteAll = function () {
