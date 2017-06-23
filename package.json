@@ -1,10 +1,12 @@
 {
   "name": "wevote",
   "version": "0.0.1",
+  "private": true,
   "description": "Taxonomic classification method of the metagenomic DNA reads",
-  "main": "app/scripts/app.js",
+  "main": "app/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./app/bin/www"
   },
   "repository": {
     "type": "git",
@@ -36,5 +38,16 @@
     "gulp-usemin": "^0.3.28",
     "jshint": "^2.9.4",
     "jshint-stylish": "^2.2.1"
+  },
+  "dependencies": {
+    "assert": "^1.4.1",
+    "body-parser": "~1.17.1",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.3",
+    "express": "~4.15.2",
+    "jade": "~1.11.0",
+    "mongoose": "^4.10.8",
+    "morgan": "~1.8.1",
+    "serve-favicon": "~2.4.2"
   }
 }
