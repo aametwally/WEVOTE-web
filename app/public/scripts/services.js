@@ -8,6 +8,8 @@ angular
 
     .module('wevoteApp')
 
+    .constant("baseURL", "http://localhost:3000/")
+
     .factory('fileUploaderFactory', ['FileUploader', function (FileUploader) {
         var fileUploaderFactory = {};
 
@@ -30,7 +32,6 @@ angular
             });
 
             // CALLBACKS
-
             uploader.onWhenAddingFileFailed = function (item /*{File|FileLikeObject}*/, filter, options) {
                 console.info('onWhenAddingFileFailed', item, filter, options);
             };
@@ -78,93 +79,20 @@ angular
         return fileUploaderFactory;
     }])
 
-    .factory('availableDatabaseFactory', [function () {
+    .factory('availableDatabaseFactory', ['baseURL', '$http', function (baseURL, $http) {
         var availableDatabaseFac = {};
-        var data = [
-            {
-                _id: 0,
-                name: 'HiSeq',
-                size: '2333'
-            },
-            {
-                _id: 1,
-                name: 'MiSeq',
-                size: '2333'
-            },
-            {
-                _id: 2,
-                name: 'simBA5',
-                size: '2333'
-            },
-            {
-                _id: 3,
-                name: 'simHC20',
-                size: '2333'
-            },
-            {
-                _id: 4,
-                name: 'HC1',
-                size: '2333'
-            },
-            {
-                _id: 5,
-                name: 'HC2',
-                size: '2333'
-            },
-            {
-                _id: 6,
-                name: 'LC1',
-                size: '2333'
-            },
-            {
-                _id: 7,
-                name: 'LC2',
-                size: '2333'
-            },
-            {
-                _id: 8,
-                name: 'LC3',
-                size: '2333'
-            },
-            {
-                _id: 9,
-                name: 'LC4',
-                size: '2333'
-            }
-
-        ];
         availableDatabaseFac.getAvailableDatabase = function () {
-            return data;
+            return $http.get(baseURL + "reads");
         };
-
         return availableDatabaseFac;
     }])
 
-    .factory('algorithmsFactory', [function () {
+    .factory('algorithmsFactory', ['baseURL', '$http', function (baseURL, $http) {
         var supportedAlgorithmsFac = {};
-        var supportedAlgorithms = [
-            {
-                name: 'Kraken'
-            },
-            {
-                name: 'BLASTN'
-            },
-            {
-                name: 'TIPP'
-            },
-            {
-                name: 'CLARK'
-            },
-            {
-                name: 'MetaPhlAn'
-            }
-        ];
-
-        supportedAlgorithmsFac.getSupportedAlgorithms = function(){
-            return supportedAlgorithms;
+        supportedAlgorithmsFac.getSupportedAlgorithms = function () {
+            return $http.get( baseURL + "algorithms" );
         };
-
         return supportedAlgorithmsFac;
-    }]);
+    }])
 
 ;

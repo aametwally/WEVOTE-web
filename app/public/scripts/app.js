@@ -1,6 +1,5 @@
 'use strict';
 angular.module('wevoteApp', ['ui.router','angularFileUpload'])
-
     .config(function($stateProvider, $urlRouterProvider) {
         $stateProvider
         // route for the home page
