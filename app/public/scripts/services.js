@@ -13,8 +13,8 @@ angular
     .factory('fileUploaderFactory', ['FileUploader', function (FileUploader) {
         var fileUploaderFactory = {};
 
-        fileUploaderFactory.getFileUploader = function (url, label, description, multipleFileUploader) {
-            multipleFileUploader = (multipleFileUploader !== undefined) ? multipleFileUploader : true;
+        fileUploaderFactory.getFileUploader = function (url, label, description) {
+            
             var uploader = new FileUploader({
                 url: url
             });
@@ -35,12 +35,7 @@ angular
             uploader.onWhenAddingFileFailed = function (item /*{File|FileLikeObject}*/ , filter, options) {
                 console.info('onWhenAddingFileFailed', item, filter, options);
             };
-            uploader.onAfterAddingFile = function (fileItem) {
-                console.info('onAfterAddingFile', fileItem);
-                if (!multipleFileUploader) {
-                    this.queue = [fileItem];
-                }
-            };
+            
             uploader.onAfterAddingAll = function (addedFileItems) {
                 console.info('onAfterAddingAll', addedFileItems);
             };
@@ -53,9 +48,7 @@ angular
             uploader.onProgressAll = function (progress) {
                 console.info('onProgressAll', progress);
             };
-            uploader.onSuccessItem = function (fileItem, response, status, headers) {
-                console.info('onSuccessItem', fileItem, response, status, headers);
-            };
+            
             uploader.onErrorItem = function (fileItem, response, status, headers) {
                 console.info('onErrorItem', fileItem, response, status, headers);
             };
@@ -63,15 +56,15 @@ angular
                 console.info('onCancelItem', fileItem, response, status, headers);
             };
             uploader.onCompleteItem = function (fileItem, response, status, headers) {
-                console.info('onCompleteItem', fileItem, response, status, headers);
-                console.log(response );
-                console.log(headers);
+                // console.info('onCompleteItem', fileItem, response, status, headers);
+                // console.log(headers);
                 this.atLeastSingleFileUploaded = true;
             };
             uploader.onCompleteAll = function () {
                 console.info('onCompleteAll');
                 this.atLeastSingleFileUploaded = true;
             };
+
 
             console.info('uploader', uploader);
 
@@ -108,7 +101,7 @@ angular
     .factory('experimentFactory', ['baseURL', '$resource', function (baseURL, $resource) {
         var experimentFac = {};
         experimentFac.submit = function (formdata) {
-            return $resource(baseURL + "experiment").save({},formdata);
+            return $resource(baseURL + "experiment").save({}, formdata);
         };
         return experimentFac;
     }])

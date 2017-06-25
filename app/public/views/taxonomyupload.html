@@ -1,6 +1,6 @@
 <!--<div ng-include ng-controller="AppController" nv-file-drop="" uploader="uploader" filters="queueLimit, customFilter">-->
 <div class="form-group">
-    <div class="col-xs-11 col-sm-12">
+    <div>
         <div ng-show="uploader.isHTML5">
             <!-- 3. nv-file-over uploader="link" over-class="className" -->
             <div class="well my-drop-zone" nv-file-over="" uploader="uploader">
@@ -9,7 +9,7 @@
         </div>
     </div>
 
-    <div class="col-xs-11 col-sm-12" style="margin-bottom: 40px" ng-show="uploader.queue.length>0">
+    <div style="margin-bottom: 40px" ng-show="uploader.queue.length>0">
         <table class="table table-condensed table-responsive">
             <thead>
             <tr>

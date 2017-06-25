@@ -80,6 +80,9 @@ body {
     align: center;
     padding: 0px 0px 0px 0px;
     z-index: 0;
+    min-width: 700px;
+    width: auto !important;
+    width: 1000px;
 }
 
 .tab-content {

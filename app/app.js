@@ -23,7 +23,6 @@ var upload = require('./routes/upload');
 
 var initializeDB = require('./models/initdb')
 
-initializeDB.clear();
 initializeDB.init();
 var app = express();
 

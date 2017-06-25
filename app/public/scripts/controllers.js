@@ -131,7 +131,7 @@ angular.module('wevoteApp')
                 }
             };
 
-           
+
             $scope.readsUploader = {};
             $scope.readsUploaderPostValidation = true;
             $scope.taxonomyUploader = {};
@@ -141,18 +141,52 @@ angular.module('wevoteApp')
 
     .controller('ReadsUploaderController', ['$scope', 'fileUploaderFactory', function ($scope, fileUploaderFactory) {
         var datasetUploader = fileUploaderFactory.getFileUploader(
-            'upload/reads', 'Drop reads file here', 'External dataset uploader', false);
+            'upload/reads', 'Drop reads file here', 'External dataset uploader');
 
         $scope.readsUploader = datasetUploader;
         $scope.uploader = datasetUploader;
+
+        $scope.uploader.onSuccessItem = function (fileItem, response, status, headers) {
+            // console.info('onSuccessItem', fileItem, response, status, headers);
+            console.log('success', response, headers);
+            $scope.experiment.reads.uri =
+                JSON.parse(JSON.stringify(headers.filename));
+        };
+
+        $scope.uploader.onAfterAddingFile = function (fileItem) {
+            console.info('onAfterAddingFile', fileItem);
+            this.queue = [fileItem];
+
+            $scope.experiment.reads.name =
+                JSON.parse(JSON.stringify(fileItem.file.name));
+            $scope.experiment.reads.size =
+                JSON.parse(JSON.stringify(fileItem.file.size));
+        };
     }])
 
     .controller('TaxonomyUploaderController', ['$scope', 'fileUploaderFactory', function ($scope, fileUploaderFactory) {
         var taxonomyUploader = fileUploaderFactory.getFileUploader(
-            'uploaded/taxonomy', 'Drop taxonomy file here', 'Custom taxonomy uploader', false);
+            'uploaded/taxonomy', 'Drop taxonomy file here', 'Custom taxonomy uploader');
 
         $scope.taxonomyUploader = taxonomyUploader;
         $scope.uploader = taxonomyUploader;
+
+        $scope.uploader.onSuccessItem = function (fileItem, response, status, headers) {
+            // console.info('onSuccessItem', fileItem, response, status, headers);
+            console.log('success', response, headers);
+            $scope.experiment.taxonomy.uri =
+                JSON.parse(JSON.stringify(headers.filename));
+        };
+
+        $scope.uploader.onAfterAddingFile = function (fileItem) {
+            console.info('onAfterAddingFile', fileItem);
+            this.queue = [fileItem];
+
+            $scope.experiment.taxonomy.name =
+                JSON.parse(JSON.stringify(fileItem.file.name));
+            $scope.experiment.taxonomy.size =
+                JSON.parse(JSON.stringify(fileItem.file.size));
+        };
     }])
 
     .controller('HeaderController', ['$scope', function ($scope) {

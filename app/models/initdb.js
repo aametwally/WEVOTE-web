@@ -30,37 +30,36 @@ var initReads = function () {
     })
 };
 
-var clear = function () {
+
+var init = function () {
+
     Algorithm.remove({}, function (err) {
         if (err) throw err;
         console.log("Algorithm cleared");
+        //To initialize when the collection is empty
+        Algorithm.findOne({}, function (err, doc) {
+            if (!doc) {
+                //Collection is empty
+                //build fomr file
+                initAlgorithms();
+            }
+        });
     });
+
     Reads.remove({}, function (err) {
         if (err) throw err;
         console.log("Reads cleared");
-    });
-}
-var init = function () {
-    //To initialize when the collection is empty
-    Algorithm.findOne({}, function (err, doc) {
-        if (!doc) {
-            //Collection is empty
-            //build fomr file
-            initAlgorithms();
-        }
-    });
-
-    Reads.findOne({}, function (err, doc) {
-        if (!doc) {
-            //Collection is empty
-            //build fomr file
-            initReads();
-        }
+        Reads.findOne({}, function (err, doc) {
+            if (!doc) {
+                //Collection is empty
+                //build fomr file
+                initReads();
+            }
+        });
     });
 };
 
 module.exports = {
-    clear: clear,
     init: init,
     initAlgorithms: initAlgorithms,
     initReads: initReads

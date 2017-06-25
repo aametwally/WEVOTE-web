@@ -18,12 +18,12 @@ router.route('/')
             email: exp.email,
             description: exp.description,
             reads: {
-                name: "readsName",
+                name: exp.reads.name ,
                 description: "somDesc",
                 onServer: true,
-                uri: "somURI",
-                data: "somData",
-                size: 0
+                uri: exp.reads.uri ,
+                data: exp.reads.data ,
+                size: exp.reads.size 
             },
             taxonomy: {
                 name: "taxName",
