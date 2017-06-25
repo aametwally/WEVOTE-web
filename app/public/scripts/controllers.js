@@ -166,7 +166,7 @@ angular.module('wevoteApp')
 
     .controller('TaxonomyUploaderController', ['$scope', 'fileUploaderFactory', function ($scope, fileUploaderFactory) {
         var taxonomyUploader = fileUploaderFactory.getFileUploader(
-            'uploaded/taxonomy', 'Drop taxonomy file here', 'Custom taxonomy uploader');
+            'upload/taxonomy', 'Drop taxonomy file here', 'Custom taxonomy uploader');
 
         $scope.taxonomyUploader = taxonomyUploader;
         $scope.uploader = taxonomyUploader;

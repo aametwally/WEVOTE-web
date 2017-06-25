@@ -37,4 +37,16 @@ router.post('/reads', upload.single('file'), function (req, res) {
     console.log(res);
 })
 
+router.post('/taxonomy', upload.single('file'), function (req, res) {
+    console.log(req.file.filename); 
+    
+    /**
+     * For the moment, include the filename in the http header. 
+     * It is a bad practice. For some unknown reasons the response
+     * body is always received empty at client side.
+     */
+    res.setHeader("filename",req.file.filename);
+    res.status(204).end();
+    console.log(res);
+})
 module.exports = router

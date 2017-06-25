@@ -5,7 +5,7 @@ var Schema = mongoose.Schema;
 
 var algorithmSchema = new Schema({
     name: String , 
-    use: {
+    used: {
         type: Boolean,
         default: true
     }

@@ -28,8 +28,7 @@
                                             filters="queueLimit, customFilter">
                                         </div>
                                     </div>
-                                </div>
-                                <div class="well well-scrollable" ng-show="experiment.readsSource==='server'">
+                                    <div class="well well-scrollable" ng-show="experiment.readsSource==='server'">
                                     <ul class="pull-left list-inline">
                                         <li class=pull-left" ng-repeat="data in availableDatabase">
                                             <div class="checkbox">
@@ -42,6 +41,8 @@
                                         </li>
                                     </ul>
                                 </div>
+                                </div>
+                                
                             </div>
 
                             <div class="form-group" ng-class="{ 'has-error has-feedback': !inputForm.form.taxonomyOptionSelect.$pristine
@@ -78,7 +79,7 @@
                                         <div class="well">
                                             <div class="form-group"
                                                  ng-class="{ 'has-error has-feedback': noAlgorithmChosen}">
-                                                <strong>WEVOTE algorithms bucket <span class="badge">{{ (supportedAlgorithms | filter:'true').length }}</span></strong>
+                                                <strong>WEVOTE algorithms bucket <span class="badge">{{ (supportedAlgorithms | filter:{used:'true'}).length }}</span></strong>
                                                 <ul class="list-inline">
                                                     <li ng-repeat="algorithm in supportedAlgorithms">
                                                         <div class="checkbox">
