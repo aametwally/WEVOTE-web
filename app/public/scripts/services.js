@@ -14,7 +14,7 @@ angular
         var fileUploaderFactory = {};
 
         fileUploaderFactory.getFileUploader = function (url, label, description) {
-            
+
             var uploader = new FileUploader({
                 url: url
             });
@@ -35,7 +35,7 @@ angular
             uploader.onWhenAddingFileFailed = function (item /*{File|FileLikeObject}*/ , filter, options) {
                 console.info('onWhenAddingFileFailed', item, filter, options);
             };
-            
+
             uploader.onAfterAddingAll = function (addedFileItems) {
                 console.info('onAfterAddingAll', addedFileItems);
             };
@@ -48,7 +48,7 @@ angular
             uploader.onProgressAll = function (progress) {
                 console.info('onProgressAll', progress);
             };
-            
+
             uploader.onErrorItem = function (fileItem, response, status, headers) {
                 console.info('onErrorItem', fileItem, response, status, headers);
             };
@@ -103,6 +103,15 @@ angular
         experimentFac.submit = function (formdata) {
             return $resource(baseURL + "experiment").save({}, formdata);
         };
+
+        experimentFac.getExperiments = function () {
+            return $resource(baseURL + "experiment", null, {
+                'update': {
+                    method: 'PUT'
+                }
+            });
+        };
+
         return experimentFac;
     }])
 

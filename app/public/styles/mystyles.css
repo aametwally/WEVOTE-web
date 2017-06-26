@@ -121,6 +121,12 @@ html, body {
     padding: 20px 0px 0px 40px;
 }
 
+.table-scrollable {
+    padding: 0px 0px;
+    max-height: 800px;
+    overflow-y: scroll;
+}
+
 .well-scrollable {
     padding: 0px 0px;
     max-height: 100px;

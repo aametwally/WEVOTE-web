@@ -161,6 +161,10 @@ angular.module('wevoteApp')
                 JSON.parse(JSON.stringify(fileItem.file.name));
             $scope.experiment.reads.size =
                 JSON.parse(JSON.stringify(fileItem.file.size));
+
+            setTimeout(function () {
+                $("[data-toggle='tooltip']").tooltip();
+            }, 500);
         };
     }])
 
@@ -186,6 +190,10 @@ angular.module('wevoteApp')
                 JSON.parse(JSON.stringify(fileItem.file.name));
             $scope.experiment.taxonomy.size =
                 JSON.parse(JSON.stringify(fileItem.file.size));
+
+            setTimeout(function () {
+                $("[data-toggle='tooltip']").tooltip();
+            }, 500);
         };
     }])
 
@@ -193,6 +201,44 @@ angular.module('wevoteApp')
         $("#loginButton").click(function () {
             $("#loginModal").modal('toggle');
         });
+    }])
+
+    .controller('ExperimentController', ['$scope', 'experimentFactory', function ($scope, experimentFactory) {
+        $scope.experiments = {};
+        $scope.showExperiments = false;
+        $scope.experimentsError = false;
+        $scope.experimentsMessage = "Loading ...";
+
+        experimentFactory.getExperiments().query(
+            function (response) {
+                $scope.experiments = response;
+                $scope.showExperiments = true;
+                setTimeout(function () {
+                    $("[data-toggle='tooltip']").tooltip();
+
+                    $scope.experiments.forEach(function (exp) {
+                        $('#' + exp._id).popover({
+                            html: true,
+                            content: function () {
+                                return $('#data-' + exp._id).html();
+                            }
+                        });
+                        $('#' + exp._id).click(function (e) {
+                            // Special stuff to do when this link is clicked...
+
+                            // Cancel the default action
+                            e.preventDefault();
+                        });
+                    });
+
+                }, 1000);
+            },
+            function (response) {
+                $scope.experimentsError = true;
+                $scope.experimentsMessage = "Error: " + response.status + " " + response.statusText;
+            });
+
+
     }])
 
     .controller('InfoController', ['$scope', function ($scope) {
