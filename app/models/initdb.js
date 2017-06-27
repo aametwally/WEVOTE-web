@@ -1,6 +1,7 @@
 fs = require('fs');
 Algorithm = require('./algorithm');
 Reads = require('./reads');
+Experiment = require('./experiment');
 
 var initAlgorithms = function () {
     fs.readFile(__dirname + "/algorithm.json", 'utf8', function (err, data) {
@@ -30,7 +31,6 @@ var initReads = function () {
     })
 };
 
-
 var init = function () {
 
     Algorithm.remove({}, function (err) {
@@ -56,6 +56,11 @@ var init = function () {
                 initReads();
             }
         });
+    });
+
+    Experiment.remove({}, function(err){
+        if(err) throw err;
+        console.log("Experiments cleared");
     });
 };
 

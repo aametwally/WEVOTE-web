@@ -15,23 +15,23 @@ angular.module('wevoteApp')
             $scope.inputForm = {};
 
             var readsSources = [{
-                    value: "client",
-                    label: "Upload reads file"
-                },
-                {
-                    value: "server",
-                    label: "Use simulated reads from the server"
-                }
+                value: "client",
+                label: "Upload reads file"
+            },
+            {
+                value: "server",
+                label: "Use simulated reads from the server"
+            }
             ];
 
             var taxonomySources = [{
-                    value: "NCBI",
-                    label: "Use NCBI taxonomy database"
-                },
-                {
-                    value: "custom",
-                    label: "Upload custom taxonomy database"
-                }
+                value: "NCBI",
+                label: "Use NCBI taxonomy database"
+            },
+            {
+                value: "custom",
+                label: "Upload custom taxonomy database"
+            }
             ];
 
             $scope.readsSources = readsSources;
@@ -139,7 +139,7 @@ angular.module('wevoteApp')
         }
     ])
 
-    .controller('ReadsUploaderController', ['$scope', 'fileUploaderFactory',function ($scope, fileUploaderFactory) {
+    .controller('ReadsUploaderController', ['$scope', 'fileUploaderFactory', function ($scope, fileUploaderFactory) {
         var datasetUploader = fileUploaderFactory.getFileUploader(
             'upload/reads', 'Drop reads file here', 'External dataset uploader');
 
@@ -164,7 +164,9 @@ angular.module('wevoteApp')
                 JSON.parse(JSON.stringify(fileItem.file.size));
 
             setTimeout(function () {
-                $("[data-toggle='tooltip']").tooltip();
+                $("[data-toggle='tooltip']").tooltip({
+                    trigger: 'hover'
+                });
             }, 500);
         };
     }])
@@ -193,7 +195,9 @@ angular.module('wevoteApp')
                 JSON.parse(JSON.stringify(fileItem.file.size));
 
             setTimeout(function () {
-                $("[data-toggle='tooltip']").tooltip();
+                $("[data-toggle='tooltip']").tooltip({
+                    trigger: 'hover'
+                });
             }, 500);
         };
     }])
@@ -215,16 +219,36 @@ angular.module('wevoteApp')
                 $scope.experiments = response;
                 $scope.showExperiments = true;
                 setTimeout(function () {
-                    $("[data-toggle='tooltip']").tooltip();
+                    $("[data-toggle='tooltip']").tooltip({
+                        trigger: 'hover',
+                        placement: 'top'
+                    });
 
                     $scope.experiments.forEach(function (exp) {
                         $('#' + exp._id).popover({
                             html: true,
+                            trigger: "focus",
+                            placement: "bottom",
                             content: function () {
                                 return $('#data-' + exp._id).html();
                             }
                         });
                         $('#' + exp._id).click(function (e) {
+                            // Special stuff to do when this link is clicked...
+
+                            // Cancel the default action
+                            e.preventDefault();
+                        });
+
+                        $('#' +'desc-'+ exp._id).popover({
+                            html: true,
+                            trigger: "focus",
+                            placement: "bottom",
+                            content: function () {
+                                return $('#desc-data-' + exp._id).html();
+                            }
+                        });
+                        $('#' +'desc-'+ exp._id).click(function (e) {
                             // Special stuff to do when this link is clicked...
 
                             // Cancel the default action
@@ -251,4 +275,4 @@ angular.module('wevoteApp')
 
     }])
 
-;
+    ;
