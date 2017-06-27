@@ -139,7 +139,7 @@ angular.module('wevoteApp')
         }
     ])
 
-    .controller('ReadsUploaderController', ['$scope', 'fileUploaderFactory', function ($scope, fileUploaderFactory) {
+    .controller('ReadsUploaderController', ['$scope', 'fileUploaderFactory',function ($scope, fileUploaderFactory) {
         var datasetUploader = fileUploaderFactory.getFileUploader(
             'upload/reads', 'Drop reads file here', 'External dataset uploader');
 
@@ -155,6 +155,7 @@ angular.module('wevoteApp')
 
         $scope.uploader.onAfterAddingFile = function (fileItem) {
             console.info('onAfterAddingFile', fileItem);
+
             this.queue = [fileItem];
 
             $scope.experiment.reads.name =
