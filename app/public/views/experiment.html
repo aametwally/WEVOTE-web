@@ -13,7 +13,7 @@
                             <tr>
                                 <th>User</th>
                                 <th>Configurations</th>
-                                <th>Size</th>
+                                <th>#Reads</th>
                                 <th>Progress</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -31,6 +31,16 @@
                                     </ul>
                                     </div>
 
+                                    <a ng-attr-id="{{'param-'+exp._id}}" class="btn btn-default btn-xs" 
+                                        data-toggle="tooltip" title="Parameters" href='#'><span class="fa fa-cog"></span></a>
+                                    <div ng-attr-id="{{'param-data-'+exp._id}}" style="display: none">
+                                    <ul class="list-group">
+                                        <li class="list-group-item">Minimum Score = {{exp.config.minScore}}</li>
+                                        <li class="list-group-item">Min Number Agreed = {{exp.config.minNumAgreed}} </li>
+                                        <li class="list-group-item">Penalty = {{exp.config.penalty}}</li>
+                                    </ul>
+                                    </div> 
+
                                     <a ng-attr-id="{{'desc-'+exp._id}}" class="btn btn-default btn-xs" 
                                         data-toggle="tooltip" title="Description" href='#'><span class="glyphicon glyphicon-info-sign"></span></a>
                                     <div ng-attr-id="{{'desc-data-'+exp._id}}" style="display: none">
@@ -38,7 +48,7 @@
                                     </div>        
 
                                     </td>
-                                <td nowrap>{{ exp.reads.size/1024/1024|number:2 }} MB</td>
+                                <td nowrap>{{exp.reads.count | shortNumber}} bp</td>
                                 <td>
                                     <div class="progress" style="margin-bottom: 0;">
                                         <div class="progress-bar" role="progressbar" ng-style="{ 'width': exp.status.progress + '%' }"></div>

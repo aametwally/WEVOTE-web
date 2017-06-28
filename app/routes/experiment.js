@@ -23,7 +23,8 @@ router.route('/')
                 onServer: true,
                 uri: exp.reads.uri ,
                 data: exp.reads.data ,
-                size: exp.reads.size 
+                size: exp.reads.size , 
+                count: exp.reads.count
             },
             taxonomy: {
                 name: "taxName",

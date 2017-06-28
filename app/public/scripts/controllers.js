@@ -51,7 +51,8 @@ angular.module('wevoteApp')
                     onServer: true,
                     uri: "",
                     data: "",
-                    size: ""
+                    size: "",
+                    count: 0 
                 },
                 taxonomy: {
                     name: "",
@@ -151,6 +152,9 @@ angular.module('wevoteApp')
             console.log('success', response, headers);
             $scope.experiment.reads.uri =
                 JSON.parse(JSON.stringify(headers.filename));
+            $scope.experiment.reads.count =
+                parseInt(headers.readscount, 10);
+
         };
 
         $scope.uploader.onAfterAddingFile = function (fileItem) {
@@ -240,7 +244,7 @@ angular.module('wevoteApp')
                             e.preventDefault();
                         });
 
-                        $('#' +'desc-'+ exp._id).popover({
+                        $('#' + 'desc-' + exp._id).popover({
                             html: true,
                             trigger: "focus",
                             placement: "bottom",
@@ -248,7 +252,22 @@ angular.module('wevoteApp')
                                 return $('#desc-data-' + exp._id).html();
                             }
                         });
-                        $('#' +'desc-'+ exp._id).click(function (e) {
+                        $('#' + 'desc-' + exp._id).click(function (e) {
+                            // Special stuff to do when this link is clicked...
+
+                            // Cancel the default action
+                            e.preventDefault();
+                        });
+
+                        $('#' + 'param-' + exp._id).popover({
+                            html: true,
+                            trigger: "focus",
+                            placement: "bottom",
+                            content: function () {
+                                return $('#param-data-' + exp._id).html();
+                            }
+                        });
+                        $('#' + 'param-' + exp._id).click(function (e) {
                             // Special stuff to do when this link is clicked...
 
                             // Cancel the default action

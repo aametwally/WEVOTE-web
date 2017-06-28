@@ -21,7 +21,8 @@ var readsSchema = new Schema({
         type: String,
         default:""
     } , 
-    size: Number
+    size: Number ,
+    count: Number
 });
 
 
