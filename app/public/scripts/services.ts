@@ -1,6 +1,7 @@
 /**
  * Created by asem on 06/06/17.
  */
+"use strict";
 module wevote
 {
     export class FileUploaderFactory {

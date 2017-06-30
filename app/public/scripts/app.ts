@@ -1,4 +1,5 @@
 module wevote {
+    "use strict";
     export let wevoteApp =
         angular.module('wevote', ['ui.router', 'ngResource', 'angularFileUpload'])
             .config(['$stateProvider', '$urlRouterProvider',

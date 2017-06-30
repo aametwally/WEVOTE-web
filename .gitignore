@@ -3,5 +3,6 @@ node_modules/**/*
 bower_components/**/*
 app/dist/**/*
 app/uploads/**/*
-app/public/scripts/wevote.js
+app/public/scripts/**/*.js
 app/public/scripts/maps/*
+app/build/**
