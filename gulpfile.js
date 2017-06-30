@@ -1,7 +1,9 @@
 /**
  * Created by asem on 06/06/17.
  */
+'use strict';
 var gulp = require('gulp'),
+    gutil = require('gulp-util'),
     minifycss = require('gulp-minify-css'),
     jshint = require('gulp-jshint'),
     stylish = require('jshint-stylish'),
@@ -16,7 +18,14 @@ var gulp = require('gulp'),
     rev = require('gulp-rev'),
     browserSync = require('browser-sync'),
     ngannotate = require('gulp-ng-annotate'),
-    del = require('del');
+    del = require('del'),
+    tsc = require('gulp-typescript'),
+    tsClientProject = tsc.createProject('app/public/tsconfig.json', {
+        noImplicitAny: true,
+        allowJs: true
+    }),
+    sourcemaps = require('gulp-sourcemaps')
+;
 
 
 gulp.task('jshint', function () {
@@ -25,14 +34,35 @@ gulp.task('jshint', function () {
         .pipe(jshint.reporter(stylish));
 });
 
-gulp.task('usemin', ['jshint'], function () {
+
+gulp.task('usemin', ['ts', 'cpmaps' ,'jshint'], function () {
     return gulp.src('./app/public/**/*.html')
         .pipe(usemin({
             css: [minifycss(), rev()],
-            js: [ngannotate(),uglify(), rev()]
+            js: [
+                // ngannotate(),
+                // uglify().on('error', function(err) {gutil.log(gutil.colors.red('[Error]'), err.toString());this.emit('end');}),
+                rev()]
         }))
-        .pipe(gulp.dest('app/dist/'));
+        .pipe(gulp.dest('app/dist'));
 });
+
+gulp.task('ts', function () {
+    var tsResults =
+        gulp.src('app/public/scripts/**.ts')
+            .pipe(sourcemaps.init())
+            .pipe(tsClientProject());
+
+    return  tsResults.js
+        .pipe(sourcemaps.write("maps/"))
+        .pipe(gulp.dest('app/public/scripts/'));
+});
+
+gulp.task('cpmaps',['ts'],function(){
+    return gulp.src('app/public/scripts/maps/*.map')
+        .pipe(gulp.dest('app/dist/scripts/maps'));
+});
+
 
 // Images
 gulp.task('imagemin', function () {
@@ -42,20 +72,19 @@ gulp.task('imagemin', function () {
         .pipe(notify({message: 'Images task complete'}));
 });
 
-gulp.task('copyfonts', ['clean'], function () {
+gulp.task('copyfonts', function () {
     gulp.src('./bower_components/font-awesome/fonts/**/*.{ttf,woff,eof,svg}*')
         .pipe(gulp.dest('./app/dist/fonts'));
     gulp.src('./bower_components/bootstrap/dist/fonts/**/*.{ttf,woff,eof,svg}*')
         .pipe(gulp.dest('./app/dist/fonts'));
 });
 
-gulp.task('clean', function () {
-    return del['app/dist'];
+gulp.task('clean', function (cb) {
+    return del(['./app/dist/'],cb);
 });
 
-
 gulp.task('default', ['clean'], function () {
-    gulp.start('usemin', 'imagemin', 'copyfonts');
+    gulp.start('ts', 'usemin', 'imagemin', 'copyfonts');
 });
 
 
@@ -74,14 +103,15 @@ gulp.task('browser-sync', ['default'], function () {
         'app/public/styles/**/*.css',
         'app/public/images/**/*.png',
         'app/public/scripts/**/*.js',
-        'app/dist/**/*'
+        'app/public/scripts/**/*.ts',
+        'app/dist/**/*',
     ];
 
     browserSync.init(files, {
         server: {
-            baseDir: "app/dist",
-            index: "index.html"
-        }
+            baseDir: 'app/dist',
+            index: 'index.html',
+        },
     });
     // Watch any files in app/dist/, reload on change
     gulp.watch(['app/dist/**']).on('change', browserSync.reload);

@@ -13,7 +13,7 @@
                             <div class="form-group" ng-class="{'has-error has-feedback':
                                 !inputForm.form.readsOptionSelect.$pristine &&
                                 experiment.readsSource==='client' &&
-                                !readsUploader.atLeastSingleFileUploaded &&
+                                !uploader.atLeastSingleFileUploaded &&
                                 readsUploaderPostValidation }">
                                 <label><h4><strong>Upload or use simulated reads from the server.</strong></h4>
                                     <select class="form-control" ng-model="experiment.readsSource"

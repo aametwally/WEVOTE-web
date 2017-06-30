@@ -38,12 +38,21 @@
     "gulp-notify": "^3.0.0",
     "gulp-rename": "^1.2.2",
     "gulp-rev": "^7.1.2",
+    "gulp-sourcemaps": "^2.6.0",
+    "gulp-typescript": "^3.1.7",
     "gulp-uglify": "^3.0.0",
     "gulp-usemin": "^0.3.28",
+    "gulp-util": "^3.0.8",
     "jshint": "^2.9.4",
-    "jshint-stylish": "^2.2.1"
+    "jshint-stylish": "^2.2.1",
+    "typescript": "^2.4.1"
   },
   "dependencies": {
+    "@types/angular": "^1.6.25",
+    "@types/angular-resource": "^1.5.9",
+    "@types/angular-ui-router": "^1.1.37",
+    "@types/bootstrap": "^3.3.34",
+    "@types/jquery": "^3.2.5",
     "assert": "^1.4.1",
     "body-parser": "~1.17.1",
     "cookie-parser": "~1.4.3",

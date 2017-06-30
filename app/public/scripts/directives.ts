@@ -1,7 +1,6 @@
-// /**
-//  * Created by warsha on 08/06/2017.
-//  */
-// 'use strict';
+/**
+ * Created by warsha on 08/06/2017.
+ */
 // angular.module('wevoteApp')
 //     .directive('tooltip', function () {
 //         return {
