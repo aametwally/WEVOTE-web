@@ -7,7 +7,10 @@ export class ReadsRouter extends BaseRoute {
         super();
         this._router.route('/')
             .get((req: Request, res: Response, next: NextFunction) => {
-                res.json(this.findAllReads());
+                ReadsModel.repo.retrieve( function (err: any, reads: any) {
+                    if (err) throw err;
+                    res.json(reads);
+                });
             })
             .post((req: Request, res: Response, next: NextFunction) => {
                 this.createReads(req.body,
@@ -17,13 +20,6 @@ export class ReadsRouter extends BaseRoute {
                     });
             });
     }
-
-    private findAllReads = (): any => {
-        ReadsModel.repo.retrieve( function (err: any, reads: any) {
-            if (err) throw err;
-            return reads;
-        });
-    };
 
     private createReads = (data: any, cb?: any): any => {
         ReadsModel.repo.create(data, function (err: any, reads: any) {
