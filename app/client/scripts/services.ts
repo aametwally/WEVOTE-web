@@ -142,7 +142,7 @@ module wevote
     }
 
     wevoteApp
-        .constant("baseURL", "http://localhost:3000/")
+        .constant("baseURL", "http://localhost:3001/")
         .factory('FileUploaderService', FileUploaderFactory.factory())
         .factory('SimulatedReadsService', SimulatedReadsFactory.factory())
         .factory('AlgorithmsService', AlgorithmsFactory.factory())

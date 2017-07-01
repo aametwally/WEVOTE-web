@@ -20,23 +20,20 @@ var gulp = require('gulp'),
     ngannotate = require('gulp-ng-annotate'),
     del = require('del'),
     tsc = require('gulp-typescript'),
-    tsClientProject = tsc.createProject('app/public/tsconfig.json', {
-        noImplicitAny: true,
-        allowJs: true
-    }),
+    tsClientProject = tsc.createProject('tsconfig.json'),
     sourcemaps = require('gulp-sourcemaps')
 ;
 
 
 gulp.task('jshint', function () {
-    return gulp.src('app/public/scripts/**.js')
+    return gulp.src('scripts/**.js')
         .pipe(jshint())
         .pipe(jshint.reporter(stylish));
 });
 
 
-gulp.task('usemin', ['ts', 'cpmaps' ,'jshint'], function () {
-    return gulp.src('./app/public/**/*.html')
+gulp.task('usemin', ['ts', 'jshint'], function () {
+    return gulp.src('**/*.html')
         .pipe(usemin({
             css: [minifycss(), rev()],
             js: [
@@ -44,75 +41,64 @@ gulp.task('usemin', ['ts', 'cpmaps' ,'jshint'], function () {
                 // uglify().on('error', function(err) {gutil.log(gutil.colors.red('[Error]'), err.toString());this.emit('end');}),
                 rev()]
         }))
-        .pipe(gulp.dest('app/dist'));
+        .pipe(gulp.dest('../build/public'));
 });
 
 gulp.task('ts', function () {
-    var tsResults =
-        gulp.src('app/public/scripts/**.ts')
-            .pipe(sourcemaps.init())
-            .pipe(tsClientProject());
-
-    return  tsResults.js
-        .pipe(sourcemaps.write("maps/"))
-        .pipe(gulp.dest('app/public/scripts/'));
-});
-
-gulp.task('cpmaps',['ts'],function(){
-    return gulp.src('app/public/scripts/maps/*.map')
-        .pipe(gulp.dest('app/dist/scripts/maps'));
+    return tsClientProject.src()
+        .pipe(tsClientProject())
+        .js.pipe(gulp.dest("../build/public"));
 });
 
 
 // Images
 gulp.task('imagemin', function () {
-    return del(['app/dist/images']), gulp.src('app/public/images/**/*')
+    return del(['../build/public/images']), gulp.src('images/**/*')
         .pipe(cache(imagemin({optimizationLevel: 3, progressive: true, interlaced: true})))
-        .pipe(gulp.dest('app/dist/images'))
+        .pipe(gulp.dest('../build/public/images'))
         .pipe(notify({message: 'Images task complete'}));
 });
 
 gulp.task('copyfonts', function () {
-    gulp.src('./bower_components/font-awesome/fonts/**/*.{ttf,woff,eof,svg}*')
-        .pipe(gulp.dest('./app/dist/fonts'));
-    gulp.src('./bower_components/bootstrap/dist/fonts/**/*.{ttf,woff,eof,svg}*')
-        .pipe(gulp.dest('./app/dist/fonts'));
+    return gulp.src('../../bower_components/font-awesome/fonts/**/*.{ttf,woff,eof,svg}*')
+        .pipe(gulp.dest('../build/public/fonts')),
+        gulp.src('../../bower_components/bootstrap/dist/fonts/**/*.{ttf,woff,eof,svg}*')
+            .pipe(gulp.dest('../build/public/fonts'));
 });
 
 gulp.task('clean', function (cb) {
-    return del(['./app/dist/'],cb);
+    return del(['../build/public'],{force:true},cb)
 });
 
 gulp.task('default', ['clean'], function () {
     gulp.start('ts', 'usemin', 'imagemin', 'copyfonts');
 });
 
-
 // Watch
 gulp.task('watch', ['browser-sync'], function () {
     // Watch .js files
-    gulp.watch('{app/public/scripts/**/*.js,app/public/styles/**/*.css,app/public/**/*.html}', ['usemin']);
+    gulp.watch('{scripts/**/*.js,styles/**/*.css,**/*.html}', ['usemin']);
     // Watch image files
-    gulp.watch('app/public/images/**/*', ['imagemin']);
+    gulp.watch('images/**/*', ['imagemin']);
 
 });
 
 gulp.task('browser-sync', ['default'], function () {
     var files = [
-        'app/public/**/*.html',
-        'app/public/styles/**/*.css',
-        'app/public/images/**/*.png',
-        'app/public/scripts/**/*.js',
-        'app/public/scripts/**/*.ts',
-        'app/dist/**/*',
+        '**/*.html',
+        'styles/**/*.css',
+        'images/**/*.png',
+        'scripts/**/*.js',
+        'scripts/**/*.ts',
+        '../build/public/**/*',
     ];
 
     browserSync.init(files, {
         server: {
-            baseDir: 'app/dist',
-            index: 'index.html',
-        },
+            baseDir: '../build/public',
+            index: 'index.html'
+        }
     });
     // Watch any files in app/dist/, reload on change
-    gulp.watch(['app/dist/**']).on('change', browserSync.reload);
+    gulp.watch(['../build/public/**']).on('change', browserSync.reload);
 });

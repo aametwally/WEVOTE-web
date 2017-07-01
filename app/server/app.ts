@@ -18,8 +18,10 @@ import {init} from './models/initdb';
 export class Server {
     private _app: Express.Application;
 
-    public static bootstrap(): Server {
-        return new Server();
+     public static bootstrap( port: any ): Express.Application {
+        let server = new Server();
+        server._app.set('port', port);
+        return server._app;
     }
 
     constructor() {
@@ -30,7 +32,7 @@ export class Server {
         this.api();
     }
 
-    public api() {
+    private api() {
 
     }
 
@@ -45,7 +47,7 @@ export class Server {
         init();
     }
 
-    public middleware() {
+    private middleware() {
 
         // // view engine setup
         this._app.set('views', path.join(__dirname, 'views'));
@@ -58,10 +60,10 @@ export class Server {
         this._app.use(bodyParser.urlencoded({extended: false}));
         this._app.use(cookieParser());
         this._app.use(Express.static(path.join(__dirname, 'dist')));
-
     }
 
-    public routes() {
+    private routes() {
+        this._app.use(Express.static(path.join(__dirname, 'public')));
         this._app.use('/reads', ReadsRouter.router());
         this._app.use('/algorithm', AlgorithmRouter.router());
         this._app.use('/experiment', ExperimentRouter.router());

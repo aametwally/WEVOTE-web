@@ -1,8 +1,8 @@
 {
   "preset": "airbnb",
   "excludeFiles": [
-    "./gulpfile.js",
-    "./app/public/scripts/wevote.js",
-    "./app/app.js"
+    "./app/client/gulpfile.js",
+    "./app/server/gulpfile.js",
+    "./app/gulpfile.js"
   ]
 }
