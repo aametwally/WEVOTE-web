@@ -23,7 +23,7 @@ gulp.task('clean', function (cb) {
 });
 
 gulp.task('copy', function(){
-    gulp.src('models/*.json')
+    gulp.src('models/*.{json,csv}*')
         .pipe(gulp.dest('../build/models'));
 });
 

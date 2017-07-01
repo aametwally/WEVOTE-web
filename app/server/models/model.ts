@@ -65,3 +65,4 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
         return mongoose.Types.ObjectId.createFromHexString(_id);
     }
 }
+

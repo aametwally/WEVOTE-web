@@ -12,6 +12,7 @@ import  {UploadRouter} from './routes/upload';
 import  {AlgorithmRouter} from './routes/algorithm';
 import  {TaxonomyRouter} from './routes/taxonomy';
 import  {ExperimentRouter} from './routes/experiment';
+import  {TaxonomyAbundanceProfileRouter} from './routes/taxprofile';
 import {init} from './models/initdb';
 
 
@@ -69,6 +70,8 @@ export class Server {
         this._app.use('/experiment', ExperimentRouter.router());
         this._app.use('/taxonomy', TaxonomyRouter.router());
         this._app.use('/upload', UploadRouter.router());
+        this._app.use('/taxprofile',TaxonomyAbundanceProfileRouter.router());
+
         // catch 404 and forward to error handler
         this._app.use(function (err: any, req: Express.Request, res: Express.Response, next: Express.NextFunction) {
             err.status = 404;
