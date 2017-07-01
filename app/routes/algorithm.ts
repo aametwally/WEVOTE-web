@@ -1,18 +1,8 @@
-var express = require('express'),
-      bodyParser = require('body-parser'),
-      mongoose = require('mongoose');
+import {AlgorithmModel} from '../models/algorithm';
+import {BaseRoute} from "./route";
+import {Request, Response, NextFunction} from 'express';
+import construct = Reflect.construct;
 
-var Algorithm = require('../models/algorithm');
-
-var router = express.Router();
-router.use(bodyParser.json());
-router.route('/')
-      .get(function (req, res, next) {
-            Algorithm.find({},function(err,algorithms){
-                  if(err) throw err;
-                  res.json( algorithms );
-            });
-      });
 
 // router.route('/:algId')
 // .all(function(req,res,next) {
@@ -24,4 +14,20 @@ router.route('/')
 //         res.end('Will send details of the algorithm: ' + req.params.algId +' to you!');
 // });
 
-module.exports = router;
+export class AlgorithmRouter extends BaseRoute {
+    constructor() {
+        super();
+        this._router.route('/')
+            .get(function (req: Request, res: Response, next: NextFunction) {
+                AlgorithmModel.repo.retrieve( function (err: any, algorithms: any) {
+                    if (err) throw err;
+                    res.json(algorithms);
+                });
+            });
+    }
+
+    public static router() {
+        let _ = new AlgorithmRouter();
+        return _._router;
+    }
+}

@@ -1,29 +1,42 @@
-var express = require('express'),
-      bodyParser = require('body-parser'),
-      mongoose = require('mongoose');
+import {BaseRoute} from "./route";
+import {Request, Response, NextFunction} from 'express';
+import {TaxonomyModel} from '../models/taxonomy';
 
-var Taxonomy = require('../models/taxonomy');
-
-var router = express.Router();
-router.use(bodyParser.json());
-router.route('/')
-      .get(function (req, res, next) {
-            Taxonomy.find({},function(err,taxonomies){
-                  if(err) throw err;
-                  res.json( taxonomies );
+export class TaxonomyRouter extends BaseRoute {
+    constructor() {
+        super();
+        this._router.route('/')
+            .get((req: Request, res: Response, next: NextFunction) => {
+                res.json(this.findAllTaxonomy());
+            })
+            .post((req: Request, res: Response, next: NextFunction) => {
+                this.createTaxonomy(req.body,
+                    function () {
+                        res.writeHead(200, {'Content-Type': 'text/plain'});
+                        res.end();
+                    });
             });
-      })
+    }
 
-      .post(function(req,res,next){
-            Taxonomy.create(req.body, function(err,taxonomy){
-                  if(err) throw err;
-                  console.log( "taxonomy posted!");
-                  var id = taxonomy._id;
-                  res.writeHead(200,{'Content-Type':'text/plain'});
-                  res.end('Added the taxonomy id: ' + id );
-            });
-      })
-      
-;
+    private findAllTaxonomy = (): any => {
+        TaxonomyModel.repo.retrieve( function (err: any, taxonomies: any) {
+            if (err) throw err;
+            return taxonomies;
+        });
+    }
 
-module.exports = router;
+    private createTaxonomy = (data: any, cb?: any): any => {
+        TaxonomyModel.repo.create( data, function (err: any, taxonomy: any) {
+            if (err) throw err;
+            var id = taxonomy._id;
+            console.log("taxonomy posted!:" + id);
+            if (cb) cb();
+        });
+    }
+
+    static router()
+    {
+        let _ = new TaxonomyRouter();
+        return _._router;
+    }
+}

@@ -1,34 +1,40 @@
-// grab the things we need
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+import * as Defs from './model';
+import * as mongoose from 'mongoose';
 
-
-var readsSchema = new Schema({
-    name: String , 
-    description: {
-        type: String,
-        default:""
-    }, 
-    onServer: {
-        type: Boolean , 
-        default: true
-    } ,
-    uri: {
-        type: String,
-        default:""
-    },
-    data: {
-        type: String,
-        default:""
-    } , 
+export interface IReadsModel extends mongoose.Document {
+    name: String ,
+    description: String,
+    onServer: Boolean
+    uri: String
+    data: String
     size: Number ,
     count: Number
-});
+}
 
+export class ReadsModel
+{
+    public static schema = new Defs.Schema({
+        name: String ,
+        description: {
+            type: String,
+            default:""
+        },
+        onServer: {
+            type: Boolean ,
+            default: true
+        } ,
+        uri: {
+            type: String,
+            default:""
+        },
+        data: {
+            type: String,
+            default:""
+        } ,
+        size: Number ,
+        count: Number
+    });
 
-// the schema is useless so far
-// we need to create a model using it
-var Reads = mongoose.model('Reads', readsSchema );
-
-// make this available to our Node applications
-module.exports = Reads;
+    private static _model = mongoose.model<IReadsModel>('Reads', ReadsModel.schema );
+    public static repo = new Defs.RepositoryBase<IReadsModel>( ReadsModel._model );
+}

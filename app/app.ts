@@ -1,4 +1,4 @@
-import * as express from 'express';
+import * as Express from 'express';
 import * as path from 'path';
 import * as logger from 'morgan';
 import * as cookieParser from 'cookie-parser';
@@ -7,16 +7,25 @@ import * as mongoose from 'mongoose';
 import errorHandler = require("errorhandler");
 
 
+import  {ReadsRouter} from './routes/reads';
+import  {UploadRouter} from './routes/upload';
+import  {AlgorithmRouter} from './routes/algorithm';
+import  {TaxonomyRouter} from './routes/taxonomy';
+import  {ExperimentRouter} from './routes/experiment';
+import {init} from './models/initdb';
+
+
 export class Server {
-    public app: Express.Application;
+    private _app: Express.Application;
 
     public static bootstrap(): Server {
         return new Server();
     }
 
     constructor() {
-        this.app = express();
-        this.config();
+        this.db();
+        this._app = Express();
+        this.middleware();
         this.routes();
         this.api();
     }
@@ -25,59 +34,46 @@ export class Server {
 
     }
 
-    public config() {
+    private db() {
+        var url = 'mongodb://localhost:27017/wevote';
+        mongoose.connect(url);
+        var db = mongoose.connection;
+        db.on('error', console.error.bind(console, 'connection error:'));
+        db.once('open', function () {
+            console.log("Connected correctly to the server.");
+        });
+        init();
+    }
+
+    public middleware() {
+
         // // view engine setup
-        app.set('views', path.join(__dirname, 'views'));
-        app.set('view engine', 'jade');
+        this._app.set('views', path.join(__dirname, 'views'));
+        this._app.set('view engine', 'jade');
 
         // uncomment after placing your favicon in /public
         //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-        app.use(logger('dev'));
-        app.use(bodyParser.json());
-        app.use(bodyParser.urlencoded({extended: false}));
-        app.use(cookieParser());
-        app.use(express.static(path.join(__dirname, 'dist')));
+        this._app.use(logger('dev'));
+        this._app.use(bodyParser.json());
+        this._app.use(bodyParser.urlencoded({extended: false}));
+        this._app.use(cookieParser());
+        this._app.use(Express.static(path.join(__dirname, 'dist')));
+
     }
 
     public routes() {
+        this._app.use('/reads', ReadsRouter.router());
+        this._app.use('/algorithm', AlgorithmRouter.router());
+        this._app.use('/experiment', ExperimentRouter.router());
+        this._app.use('/taxonomy', TaxonomyRouter.router());
+        this._app.use('/upload', UploadRouter.router());
+        // catch 404 and forward to error handler
+        this._app.use(function (err: any, req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+            err.status = 404;
+            next(err);
+        });
 
+        // error handler
+        this._app.use(errorHandler());
     }
 }
-
-
-var url = 'mongodb://localhost:27017/wevote';
-mongoose.connect(url);
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function () {
-    console.log("Connected correctly to the server.");
-});
-
-
-var reads = require('./routes/reads');
-var taxonomy = require('./routes/taxonomy');
-var algorithm = require('./routes/algorithm');
-var experiment = require('./routes/experiment');
-var upload = require('./routes/upload');
-var initializeDB = require('./models/initdb')
-
-initializeDB.init();
-var app = express();
-
-
-app.use('/reads', reads);
-app.use('/algorithm', algorithm);
-app.use('/experiment', experiment);
-app.use('/taxonomy', taxonomy);
-app.use('/upload', upload);
-
-// catch 404 and forward to error handler
-app.use(function (err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
-    err.status = 404;
-    next(err);
-});
-
-// error handler
-app.use(errorHandler());
-
-module.exports = app;

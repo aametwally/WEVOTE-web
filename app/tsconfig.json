@@ -17,7 +17,6 @@
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "removeComments": true,
     /* Specify module code generation: 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
     //"lib": [],
     /* Specify library files to be included in the compilation:  */
@@ -63,7 +62,9 @@
       "body-parser",
       "cookie-parser",
       "morgan",
+      "mongodb",
       "mongoose",
+      "multer",
       "errorhandler"
     ]
     /* Type declaration files to be included in compilation. */

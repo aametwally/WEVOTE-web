@@ -1,15 +1,41 @@
 // grab the things we need
-var mongoose = require('mongoose'),
-    Algorithm = require('./algorithm'),
-    Reads = require('./reads'),
-    Taxonomy = require('./taxonomy');
+import {AlgorithmModel,IAlgorithmModel} from './algorithm';
+import {ReadsModel,IReadsModel} from './reads';
+import {TaxonomyModel,ITaxonomyModel} from './taxonomy';
+import * as Defs from './model';
+import * as mongoose from 'mongoose';
 
-var Schema = mongoose.Schema;
+
+export interface IStatus extends mongoose.Document {
+    started: Boolean,
+    progress: Number
+}
 
 
-var configSchema = new Schema({
+export interface IConfig extends mongoose.Document {
+    algorithms: mongoose.Types.DocumentArray<IAlgorithmModel>,
+    minNumAgreed: Number,
+    minScore: Number,
+    penalty: Number
+}
+
+export interface IExperimentModel extends mongoose.Document {
+    user: String,
+    isPrivate: Boolean,
+    email: String,
+    description: String,
+    reads: IReadsModel,
+    taxonomy: ITaxonomyModel,
+    config: IConfig,
+    status: IStatus
+    createdAt: Date;
+    modifiedAt: Date;
+}
+
+
+let configSchema = new Defs.Schema({
     algorithms: {
-        type: [Algorithm.schema],
+        type: [AlgorithmModel.schema],
         required: true
     },
     minNumAgreed: {
@@ -28,51 +54,47 @@ var configSchema = new Schema({
     }
 });
 
-var statusSchema = new Schema({
+let statusSchema = new Defs.Schema({
     started: Boolean,
     progress: {
         type: Number,
         min: 0,
         max: 100,
-        default:0 
+        default:0
     }
 });
 
-
-var experimentSchema = new Schema({
-    user: {
-        type: String,
-        required: true,
-        default: "public"
-    },
-    private: {
-        type: Boolean,
-        default: false
-    },
-    email: {
-        type: String
-    },
-    description: {
-        type: String
-    },
-    reads: {
-        type: Reads.schema,
-        required: true
-    },
-    taxonomy: {
-        type: Taxonomy.schema,
-        required: true
-    },
-    config: configSchema,
-    status: statusSchema
-}, {
-    timestamps: true
-});
-
-
-// the schema is useless so far
-// we need to create a model using it
-var Experiment = mongoose.model('Experiment', experimentSchema);
-
-// make this available to our Node applications
-module.exports = Experiment;
+export class ExperimentModel
+{
+    public static schema = new Defs.Schema({
+        user: {
+            type: String,
+            required: true,
+            default: "public"
+        },
+        isPrivate: {
+            type: Boolean,
+            default: false
+        },
+        email: {
+            type: String
+        },
+        description: {
+            type: String
+        },
+        reads: {
+            type: ReadsModel.schema,
+            required: true
+        },
+        taxonomy: {
+            type: TaxonomyModel.schema,
+            required: true
+        },
+        config: configSchema,
+        status: statusSchema
+    }, {
+        timestamps: true
+    });
+    private static _model = mongoose.model<IExperimentModel>('Experiment', ExperimentModel.schema );
+    public static repo = new Defs.RepositoryBase<IExperimentModel>( ExperimentModel._model );
+}
