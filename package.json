@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "description": "Taxonomic classification method of the metagenomic DNA reads",
-  "main": "app/app.js",
+  "main": "app/app.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./app/bin/www",
