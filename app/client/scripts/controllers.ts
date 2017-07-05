@@ -134,7 +134,7 @@ module wevote {
             }
         }
 
-        constructor($scope: any, private SimulatedReadsService: any,
+        constructor($scope: ng.IScope, private SimulatedReadsService: any,
                     private AlgorithmsService: any, private ExperimentService: any) {
             this._scope = $scope;
             this._scope.inputForm = {};
@@ -190,9 +190,9 @@ module wevote {
     }
 
     export class ReadsUploaderController extends UploaderController {
-        static readonly $inject =['$scope', 'FileUploaderService',ReadsUploaderController];
+        static readonly $inject = ['$scope', 'FileUploaderService', ReadsUploaderController];
 
-        constructor($scope: any, FileUploaderService: any) {
+        constructor($scope: ng.IScope, FileUploaderService: any) {
             super($scope, FileUploaderService);
             this._uploader = FileUploaderService.getFileUploader(
                 'upload/reads', 'Drop reads file here', 'External dataset uploader');
@@ -229,9 +229,9 @@ module wevote {
     }
 
     export class TaxonomyUploaderController extends UploaderController {
-        static readonly $inject  = ['$scope', 'FileUploaderService',TaxonomyUploaderController];
+        static readonly $inject = ['$scope', 'FileUploaderService', TaxonomyUploaderController];
 
-        constructor($scope: any, FileUploaderService: any) {
+        constructor($scope: ng.IScope, FileUploaderService: any) {
             super($scope, FileUploaderService)
             this._uploader = FileUploaderService.getFileUploader(
                 'upload/taxonomy', 'Drop taxonomy file here', 'Custom taxonomy uploader');
@@ -264,6 +264,21 @@ module wevote {
         };
     }
 
+    export class ResultsController {
+        static readonly $inject = ['$scope', ResultsController];
+        private _scope: ng.IScope;
+
+        constructor($scope: ng.IScope) {
+            this._scope = $scope;
+            $("#phyltree-a").click(function (e) {
+                e.preventDefault();
+            });
+            $("#phyltable-a").click(function (e) {
+                e.preventDefault();
+            });
+        }
+    }
+
 
     export class HeaderController {
         static readonly $inject = ['$scope', HeaderController];
@@ -278,7 +293,7 @@ module wevote {
     }
 
     export class ExperimentController {
-        static readonly $inject = ['$scope', 'ExperimentService',ExperimentController];
+        static readonly $inject = ['$scope', 'ExperimentService', ExperimentController];
         private _scope: ng.IScope;
 
         constructor($scope: ng.IScope, private ExperimentService: any) {
@@ -356,6 +371,7 @@ module wevote {
 
     }
 
+
     wevoteApp
         .controller('MainController', MainController.$inject)
         .controller('InputController', InputController.$inject)
@@ -363,4 +379,5 @@ module wevote {
         .controller('TaxonomyUploaderController', TaxonomyUploaderController.$inject)
         .controller('HeaderController', HeaderController.$inject)
         .controller('ExperimentController', ExperimentController.$inject)
+        .controller('ResultsController', ResultsController.$inject);
 }
