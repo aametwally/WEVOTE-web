@@ -61,6 +61,7 @@
   "dependencies": {
     "@types/angular": "^1.6.25",
     "@types/angular-resource": "^1.5.9",
+    "@types/angular-ui-bootstrap": "^0.13.43",
     "@types/angular-ui-router": "^1.1.37",
     "@types/bootstrap": "^3.3.34",
     "@types/jquery": "^3.2.5",

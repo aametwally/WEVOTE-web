@@ -61,7 +61,8 @@
       "angular",
       "bootstrap",
       "angular-resource",
-      "angular-ui-router"
+      "angular-ui-router",
+      "angular-ui-bootstrap"
     ]
     /* Type declaration files to be included in compilation. */
     //"allowSyntheticDefaultImports": true
