@@ -25,6 +25,7 @@
 #include <cstring>
 
 // STL Misc
+#include <algorithm>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdint.h>
@@ -49,7 +50,8 @@
 
 namespace wevote
 {
-typedef struct {
+
+struct ReadInfo{
     std::string seqID;
     std::vector<uint32_t> annotation;
     uint32_t resolvedTaxon;
@@ -57,16 +59,18 @@ typedef struct {
     uint32_t numToolsReported;
     uint32_t numToolsUsed;
     double score;
-} readsInfo;
+    static const uint32_t noAnnotation;
+};
+const uint32_t ReadInfo::noAnnotation = 0;
 
-
-typedef struct {
+struct Taxon{
     uint32_t taxonID;
     std::string rank;
     std::string name;
     uint32_t occurrence;
     double abundance;
-} taxon;
+};
+
 }
 
 #endif

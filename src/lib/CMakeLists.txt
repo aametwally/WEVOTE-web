@@ -4,13 +4,13 @@ set( WEVOTE_LIB "wevote" )
 
 ### Library sources/headers
 set( WEVOTE_LIB_SOURCE_FILES
-    common/create_db.cpp
-    common/helpers.cpp
+    TaxonomyBuilder.cpp
     log/Logger.cpp
     )
 
 set( WEVOTE_LIB_HEADER_FILES
-    common/create_db.hpp
+    wevote.hpp
+    TaxonomyBuilder.h
     common/helpers.hpp
     common/headers.hpp
     log/Colors.hh

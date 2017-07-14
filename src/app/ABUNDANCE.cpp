@@ -19,12 +19,12 @@ typedef struct {
 } taxA;
 
 
-map<uint32_t, uint32_t> parentMap;
-map<uint32_t, string> rankMap;
-map<uint32_t, uint32_t> standardMap;
-map<uint32_t, string> namesMap;
-uint32_t undefined=0;
-map<uint32_t, taxA> taxonAnnotate_Map;
+//map<uint32_t, uint32_t> parentMap;
+//map<uint32_t, string> rankMap;
+//map<uint32_t, uint32_t> standardMap;
+//map<uint32_t, string> namesMap;
+//uint32_t undefined=0;
+//map<uint32_t, taxA> taxonAnnotate_Map;
 
 
 
@@ -98,10 +98,10 @@ int main(int argc, char *argv[])
 
 
 	/// Build taxonomy trees
-	parentMap = build_full_taxid_map(nodesFilename);
-	rankMap = build_full_rank_map(nodesFilename);
-	standardMap=build_standard_taxid_map(nodesFilename, parentMap, rankMap);
-	namesMap = build_taxname_map(namesFilename);
+    auto parentMap = wevote::build_full_taxid_map(nodesFilename);
+    auto rankMap = wevote::build_full_rank_map(nodesFilename);
+    auto standardMap= wevote::build_standard_taxid_map(nodesFilename, parentMap, rankMap);
+    auto namesMap = wevote::build_taxname_map(namesFilename);
 	
 	/// Read WEVOTE output file 
 	if (!file.is_open())
