@@ -8,24 +8,7 @@ SET(${PROJECT_NAME}-qt-components QtCore)
 
 ADD_DEFINITIONS(-DUNICODE)
 
-IF(USE_QT_5)
-	FIND_PACKAGE(Qt5Core)
-
-	IF(NOT WIN32)
-		FIND_PACKAGE(Qt5Network)
-	ENDIF()
-ELSE()
-	SET(QT_DONT_USE_QTGUI TRUE)
-	IF(NOT WIN32)
-	  SET(QT_USE_QTNETWORK TRUE)
-	  SET(${PROJECT_NAME}-qt-components ${${PROJECT_NAME}-qt-components} QtNetwork)
-	ENDIF()
-
-	find_package(Qt4 COMPONENTS ${${PROJECT_NAME}-qt-components})
-
-	include(${QT_USE_FILE})
-
-ENDIF()
+include( Qt )
 
 IF(MSVC AND BUILD_SHARED_LIBS)
   ADD_DEFINITIONS("/DQT_QTSERVICE_EXPORT=__declspec(dllexport)")

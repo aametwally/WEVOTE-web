@@ -7,8 +7,11 @@ set( WEVOTE_APP "wevoteApp")
 set( ABUNDANCE_APP "abundanceApp")
 ### Generate the executable
 
-add_executable( ${WEVOTE_APP} WEVOTE.cpp )
-add_executable( ${ABUNDANCE_APP} ABUNDANCE.cpp )
+set( COMMAND_LINE_PARSER
+    CommandLineParser.hpp )
+
+add_executable( ${WEVOTE_APP} ${COMMAND_LINE_PARSER} WEVOTE.cpp )
+add_executable( ${ABUNDANCE_APP} ${COMMAND_LINE_PARSER} ABUNDANCE.cpp )
 
 ### Make sure to use the required Qt modules
 qt5_use_modules( ${WEVOTE_APP} Core )
