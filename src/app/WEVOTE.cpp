@@ -94,30 +94,30 @@ auto extractFunction = []( const QCommandLineParser &parser ,
     /// parse commandline arguments
     if( !parser.isSet("input-file"))
     {
-        results.success = CommandLineParser::CommandLineResult::CommandLineError;
+        results.success = CommandLineResult::CommandLineError;
         results.errorMessage = "Input file is not specified.";
         return;
     }
     if( !parser.isSet("taxonomy-db-path"))
     {
-        results.success = CommandLineParser::CommandLineResult::CommandLineError;
+        results.success = CommandLineResult::CommandLineError;
         results.errorMessage = "Taxonomy file is not specified.";
         return;
     }
     if( !parser.isSet("output-prefix"))
     {
-        results.success = CommandLineParser::CommandLineResult::CommandLineError;
+        results.success = CommandLineResult::CommandLineError;
         results.errorMessage = "Output prefix is not specified.";
         return;
     }
     results.parameters.verbose =
             static_cast< bool >(parser.value("verbose").toShort());
     results.parameters.query =
-            parser.value("input-file");
+            parser.value("input-file").toStdString();
     results.parameters.taxonomyDB =
-            parser.value("taxonomy-db-path");
+            parser.value("taxonomy-db-path").toStdString();
     results.parameters.prefix =
-            parser.value("output-prefix");
+            parser.value("output-prefix").toStdString();
     results.parameters.penalty =
             parser.value("penalty").toInt();
     results.parameters.score =
@@ -131,14 +131,13 @@ auto extractFunction = []( const QCommandLineParser &parser ,
 int main(int argc, char *argv[])
 {
     QCoreApplication a( argc , argv );
-    auto cmdLineParser =
-            CommandLineParser( a , commandLineOptions ,
-                               std::string(argv[0]) + " help" );
+    CommandLineParser cmdLineParser( a , commandLineOptions ,
+                       std::string(argv[0]) + " help" );
     ParsingResults<WevoteParameters> parsingResults;
     cmdLineParser.process();
     cmdLineParser.tokenize( extractFunction , parsingResults );
 
-    if( parsingResults.success == CommandLineParser::CommandLineResult::CommandLineError )
+    if( parsingResults.success == CommandLineResult::CommandLineError )
         LOG_ERROR("Command line error: %s", parsingResults.errorMessage.c_str());
     else
         LOG_DEBUG("parameters: %s", parsingResults.parameters.toString().c_str());

@@ -84,7 +84,7 @@ public:
      * Convert non-standard taxon to a standard taxon (per vector).
      * @param seq
      */
-    std::vector<ReadInfo> correctTaxa(const std::vector<ReadInfo> &seq ) const;
+    std::vector<ReadInfo> correctTaxa( const std::vector<ReadInfo> &seq ) const;
 
     /**
      * @brief buildFullTaxIdMap
@@ -142,11 +142,11 @@ public:
      */
     static bool isRank( const std::string &rank );
 private:
-    uint32_t _undefined;
-    std::map< uint32_t , uint32_t > _parentMap;
-    std::map< uint32_t , std::string > _rankMap;
-    std::map<uint32_t, uint32_t> _standardMap;
-    std::map<uint32_t, std::string> _namesMap;
+    mutable uint32_t _undefined;
+    const std::map< uint32_t , uint32_t > _parentMap;
+    const std::map< uint32_t , std::string > _rankMap;
+    const std::map<uint32_t, std::string> _namesMap;
+    const std::map<uint32_t, uint32_t> _standardMap;
 //    std::map<std::string, uint32_t> _namesTaxMap;
 };
 }

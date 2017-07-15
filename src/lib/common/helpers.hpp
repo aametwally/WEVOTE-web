@@ -25,13 +25,19 @@ std::string join( const Container &container ,
     return join( container.cbegin() , container.cend() , sep );
 }
 
+template< typename T >
+std::string toString( T value )
+{
+    return std::to_string( value );
+}
+
 template< typename SeqIt >
 std::vector< std::string > asStringsVector( SeqIt firstIt , SeqIt lastIt )
 {
     std::vector< std::string > stringified;
     std::transform( firstIt , lastIt ,
-                    std::inserter( stringified , std::begin( stringified )) ,
-                    std::to_string );
+                    std::inserter( stringified , std::end( stringified )) ,
+                    toString< SeqIt::value_type > );
     return stringified;
 }
 
@@ -50,9 +56,9 @@ getReads( const std::string &filename )
         std::string word = "";
         int col=0;
         int value=0;
+        wevote::ReadInfo read;
         while (std::getline(strstr,word, ','))
         {
-            wevote::ReadInfo read;
             if(col++==0)
                 read.seqID=word;
             else
@@ -89,7 +95,10 @@ void writeReads( const std::vector< ReadInfo > &reads ,
     myfile.close();
 }
 
-std::map< uint32_t , TaxLine > readWevoteFile( const std::string &filename )
+template< typename CorrectTaxanFun >
+std::map< uint32_t , TaxLine > readWevoteFile(
+        const std::string &filename ,
+        CorrectTaxanFun correctTaxan )
 {
     std::map< uint32_t , TaxLine > taxonAnnotateMap;
 
@@ -112,7 +121,7 @@ std::map< uint32_t , TaxLine > readWevoteFile( const std::string &filename )
         if( taxon == ReadInfo::noAnnotation )
         {
             LOG_DEBUG("Taxon 0 presents in line = %d",q);
-            taxon = correctTaxan(taxon);
+            taxon = correctTaxan( taxon );
         }
         // column:1
         std::getline(strstr,word, ',');

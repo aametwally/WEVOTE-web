@@ -4,39 +4,37 @@
 #include <memory>
 #include <QCommandLineParser>
 
+enum class CommandLineResult
+{
+    CommandLineOk ,
+    CommandLineError
+};
+
 template< typename Parameters >
 struct ParsingResults
 {
-    CommandLineParser::CommandLineResult success;
+    CommandLineResult success;
     std::string errorMessage;
     Parameters parameters;
     ParsingResults()
-        : success( CommandLineParser::CommandLineResult::CommandLineOk ),
+        : success( CommandLineResult::CommandLineOk ),
           errorMessage("")
     {}
 };
 
 class CommandLineParser
 {
-
 public:
-
-    enum class CommandLineResult
-    {
-        CommandLineOk ,
-        CommandLineError
-    };
-
     CommandLineParser( const QCoreApplication &app ,
                        const std::list< QCommandLineOption > &options ,
                        std::string helpDescription )
         : _app( app )
     {
-        _parser.setApplicationDescription( helpDescription );
+        _parser.setApplicationDescription( QString::fromStdString( helpDescription ));
         _parser.addHelpOption();
         _parser.setSingleDashWordOptionMode(
                         QCommandLineParser::ParseAsLongOptions );
-        auto qOptions = QList::fromStdList( options );
+        auto qOptions = QList< QCommandLineOption >::fromStdList( options );
         _parser.addOptions( qOptions );
     }
 

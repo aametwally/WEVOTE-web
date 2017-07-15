@@ -6,6 +6,7 @@
 #include <set>
 #include <vector>
 #include <string>
+#include <iterator>
 
 // STL Smart Ptrs
 #include <memory>
@@ -26,6 +27,7 @@
 
 // STL Misc
 #include <algorithm>
+#include <functional>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdint.h>

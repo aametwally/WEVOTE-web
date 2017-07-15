@@ -24,7 +24,7 @@ include_directories( common )
 include_directories( log )
 
 #### Define the library
-add_library( ${WEVOTE_LIB}
+add_library( ${WEVOTE_LIB} SHARED
     ${WEVOTE_LIB_SOURCE_FILES}
     ${WEVOTE_LIB_HEADER_FILES})
 

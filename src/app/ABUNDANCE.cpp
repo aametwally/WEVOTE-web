@@ -47,29 +47,29 @@ auto extractFunction = []( const QCommandLineParser &parser ,
     /// parse commandline arguments
     if( !parser.isSet("input-file"))
     {
-        results.success = CommandLineParser::CommandLineResult::CommandLineError;
+        results.success = CommandLineResult::CommandLineError;
         results.errorMessage = "Input file is not specified.";
         return;
     }
     if( !parser.isSet("taxonomy-db-path"))
     {
-        results.success = CommandLineParser::CommandLineResult::CommandLineError;
+        results.success = CommandLineResult::CommandLineError;
         results.errorMessage = "Taxonomy file is not specified.";
         return;
     }
     if( !parser.isSet("output-prefix"))
     {
-        results.success = CommandLineParser::CommandLineResult::CommandLineError;
+        results.success = CommandLineResult::CommandLineError;
         results.errorMessage = "Output prefix is not specified.";
         return;
     }
 
     results.parameters.query =
-            parser.value("input-file");
+            parser.value("input-file").toStdString();
     results.parameters.taxonomyDB =
-            parser.value("taxonomy-db-path");
+            parser.value("taxonomy-db-path").toStdString();
     results.parameters.prefix =
-            parser.value("output-prefix");
+            parser.value("output-prefix").toStdString();
 };
 
 
@@ -83,13 +83,13 @@ int main(int argc, char *argv[])
     cmdLineParser.process();
     cmdLineParser.tokenize( extractFunction , parsingResults );
 
-    if( parsingResults.success == CommandLineParser::CommandLineResult::CommandLineError )
+    if( parsingResults.success == CommandLineResult::CommandLineError )
         LOG_ERROR("Command line error: %s", parsingResults.errorMessage.c_str());
     else
         LOG_DEBUG("parameters: %s", parsingResults.parameters.toString().c_str());
 
     const auto &param = parsingResults.parameters;
-	
+
     const std::string nodesFilename=
             param.taxonomyDB+"/nodes_wevote.dmp";
     const std::string namesFilename=
@@ -98,15 +98,18 @@ int main(int argc, char *argv[])
             param.prefix + "_Abundance.csv";
 
 
-	/// Build taxonomy trees
+    /// Build taxonomy trees
     const wevote::TaxonomyBuilder taxonomy =
             wevote::TaxonomyBuilder( nodesFilename , namesFilename );
 
-	
-	/// Read WEVOTE output file 
+
+    /// Read WEVOTE output file
     const std::map< uint32_t , wevote::TaxLine > taxonAnnotateMap =
-            wevote::io::readWevoteFile( param.query );
-	
+            wevote::io::readWevoteFile( param.query ,
+                                        [&]( uint32_t taxid ){
+            return taxonomy.correctTaxan( taxid );
+});
+
 
     LOG_INFO("Total #reads have Taxon 0 = %d",  taxonAnnotateMap[0].count );
 
@@ -116,57 +119,57 @@ int main(int argc, char *argv[])
         return c + p.second.count;
     });
     LOG_INFO("Total # reads = %d", totalCounts );
-	
+
     for( std::pair< uint32_t , wevote::TaxLine > &p : taxonAnnotateMap )
-	{
+    {
         p.second.RA = ((double)p.second.count/(double)totalCounts)*100;
         uint32_t taxon = p.first;
         while(taxon != wevote::ReadInfo::noAnnotation)
-		{
-             const std::string rank = taxonomy.getRank(taxon);
-             const std::string name = taxonomy.getTaxName( taxon );
+        {
+            const std::string rank = taxonomy.getRank(taxon);
+            const std::string name = taxonomy.getTaxName( taxon );
 
-             if(rank == "species")
-			 {
-                 p.second.species = name;
-			 }
-             else if (rank == "genus")
-			 {
-                 p.second.genus = name;
-			 }
-             else if (rank == "family")
-			 {
-                 p.second.family = name;
-			 }
-             else if (rank == "order")
-			 {
-                 p.second.order = name;
-			 }
-             else if (rank == "class")
-			 {
-                 p.second.clas = name;
-			 }
-             else if (rank == "phylum")
-			 {
-                 p.second.phylum = name;
-			 }
-             else if (rank == "kingdom")
-			 {
-                 p.second.kingdom = name;
-			 }
-             else if (rank == "superkingdom")
-			 {
-                 p.second.superkingdom = name;
-			 }
-             else if (rank == "root")
-			 {
-                 p.second.root = name;
-			 }
+            if(rank == "species")
+            {
+                p.second.species = name;
+            }
+            else if (rank == "genus")
+            {
+                p.second.genus = name;
+            }
+            else if (rank == "family")
+            {
+                p.second.family = name;
+            }
+            else if (rank == "order")
+            {
+                p.second.order = name;
+            }
+            else if (rank == "class")
+            {
+                p.second.clas = name;
+            }
+            else if (rank == "phylum")
+            {
+                p.second.phylum = name;
+            }
+            else if (rank == "kingdom")
+            {
+                p.second.kingdom = name;
+            }
+            else if (rank == "superkingdom")
+            {
+                p.second.superkingdom = name;
+            }
+            else if (rank == "root")
+            {
+                p.second.root = name;
+            }
 
-             taxon = taxonomy.getStandardParent( taxon );
-		}
-	}
-	
-	/// Export taxonomy and relative abundance to txt file	
+            taxon = taxonomy.getStandardParent( taxon );
+        }
+    }
+
+    /// Export taxonomy and relative abundance to txt file
     wevote::io::writeAbundance( taxonAnnotateMap , outputProfile );
 }
