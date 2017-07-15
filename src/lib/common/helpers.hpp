@@ -1,4 +1,6 @@
 #include "headers.hpp"
+#include "ReadInfo.h"
+#include "TaxLine.h"
 #include "Logger.h"
 
 

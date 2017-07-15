@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
 
     /// Build taxonomy trees
     LOG_INFO("Building Taxonomy..");
-    auto taxonomy= wevote::TaxonomyBuilder( nodesFilename , namesFilename );
+    wevote::TaxonomyBuilder taxonomy( nodesFilename , namesFilename );
     LOG_INFO("[DONE] Building Taxonomy..");
 
     wevote::WevoteClassifier wevoteClassifier( taxonomy );

@@ -2,13 +2,33 @@
 
 namespace wevote
 {
+
+struct PrivateData
+{
+    PrivateData( const std::string &nodesFilename  ,
+                 const std::string &namesFilename )
+        : parentMap( TaxonomyBuilder::buildFullTaxIdMap( nodesFilename )),
+          rankMap( TaxonomyBuilder::buildFullRankMap( nodesFilename )),
+          namesMap( TaxonomyBuilder::buildTaxnameMap( namesFilename )),
+          standardMap( TaxonomyBuilder::buildStandardTaxidMap( nodesFilename, parentMap, rankMap)){}
+
+    const std::map< uint32_t , uint32_t > parentMap;
+    const std::map< uint32_t , std::string > rankMap;
+    const std::map< uint32_t , std::string > namesMap;
+    const std::map< uint32_t , uint32_t > standardMap;
+    //    std::map<std::string, uint32_t> _namesTaxMap;
+
+};
+
 TaxonomyBuilder::TaxonomyBuilder( const std::string &nodesFilename  ,
                                   const std::string &namesFilename )
     : _undefined( 0 ),
-      _parentMap( buildFullTaxIdMap( nodesFilename )),
-      _rankMap( buildFullRankMap( nodesFilename )),
-      _namesMap( buildTaxnameMap( namesFilename )),
-      _standardMap( buildStandardTaxidMap( nodesFilename, _parentMap, _rankMap))
+      _data( new PrivateData( nodesFilename  , namesFilename ))
+{
+
+}
+
+TaxonomyBuilder::~TaxonomyBuilder()
 {
 
 }
@@ -16,7 +36,7 @@ TaxonomyBuilder::TaxonomyBuilder( const std::string &nodesFilename  ,
 std::string TaxonomyBuilder::getRank(uint32_t taxid) const
 {
     try{
-        return _rankMap.at( taxid );
+        return _data->rankMap.at( taxid );
     } catch( const std::out_of_range & )
     {
         return {""};
@@ -26,7 +46,7 @@ std::string TaxonomyBuilder::getRank(uint32_t taxid) const
 std::string TaxonomyBuilder::getTaxName(uint32_t taxid) const
 {
     try{
-        return _namesMap.at( taxid );
+        return _data->namesMap.at( taxid );
     } catch( const std::out_of_range & )
     {
         return {""};
@@ -36,7 +56,7 @@ std::string TaxonomyBuilder::getTaxName(uint32_t taxid) const
 uint32_t TaxonomyBuilder::getStandardParent(uint32_t taxid) const
 {
     try{
-        return _standardMap.at( taxid );
+        return _data->standardMap.at( taxid );
     } catch( const std::out_of_range & )
     {
         return ReadInfo::noAnnotation;
@@ -49,14 +69,14 @@ uint32_t TaxonomyBuilder::correctTaxan( uint32_t taxid ) const
         return ReadInfo::noAnnotation;
     try
     {
-        std::string rank = _rankMap.at(taxid);
+        std::string rank = _data->rankMap.at(taxid);
         while (!isRank( rank ) )
         {
-            taxid = _parentMap.at( taxid );
+            taxid = _data->parentMap.at( taxid );
             if( taxid < 1 )
                 return ReadInfo::noAnnotation;
             else
-                rank= _rankMap.at( taxid );
+                rank= _data->rankMap.at( taxid );
         }
     }catch( const std::out_of_range & )
     {
@@ -78,13 +98,13 @@ uint32_t TaxonomyBuilder::lca( uint32_t a, uint32_t b ) const
         while (a > 0)
         {
             aPath.insert(a);
-            a = _standardMap.at( a );
+            a = _data->standardMap.at( a );
         }
         while (b > 0)
         {
             if (aPath.count(b) > 0)
                 return b;
-            b = _standardMap.at( b );
+            b = _data->standardMap.at( b );
         }
     }catch( const std::out_of_range & )
     {
@@ -101,7 +121,7 @@ std::set<uint32_t> TaxonomyBuilder::getAncestry( uint32_t taxon ) const
         while (taxon > 0)
         {
             path.insert(taxon);
-            taxon = _standardMap.at( taxon );
+            taxon = _data->standardMap.at( taxon );
         }
     }catch( const std::out_of_range & )
     {
@@ -135,7 +155,7 @@ uint32_t TaxonomyBuilder::resolveTree(
             try
             {
                 score += hitCounts.at( node );
-                node = _standardMap.at( node );
+                node = _data->standardMap.at( node );
             }catch( const std::out_of_range &e )
             {
                 LOG_DEBUG("Undefined taxid(%d): %s", node , e.what());

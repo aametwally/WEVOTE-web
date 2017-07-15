@@ -6,6 +6,9 @@ set( WEVOTE_LIB "wevote" )
 set( WEVOTE_LIB_SOURCE_FILES
     WevoteClassifier.cpp
     TaxonomyBuilder.cpp
+    common/ReadInfo.cpp
+    common/Taxon.cpp
+    common/TaxLine.cpp
     log/Logger.cpp
     )
 
@@ -14,6 +17,9 @@ set( WEVOTE_LIB_HEADER_FILES
     TaxonomyBuilder.h
     common/helpers.hpp
     common/headers.hpp
+    common/ReadInfo.h
+    common/Taxon.h
+    common/TaxLine.h
     log/Colors.hh
     log/Logger.h
     log/LogLevel.hh )

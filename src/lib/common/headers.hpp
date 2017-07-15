@@ -1,5 +1,5 @@
-#ifndef WEVOTE_HEADERS
-#define WEVOTE_HEADERS
+#ifndef HEADERS_HPP
+#define HEADERS_HPP
 
 // STL Containers
 #include <map>
@@ -50,44 +50,5 @@
 #define WEVOTE_DLL __declspec(dllimport)
 #endif
 
-namespace wevote
-{
-
-struct ReadInfo{
-    std::string seqID;
-    std::vector<uint32_t> annotation;
-    uint32_t resolvedTaxon;
-    uint32_t numToolsAgreed;
-    uint32_t numToolsReported;
-    uint32_t numToolsUsed;
-    double score;
-    static const uint32_t noAnnotation;
-};
-const uint32_t ReadInfo::noAnnotation = 0;
-
-struct Taxon{
-    uint32_t taxonID;
-    std::string rank;
-    std::string name;
-    uint32_t occurrence;
-    double abundance;
-};
-
-struct TaxLine {
-    uint32_t taxon;
-    uint32_t count;
-    std::string root;
-    std::string superkingdom;
-    std::string kingdom;
-    std::string phylum;
-    std::string clas;
-    std::string order;
-    std::string family;
-    std::string genus;
-    std::string species;
-    double RA;
-};
-
-}
 
 #endif

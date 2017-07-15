@@ -18,7 +18,7 @@ void WevoteClassifier::classify(
     LOG_INFO("[DONE] Preprocessing reads..");
 
     /// WEVOTE algorithm
-    const uint32_t numToolsUsed = reads.front().annotation.size();
+    const int numToolsUsed = reads.front().annotation.size();
 
     if( minNumAgreed > numToolsUsed)
         LOG_ERROR("It's not allwed that minNumAgreed > numTools");
@@ -66,7 +66,7 @@ void WevoteClassifier::classify(
 
             WEVOTE_ASSERT( n == 1 , "n must be 1.");
 
-            read.resolvedTaxon = taxonomy.lca(savedTax_2[0], savedTax_2[1]);
+            read.resolvedTaxon = _taxonomy.lca(savedTax_2[0], savedTax_2[1]);
             read.numToolsAgreed=2;
             if(read.numToolsAgreed==read.numToolsReported)
                 read.score =
@@ -81,12 +81,12 @@ void WevoteClassifier::classify(
         {
             std::map<uint32_t, uint32_t> hitCounts;
             for ( uint32_t annotation : read.annotation)
-                for( uint32_t parent : taxonomy.getAncestry( annotation ) )
+                for( uint32_t parent : _taxonomy.getAncestry( annotation ) )
                     hitCounts[ parent ]++;
 
             /// Resolve tree for each sequence to get WEVOTE annotation
             read.resolvedTaxon =
-                    taxonomy.resolveTree( hitCounts , read.numToolsReported ,
+                    _taxonomy.resolveTree( hitCounts , read.numToolsReported ,
                                           minNumAgreed);
             read.numToolsAgreed=
                     hitCounts[read.resolvedTaxon];

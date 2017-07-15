@@ -2,11 +2,16 @@
 #define TAXONOMYBUILDER_H
 
 #include "headers.hpp"
+#include "Taxon.h"
+#include "ReadInfo.h"
 #include "Logger.h"
 
 namespace wevote
 {
-class WEVOTE_DLL TaxonomyBuilder
+
+struct PrivateData;
+
+class TaxonomyBuilder
 {
 public:
     /**
@@ -14,29 +19,33 @@ public:
      * @param nodesFilename
      * @param namesFilename
      */
-    TaxonomyBuilder( const std::string &nodesFilename ,
+    WEVOTE_DLL TaxonomyBuilder( const std::string &nodesFilename ,
                      const std::string &namesFilename );
 
+
+    WEVOTE_DLL ~TaxonomyBuilder();
+
+public:
     /**
      * @brief getRank
      * @param taxid
      * @return
      */
-    std::string getRank( uint32_t taxid ) const;
+    WEVOTE_DLL std::string getRank( uint32_t taxid ) const;
 
     /**
      * @brief getTaxName
      * @param taxid
      * @return
      */
-    std::string getTaxName( uint32_t taxid ) const;
+    WEVOTE_DLL std::string getTaxName( uint32_t taxid ) const;
 
     /**
      * @brief getStandardParent
      * @param taxid
      * @return
      */
-    uint32_t getStandardParent( uint32_t taxid ) const;
+    WEVOTE_DLL uint32_t getStandardParent( uint32_t taxid ) const;
 
     /**
      * @brief correctTaxan
@@ -44,7 +53,7 @@ public:
      * @param tempTax
      * @return
      */
-    uint32_t correctTaxan( uint32_t tempTax ) const;
+    WEVOTE_DLL uint32_t correctTaxan( uint32_t tempTax ) const;
 
     /**
      * @brief lca
@@ -53,7 +62,7 @@ public:
      * @param b
      * @return
      */
-    uint32_t lca(uint32_t a, uint32_t b) const;
+    WEVOTE_DLL uint32_t lca(uint32_t a, uint32_t b) const;
 
     /**
      * @brief getAncestry
@@ -61,7 +70,7 @@ public:
      * @param taxon
      * @return
      */
-    std::set<uint32_t> getAncestry(uint32_t taxon) const;
+    WEVOTE_DLL std::set<uint32_t> getAncestry(uint32_t taxon) const;
 
     /**
      * @brief resolveTree
@@ -72,7 +81,7 @@ public:
      * @param threshold
      * @return
      */
-    uint32_t resolveTree(
+    WEVOTE_DLL uint32_t resolveTree(
             const std::map<uint32_t, uint32_t> &hit_counts,
             uint32_t numToolsReported,
             uint32_t minNumAgreed ) const;
@@ -82,14 +91,16 @@ public:
      * For an array of taxa: Convert non-standard taxon to a standard taxon.
      * @param inputTaxa
      */
-    std::vector<uint32_t> correctTaxaVector(const std::vector<uint32_t> &inputTaxa) const;
+    WEVOTE_DLL std::vector<uint32_t>
+    correctTaxaVector(const std::vector<uint32_t> &inputTaxa) const;
 
     /**
      * @brief correctTaxa
      * Convert non-standard taxon to a standard taxon (per vector).
      * @param seq
      */
-    std::vector<ReadInfo> correctTaxa( const std::vector<ReadInfo> &seq ) const;
+    WEVOTE_DLL std::vector<ReadInfo>
+    correctTaxa( const std::vector<ReadInfo> &seq ) const;
 
     /**
      * @brief buildFullTaxIdMap
@@ -148,11 +159,8 @@ public:
     static bool isRank( const std::string &rank );
 private:
     mutable uint32_t _undefined;
-    const std::map< uint32_t , uint32_t > _parentMap;
-    const std::map< uint32_t , std::string > _rankMap;
-    const std::map< uint32_t , std::string > _namesMap;
-    const std::map< uint32_t , uint32_t > _standardMap;
-//    std::map<std::string, uint32_t> _namesTaxMap;
+    std::unique_ptr< PrivateData > _data;
+
 };
 }
 #endif // TAXONOMYBUILDER_H

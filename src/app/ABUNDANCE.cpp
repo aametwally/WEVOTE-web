@@ -1,6 +1,7 @@
 #include "headers.hpp"
 #include "helpers.hpp"
 #include "TaxonomyBuilder.h"
+#include "TaxLine.h"
 #include "Logger.h"
 #include "CommandLineParser.hpp"
 
@@ -76,9 +77,8 @@ auto extractFunction = []( const QCommandLineParser &parser ,
 int main(int argc, char *argv[])
 {	
     QCoreApplication a( argc , argv );
-    auto cmdLineParser =
-            CommandLineParser( a , commandLineOptions ,
-                               std::string(argv[0]) + " help" );
+    CommandLineParser cmdLineParser( a , commandLineOptions ,
+                                     std::string(argv[0]) + " help" );
     ParsingResults<AbundanceParameters> parsingResults;
     cmdLineParser.process();
     cmdLineParser.tokenize( extractFunction , parsingResults );
@@ -99,16 +99,15 @@ int main(int argc, char *argv[])
 
 
     /// Build taxonomy trees
-    const wevote::TaxonomyBuilder taxonomy =
-            wevote::TaxonomyBuilder( nodesFilename , namesFilename );
+    const wevote::TaxonomyBuilder taxonomy( nodesFilename , namesFilename );
 
+    auto taxanCorrector = [&]( uint32_t taxid ){
+        return taxonomy.correctTaxan( taxid );
+    };
 
     /// Read WEVOTE output file
-    const std::map< uint32_t , wevote::TaxLine > taxonAnnotateMap =
-            wevote::io::readWevoteFile( param.query ,
-                                        [&]( uint32_t taxid ){
-            return taxonomy.correctTaxan( taxid );
-});
+    std::map< uint32_t , wevote::TaxLine > taxonAnnotateMap =
+            wevote::io::readWevoteFile( param.query , taxanCorrector );
 
 
     LOG_INFO("Total #reads have Taxon 0 = %d",  taxonAnnotateMap[0].count );
@@ -120,7 +119,8 @@ int main(int argc, char *argv[])
     });
     LOG_INFO("Total # reads = %d", totalCounts );
 
-    for( std::pair< uint32_t , wevote::TaxLine > &p : taxonAnnotateMap )
+    std::for_each( taxonAnnotateMap.begin() , taxonAnnotateMap.end() ,
+                   [&]( std::pair< const uint32_t , wevote::TaxLine > &p )
     {
         p.second.RA = ((double)p.second.count/(double)totalCounts)*100;
         uint32_t taxon = p.first;
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
 
             taxon = taxonomy.getStandardParent( taxon );
         }
-    }
+    });
 
     /// Export taxonomy and relative abundance to txt file
     wevote::io::writeAbundance( taxonAnnotateMap , outputProfile );

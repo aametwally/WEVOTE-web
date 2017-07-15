@@ -1,6 +1,8 @@
 #ifndef TESTS_H
 #define TESTS_H
 
+#include "headers.hpp"
+
 #define DATA_DIRECTORY "E:/repo/wevote-service/data"
 
 
