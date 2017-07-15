@@ -9,6 +9,11 @@ namespace wevote
 class WEVOTE_DLL TaxonomyBuilder
 {
 public:
+    /**
+     * @brief TaxonomyBuilder
+     * @param nodesFilename
+     * @param namesFilename
+     */
     TaxonomyBuilder( const std::string &nodesFilename ,
                      const std::string &namesFilename );
 
@@ -145,8 +150,8 @@ private:
     mutable uint32_t _undefined;
     const std::map< uint32_t , uint32_t > _parentMap;
     const std::map< uint32_t , std::string > _rankMap;
-    const std::map<uint32_t, std::string> _namesMap;
-    const std::map<uint32_t, uint32_t> _standardMap;
+    const std::map< uint32_t , std::string > _namesMap;
+    const std::map< uint32_t , uint32_t > _standardMap;
 //    std::map<std::string, uint32_t> _namesTaxMap;
 };
 }

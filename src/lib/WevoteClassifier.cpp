@@ -1,48 +1,33 @@
-#ifndef WEVOTE_HPP
-#define WEVOTE_HPP
-
-#include "headers.hpp"
-#include "Logger.h"
-#include "TaxonomyBuilder.h"
+#include "WevoteClassifier.h"
 
 namespace wevote
 {
-void wevotePreprocessing( std::vector< ReadInfo > &reads,
-                          const TaxonomyBuilder &taxonomy )
+
+WevoteClassifier::WevoteClassifier( const TaxonomyBuilder &taxonomy )
+    : _taxonomy( taxonomy )
 {
-    uint32_t numToolsUsed= reads.front().annotation.size();
-    uint32_t numReads= reads.size();
 
-    LOG_INFO("Num of reads= %d" , numReads );
-    LOG_INFO("Num of used tools= %d" , numToolsUsed );
-
-    for( wevote::ReadInfo &read : reads )
-        read.numToolsUsed = numToolsUsed;
-
-    /// Correct TaxonID for the not standard ranks
-    taxonomy.correctTaxa( reads );
-
-    /// Count number of tools that identified each sequences
-    for( wevote::ReadInfo &read : reads )
-        read.numToolsReported = std::count_if( read.annotation.cbegin() ,
-                                               read.annotation.cend() ,
-                                               []( uint32_t taxid ){
-                return taxid != wevote::ReadInfo::noAnnotation; });
 }
 
-void wevoteClassifier( std::vector< ReadInfo > &reads ,
-                       const TaxonomyBuilder &taxonomy,
-                       int minNumAgreed ,
-                       int penalty ,
-                       int threads = 1 )
+void WevoteClassifier::classify(
+        std::vector<ReadInfo> &reads,
+        int minNumAgreed, int penalty, int threads) const
 {
+    LOG_INFO("Preprocessing reads..");
+    _preprocessReads( reads );
+    LOG_INFO("[DONE] Preprocessing reads..");
+
     /// WEVOTE algorithm
-    const uint32_t numToolsUsed= reads.front().annotation.size();
+    const uint32_t numToolsUsed = reads.front().annotation.size();
+
+    if( minNumAgreed > numToolsUsed)
+        LOG_ERROR("It's not allwed that minNumAgreed > numTools");
 
     double start = omp_get_wtime();
     omp_set_num_threads(threads);
-    LOG_INFO("Min Number of Agreed= %d" , minNumAgreed );
+    LOG_DEBUG("Min Number of Agreed= %d" , minNumAgreed );
 
+    LOG_INFO("Classification (%d threads)..",threads);
 #pragma omp parallel for
     for (uint32_t i=0 ; i<reads.size() ;i++)
     {
@@ -126,7 +111,30 @@ void wevoteClassifier( std::vector< ReadInfo > &reads ,
     }
     double end = omp_get_wtime();
     double total=end-start;
+    LOG_INFO("[DONE] Classification (%d threads)..",threads);
     LOG_INFO("WEVOTE classification executed in=%f" , total );
 }
+
+void WevoteClassifier::_preprocessReads( std::vector<ReadInfo> &reads ) const
+{
+    uint32_t numToolsUsed= reads.front().annotation.size();
+    uint32_t numReads= reads.size();
+
+    LOG_INFO("Num of reads= %d" , numReads );
+    LOG_INFO("Num of used tools= %d" , numToolsUsed );
+
+    for( wevote::ReadInfo &read : reads )
+        read.numToolsUsed = numToolsUsed;
+
+    /// Correct TaxonID for the not standard ranks
+    _taxonomy.correctTaxa( reads );
+
+    /// Count number of tools that identified each sequences
+    for( wevote::ReadInfo &read : reads )
+        read.numToolsReported = std::count_if( read.annotation.cbegin() ,
+                                               read.annotation.cend() ,
+                                               []( uint32_t taxid ){
+                return taxid != wevote::ReadInfo::noAnnotation; });
 }
-#endif // WEVOTE_HPP
+
+}

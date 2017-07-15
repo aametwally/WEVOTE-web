@@ -17,7 +17,7 @@ std::string TaxonomyBuilder::getRank(uint32_t taxid) const
 {
     try{
         return _rankMap.at( taxid );
-    } catch( const std::out_of_range &e )
+    } catch( const std::out_of_range & )
     {
         return {""};
     }
@@ -27,7 +27,7 @@ std::string TaxonomyBuilder::getTaxName(uint32_t taxid) const
 {
     try{
         return _namesMap.at( taxid );
-    } catch( const std::out_of_range &e )
+    } catch( const std::out_of_range & )
     {
         return {""};
     }
@@ -37,7 +37,7 @@ uint32_t TaxonomyBuilder::getStandardParent(uint32_t taxid) const
 {
     try{
         return _standardMap.at( taxid );
-    } catch( const std::out_of_range &e )
+    } catch( const std::out_of_range & )
     {
         return ReadInfo::noAnnotation;
     }
@@ -58,7 +58,7 @@ uint32_t TaxonomyBuilder::correctTaxan( uint32_t taxid ) const
             else
                 rank= _rankMap.at( taxid );
         }
-    }catch( const std::out_of_range &e )
+    }catch( const std::out_of_range & )
     {
         _undefined++;
         LOG_DEBUG("The taxon = %d is undefined in the database",taxid);
@@ -86,7 +86,7 @@ uint32_t TaxonomyBuilder::lca( uint32_t a, uint32_t b ) const
                 return b;
             b = _standardMap.at( b );
         }
-    }catch( const std::out_of_range &e )
+    }catch( const std::out_of_range & )
     {
         LOG_DEBUG("A taxon is undefined in the database");
     }
@@ -103,7 +103,7 @@ std::set<uint32_t> TaxonomyBuilder::getAncestry( uint32_t taxon ) const
             path.insert(taxon);
             taxon = _standardMap.at( taxon );
         }
-    }catch( const std::out_of_range &e )
+    }catch( const std::out_of_range & )
     {
         LOG_DEBUG("The taxon = %d is undefined in the database", taxon );
     }
@@ -116,7 +116,8 @@ uint32_t TaxonomyBuilder::resolveTree(
 {
     std::set<uint32_t> maxTaxa;
     uint32_t maxTaxon = 0, maxScore = 0;
-    uint32_t threshold = floor(0.5*(double)numToolsReported);
+    uint32_t threshold =
+            static_cast< uint32_t >( floor(0.5*(double)numToolsReported));
 
     if( minNumAgreed > threshold )
         threshold = ( minNumAgreed-1 );
@@ -205,7 +206,7 @@ TaxonomyBuilder::buildFullTaxIdMap(const std::string &filename)
         if (line.empty())
             break;
 
-        std::sscanf(line.c_str(), "%d\t|\t%d", &nodeId, &parentId);
+        sscanf(line.c_str(), "%d\t|\t%d", &nodeId, &parentId);
         pmap[nodeId] = parentId;
     }
     pmap[1] = 0;
@@ -280,7 +281,7 @@ TaxonomyBuilder::buildStandardTaxidMap(
 }
 
 std::map<uint32_t, std::string>
-TaxonomyBuilder::buildTaxnameMap(const std::string &filename)
+TaxonomyBuilder::buildTaxnameMap( const std::string &filename )
 {
     std::map<uint32_t, std::string> pmap;
     uint32_t node_id;

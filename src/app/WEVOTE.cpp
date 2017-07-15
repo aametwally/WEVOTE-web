@@ -1,6 +1,6 @@
 #include "headers.hpp"
 #include "helpers.hpp"
-#include "wevote.hpp"
+#include "WevoteClassifier.h"
 #include "TaxonomyBuilder.h"
 
 #include "CommandLineParser.hpp"
@@ -154,34 +154,21 @@ int main(int argc, char *argv[])
     LOG_INFO("NodesFilename=%s", nodesFilename);
     LOG_INFO("NamesFilename=%s", namesFilename);
 
-    /// Build taxonomy trees
-    LOG_INFO("Building Taxonomy..");
-    auto taxonomy= wevote::TaxonomyBuilder( nodesFilename , namesFilename );
-    LOG_INFO("[DONE] Building Taxonomy..");
-
     /// Read CSV formated input file
     LOG_INFO("Loading reads..");
     std::vector< wevote::ReadInfo > reads = wevote::io::getReads( param.query );
     LOG_INFO("[DONE] Loading reads..");
 
-    uint32_t numToolsUsed= reads.front().annotation.size();
-    if(param.minNumAgreed>numToolsUsed)
-        LOG_ERROR("It's not allwed that minNumAgreed > numTools");
+    /// Build taxonomy trees
+    LOG_INFO("Building Taxonomy..");
+    auto taxonomy= wevote::TaxonomyBuilder( nodesFilename , namesFilename );
+    LOG_INFO("[DONE] Building Taxonomy..");
 
-
-    /// Reads preprocessing for WEVOTE Algorithm.
-    LOG_INFO("Wevote preprocessing..");
-    wevote::wevotePreprocessing( reads , taxonomy );
-    LOG_INFO("[DONE] Wevote preprocessing..");
-
-    /// WEVOTE Algorithm.
-    LOG_INFO("Wevote run..");
-    wevote::wevoteClassifier( reads , taxonomy ,  param.minNumAgreed ,
-                              param.penalty , param.threads );
-    LOG_INFO("[DONE] Wevote run..");
+    wevote::WevoteClassifier wevoteClassifier( taxonomy );
+    wevoteClassifier.classify( reads , param.minNumAgreed ,
+                               param.penalty , param.threads );
 
     /// Output.
     wevote::io::writeReads( reads , outputDetails );
-
     return a.exec();
 }

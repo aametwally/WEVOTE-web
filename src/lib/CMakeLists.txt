@@ -4,12 +4,13 @@ set( WEVOTE_LIB "wevote" )
 
 ### Library sources/headers
 set( WEVOTE_LIB_SOURCE_FILES
+    WevoteClassifier.cpp
     TaxonomyBuilder.cpp
     log/Logger.cpp
     )
 
 set( WEVOTE_LIB_HEADER_FILES
-    wevote.hpp
+    WevoteClassifier.h
     TaxonomyBuilder.h
     common/helpers.hpp
     common/headers.hpp
