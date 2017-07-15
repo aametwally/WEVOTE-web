@@ -1,275 +1,172 @@
 #include "headers.hpp"
 #include "helpers.hpp"
-#include "create_db.hpp"
+#include "TaxonomyBuilder.h"
+#include "Logger.h"
+#include "CommandLineParser.hpp"
+
+#define DEFAULT_ABUNDANCE_METHOD "total"
+
+struct AbundanceParameters
+{
+    std::string query;
+    std::string prefix;
+    std::string taxonomyDB;
+    std::string toString() const
+    {
+        std::stringstream stream;
+        stream << "[input:" << query << "]"
+               << "[prefix:" << prefix << "]"
+               << "[taxonomyDB:" << taxonomyDB << "]";
+        return stream.str();
+    }
+};
 
 
-typedef struct {
-	uint32_t taxon;
-	uint32_t count;
-	string root;
-	string superkingdom;
-	string kingdom;
-	string phylum;
-        string clas;
-        string order;
-        string family;
-        string genus;
-        string species;
-	double RA;   
-} taxA;
+const std::list< QCommandLineOption > commandLineOptions =
+{
+    {
+        QStringList() << "i" << "input-file",
+        "Input file produced by wevote algorithm."  ,
+        "input-file"
+    },
+    {
+        QStringList() << "d" <<  "taxonomy-db-path",
+        "The path of the taxonomy database file." ,
+        "taxonomy-db-path"
+    },
+    {
+        QStringList() << "p" <<  "output-prefix",
+        "OutputFile Prefix" ,
+        "output-prefix"
+    }
+};
 
+auto extractFunction = []( const QCommandLineParser &parser ,
+        ParsingResults<AbundanceParameters> &results)
+{
+    /// parse commandline arguments
+    if( !parser.isSet("input-file"))
+    {
+        results.success = CommandLineParser::CommandLineResult::CommandLineError;
+        results.errorMessage = "Input file is not specified.";
+        return;
+    }
+    if( !parser.isSet("taxonomy-db-path"))
+    {
+        results.success = CommandLineParser::CommandLineResult::CommandLineError;
+        results.errorMessage = "Taxonomy file is not specified.";
+        return;
+    }
+    if( !parser.isSet("output-prefix"))
+    {
+        results.success = CommandLineParser::CommandLineResult::CommandLineError;
+        results.errorMessage = "Output prefix is not specified.";
+        return;
+    }
 
-//map<uint32_t, uint32_t> parentMap;
-//map<uint32_t, string> rankMap;
-//map<uint32_t, uint32_t> standardMap;
-//map<uint32_t, string> namesMap;
-//uint32_t undefined=0;
-//map<uint32_t, taxA> taxonAnnotate_Map;
-
-
-
-
-
+    results.parameters.query =
+            parser.value("input-file");
+    results.parameters.taxonomyDB =
+            parser.value("taxonomy-db-path");
+    results.parameters.prefix =
+            parser.value("output-prefix");
+};
 
 
 int main(int argc, char *argv[])
 {	
-	string nodesFilename="";
-	string namesFilename="";
-	string query="";
-	string prefix="";
-	string taxonomyDB="";
-	string abundanceMethod="total";
-	string analysisMethod="";
-	string classificationMethod="";
-	
+    QCoreApplication a( argc , argv );
+    auto cmdLineParser =
+            CommandLineParser( a , commandLineOptions ,
+                               std::string(argv[0]) + " help" );
+    ParsingResults<AbundanceParameters> parsingResults;
+    cmdLineParser.process();
+    cmdLineParser.tokenize( extractFunction , parsingResults );
 
-	if (argc<2)
-	{
-		cout << "less than the required minimum number of options\n";
-		exit(1);
-	}
+    if( parsingResults.success == CommandLineParser::CommandLineResult::CommandLineError )
+        LOG_ERROR("Command line error: %s", parsingResults.errorMessage.c_str());
+    else
+        LOG_DEBUG("parameters: %s", parsingResults.parameters.toString().c_str());
+
+    const auto &param = parsingResults.parameters;
 	
-	
-	/// parse commandline arguments
-	while (1) 
-	{	
-		static struct option long_options[] = 
-		{			 
-			{"i", 1, 0, 0},
-			{"p", 1, 0, 0},
-			{"d", 1, 0, 0}, 
-			{"t", 1, 0, 0},
-			{"a", 1, 0, 0},
-			{"c", 1, 0, 0} 
-		};
-		
-		int longindex = -1;
-		int c = getopt_long_only(argc, argv, "", long_options, &longindex);
-		if(c == -1) break; /// Done parsing flags.
-		else if(c == '?') 
-		{
-			/// If the user entered junk, let him know. 
-			cerr << "Invalid parameters." << endl;
-			exit(1);
-		}
-		else 
-		{
-			switch(longindex) 
-			{ 
-				case 0: query=optarg; break;
-				case 1: prefix=optarg; break;
-				case 2: taxonomyDB=optarg; break;
-				case 3: abundanceMethod=optarg; break;
-				case 4: analysisMethod=optarg; break; // contig or reads
-				case 5: classificationMethod=optarg; break; // naive or wevote
-				default: break; 
-			}
-		}
-	}
-	
-	
-	nodesFilename=taxonomyDB+"/nodes_wevote.dmp";
-	namesFilename=taxonomyDB+"/names_wevote.dmp";
-	string OutputProfile= prefix + "_Abundance.csv";
-	ifstream file (query.c_str());
-	string line = "";
-	int it=0;
+    const std::string nodesFilename=
+            param.taxonomyDB+"/nodes_wevote.dmp";
+    const std::string namesFilename=
+            param.taxonomyDB+"/names_wevote.dmp";
+    const std::string outputProfile=
+            param.prefix + "_Abundance.csv";
 
 
 	/// Build taxonomy trees
-    auto parentMap = wevote::build_full_taxid_map(nodesFilename);
-    auto rankMap = wevote::build_full_rank_map(nodesFilename);
-    auto standardMap= wevote::build_standard_taxid_map(nodesFilename, parentMap, rankMap);
-    auto namesMap = wevote::build_taxname_map(namesFilename);
+    const wevote::TaxonomyBuilder taxonomy =
+            wevote::TaxonomyBuilder( nodesFilename , namesFilename );
+
 	
 	/// Read WEVOTE output file 
-	if (!file.is_open())
+    const std::map< uint32_t , wevote::TaxLine > taxonAnnotateMap =
+            wevote::io::readWevoteFile( param.query );
+	
+
+    LOG_INFO("Total #reads have Taxon 0 = %d",  taxonAnnotateMap[0].count );
+
+    uint32_t totalCounts=
+            std::accumulate( taxonAnnotateMap.cbegin() , taxonAnnotateMap.cend() ,
+                             0 , []( int c , const std::pair< uint32_t , wevote::TaxLine > &p ){
+        return c + p.second.count;
+    });
+    LOG_INFO("Total # reads = %d", totalCounts );
+	
+    for( std::pair< uint32_t , wevote::TaxLine > &p : taxonAnnotateMap )
 	{
-		cout << "Error opening file:" << query  <<"\n";
-		exit(1);
-	}
-
-
-	uint32_t taxon_temp=0;
-	uint32_t count_temp=0;
-	int q=0;
-	while (getline(file, line))
-	{
-		q++;
-		stringstream strstr(line);
-		string word = "";
-		it=0;
-
-			
-		while (getline(strstr,word, ',')) 
-		{			
-			if(it==0)
-			{
-				taxon_temp = atoi(word.c_str());
-				
-				if(taxon_temp == 0)
-				{
-					cout << "Taxon 0 presents in line = " << q << "\n";
-				}
-				taxon_temp = correctTaxan(taxon_temp);
-			}
-			else if(it==1)
-			{
-					count_temp = atoi(word.c_str());
-					break;
-			}
-											
-			it++;
-		}
-		
-		
-		if ( taxonAnnotate_Map.find(taxon_temp) == taxonAnnotate_Map.end() ) {
-			taxonAnnotate_Map[taxon_temp].count = count_temp;
-			taxonAnnotate_Map[taxon_temp].taxon = taxon_temp;
-		} else {
-			taxonAnnotate_Map[taxon_temp].count += count_temp;
-		}
-
-			
-	}
-	
-
-	
-	for(map<uint32_t, taxA>::iterator it = taxonAnnotate_Map.begin(); it != taxonAnnotate_Map.end(); ++it)
-	{
-		if(it->first == 0)
-		cout << "Total #reads have Taxon 0 = " << it->second.count << "\n";
-	}
-	
-	
-	
-	
-	//~ uint32_t numSeq= InputTaxa.size();
-	//~ uint32_t numClassifiedReads=0;	
-	map<uint32_t, uint32_t> hit_counts;
-	set<uint32_t> parents;
-	std::set<uint32_t>::iterator set_iterator;
-	std::map<uint32_t, uint32_t>::iterator iterator_name; 	
-	hit_counts.clear();
-	uint32_t TotalCounts=0;
-
-
-	//~ for (uint32_t i=0; i<TaxaCount.size(); i++)
-	//~ {
-		//~ TotalCounts+=TaxaCount[i];	
-	//~ }
-		
-	for(map<uint32_t, taxA>::iterator it = taxonAnnotate_Map.begin(); it != taxonAnnotate_Map.end(); ++it)
-	{		
-		TotalCounts += it->second.count;	
-	}	
-	
-	cout << "Total # reads = " << TotalCounts << "\n";
-	
-	
-	string rank_temp = "null";
-	for(map<uint32_t, taxA>::iterator it = taxonAnnotate_Map.begin(); it != taxonAnnotate_Map.end(); ++it)
-	{
-		it->second.RA = ((double)it->second.count/(double)TotalCounts)*100;
-		it->second.superkingdom = "";
-		it->second.kingdom = "";
-		it->second.phylum = "";
-		it->second.clas = "";
-		it->second.order = "";
-		it->second.family = "";
-		it->second.genus = "";
-		it->second.species = "";
-		
-		
-		taxon_temp = it->first;
-		
-		while(taxon_temp != 0)
+        p.second.RA = ((double)p.second.count/(double)totalCounts)*100;
+        uint32_t taxon = p.first;
+        while(taxon != wevote::ReadInfo::noAnnotation)
 		{
-			 rank_temp = rankMap[taxon_temp];
-			 
-			 
-			 if(rank_temp == "species")
-			 {
-				 it->second.species = namesMap[taxon_temp];
-			 }
-			 else if (rank_temp == "genus")
-			 {
-				 it->second.genus = namesMap[taxon_temp];
-			 }
-			 else if (rank_temp == "family")
-			 {
-				 it->second.family = namesMap[taxon_temp];
-			 }
-			 else if (rank_temp == "order")
-			 {
-				 it->second.order = namesMap[taxon_temp];
-			 }
-			 else if (rank_temp == "class")
-			 {
-				 it->second.clas = namesMap[taxon_temp];
-			 }
-			 else if (rank_temp == "phylum")
-			 {
-				 it->second.phylum = namesMap[taxon_temp];
-			 }
-			 else if (rank_temp == "kingdom")
-			 {
-				 it->second.kingdom = namesMap[taxon_temp];
-			 }
-			 else if (rank_temp == "superkingdom")
-			 {
-				 it->second.superkingdom = namesMap[taxon_temp];
-			 }
-			 else if (rank_temp == "root")
-			 {
-				 it->second.root = namesMap[taxon_temp];
-			 }
-			 
-			 taxon_temp = standardMap[taxon_temp];
-			 
-		}
-		
-	}
+             const std::string rank = taxonomy.getRank(taxon);
+             const std::string name = taxonomy.getTaxName( taxon );
 
+             if(rank == "species")
+			 {
+                 p.second.species = name;
+			 }
+             else if (rank == "genus")
+			 {
+                 p.second.genus = name;
+			 }
+             else if (rank == "family")
+			 {
+                 p.second.family = name;
+			 }
+             else if (rank == "order")
+			 {
+                 p.second.order = name;
+			 }
+             else if (rank == "class")
+			 {
+                 p.second.clas = name;
+			 }
+             else if (rank == "phylum")
+			 {
+                 p.second.phylum = name;
+			 }
+             else if (rank == "kingdom")
+			 {
+                 p.second.kingdom = name;
+			 }
+             else if (rank == "superkingdom")
+			 {
+                 p.second.superkingdom = name;
+			 }
+             else if (rank == "root")
+			 {
+                 p.second.root = name;
+			 }
+
+             taxon = taxonomy.getStandardParent( taxon );
+		}
+	}
 	
 	/// Export taxonomy and relative abundance to txt file	
-	ofstream myfile;
-	myfile.open (OutputProfile.c_str());
-	if (!myfile.is_open())
-	{
-		cout << "Error opening Output file: " << OutputProfile << "\n";
-		exit(1);	
-	}
-	
-	
-	myfile << "taxon" << "," << "count" << "," << "root" << "," << "superkingdom" << "," << "kingdom" << "," << "phylum" << "," << "class" << "," << "order" << "," << "family" << ","<< "genus" << "," << "species" << "\n";
-	for(map<uint32_t, taxA>::iterator it = taxonAnnotate_Map.begin(); it != taxonAnnotate_Map.end(); ++it)
-	{
-		myfile << it->second.taxon << "," << it->second.count << "," << it->second.superkingdom << "," << it->second.kingdom << "," << it->second.phylum << "," << it->second.clas << "," << it->second.order << "," << it->second.family << ","<< it->second.genus << "," << it->second.species << "\n";
-	}
-
-	myfile.close();
-
-
+    wevote::io::writeAbundance( taxonAnnotateMap , outputProfile );
 }

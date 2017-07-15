@@ -12,6 +12,36 @@ TaxonomyBuilder::TaxonomyBuilder( const std::string &nodesFilename  ,
     _standardMap = buildStandardTaxidMap( nodesFilename, _parentMap, _rankMap);
 }
 
+std::string TaxonomyBuilder::getRank(uint32_t taxid) const
+{
+    try{
+        return _rankMap.at( taxid );
+    } catch( const std::out_of_range &e )
+    {
+        return {""};
+    }
+}
+
+std::string TaxonomyBuilder::getTaxName(uint32_t taxid) const
+{
+    try{
+        return _namesMap.at( taxid );
+    } catch( const std::out_of_range &e )
+    {
+        return {""};
+    }
+}
+
+uint32_t TaxonomyBuilder::getStandardParent(uint32_t taxid) const
+{
+    try{
+        return _standardMap.at( taxid );
+    } catch( const std::out_of_range &e )
+    {
+        return ReadInfo::noAnnotation;
+    }
+}
+
 uint32_t TaxonomyBuilder::correctTaxan( uint32_t taxid ) const
 {
     std::string rank = _rankMap[taxid];

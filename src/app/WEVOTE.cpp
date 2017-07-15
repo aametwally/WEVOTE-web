@@ -39,17 +39,6 @@ struct WevoteParameters
     {}
 };
 
-struct ParsingResults
-{
-    CommandLineParser::CommandLineResult success;
-    std::string errorMessage;
-    WevoteParameters parameters;
-    ParsingResults()
-        : success( CommandLineParser::CommandLineResult::CommandLineOk ),
-          errorMessage("")
-    {}
-};
-
 const std::list< QCommandLineOption > commandLineOptions =
 {
     {
@@ -99,22 +88,23 @@ const std::list< QCommandLineOption > commandLineOptions =
     }
 };
 
-auto extractFunction = []( const QCommandLineParser &parser , ParsingResults &results)
+auto extractFunction = []( const QCommandLineParser &parser ,
+        ParsingResults<WevoteParameters> &results)
 {
     /// parse commandline arguments
-    if( parser.isSet("input-file"))
+    if( !parser.isSet("input-file"))
     {
         results.success = CommandLineParser::CommandLineResult::CommandLineError;
         results.errorMessage = "Input file is not specified.";
         return;
     }
-    if( parser.isSet("taxonomy-db-path"))
+    if( !parser.isSet("taxonomy-db-path"))
     {
         results.success = CommandLineParser::CommandLineResult::CommandLineError;
         results.errorMessage = "Taxonomy file is not specified.";
         return;
     }
-    if( parser.isSet("output-prefix"))
+    if( !parser.isSet("output-prefix"))
     {
         results.success = CommandLineParser::CommandLineResult::CommandLineError;
         results.errorMessage = "Output prefix is not specified.";
@@ -144,7 +134,7 @@ int main(int argc, char *argv[])
     auto cmdLineParser =
             CommandLineParser( a , commandLineOptions ,
                                std::string(argv[0]) + " help" );
-    ParsingResults parsingResults;
+    ParsingResults<WevoteParameters> parsingResults;
     cmdLineParser.process();
     cmdLineParser.tokenize( extractFunction , parsingResults );
 

@@ -1,5 +1,5 @@
 #include "headers.hpp"
-
+#include "Logger.h"
 
 
 namespace wevote
@@ -39,10 +39,10 @@ std::vector< ReadInfo >
 getReads( const std::string &filename )
 {
     std::vector<wevote::ReadInfo> reads;
-    std::ifstream file (param.query.c_str());
+    std::ifstream file ( filename );
     std::string line = "";
     if (!file.is_open())
-        LOG_ERROR("Error opening file:%s\n",param.query);
+        LOG_ERROR("Error opening file:%s",filename);
 
     while (std::getline(file, line))
     {
@@ -67,13 +67,13 @@ getReads( const std::string &filename )
 }
 
 void writeReads( const std::vector< ReadInfo > &reads ,
-                 const std::string fileName )
+                 const std::string &fileName )
 {
     /// Export the detailed output in txt format
     std::ofstream myfile;
-    myfile.open (outputDetails.c_str());
+    myfile.open (fileName.c_str());
     if (!myfile.is_open())
-        LOG_ERROR("Error opening Output file:%s \n",outputDetails);
+        LOG_ERROR("Error opening Output file:%s",fileName);
 
     for ( const wevote::ReadInfo &read : reads )
         myfile << read.seqID << "\t"
@@ -86,6 +86,69 @@ void writeReads( const std::vector< ReadInfo > &reads ,
                                                    read.annotation.cend()) , "\t") << "\t"
                << read.resolvedTaxon << "\n";
 
+    myfile.close();
+}
+
+std::map< uint32_t , TaxLine > readWevoteFile( const std::string &filename )
+{
+    std::map< uint32_t , TaxLine > taxonAnnotateMap;
+
+    std::ifstream file (filename);
+    std::string line = "";
+
+    if (!file.is_open())
+        LOG_ERROR("Error opening file:%s",filename.c_str());
+
+    int q=0;
+    while (std::getline(file, line))
+    {
+        q++;
+        std::stringstream strstr(line);
+        std::string word = "";
+
+        // column:0
+        std::getline(strstr,word, ',');
+        uint32_t taxon = atoi(word.c_str());
+        if( taxon == ReadInfo::noAnnotation )
+        {
+            LOG_DEBUG("Taxon 0 presents in line = %d",q);
+            taxon = correctTaxan(taxon);
+        }
+        // column:1
+        std::getline(strstr,word, ',');
+        uint32_t count = atoi(word.c_str());
+
+        if ( taxonAnnotateMap.find(taxon) == taxonAnnotateMap.end() )
+        {
+            taxonAnnotateMap[taxon].count = count;
+            taxonAnnotateMap[taxon].taxon = taxon;
+        } else {
+            taxonAnnotateMap[taxon].count += count;
+        }
+    }
+    return taxonAnnotateMap;
+}
+
+void writeAbundance( const std::map< uint32_t , TaxLine > &abundance ,
+                     const std::string &filename )
+{
+    std::ofstream myfile;
+    myfile.open (filename.c_str());
+    if (!myfile.is_open())
+        LOG_ERROR("Error opening Output file: %s", filename.c_str());
+
+    myfile << "taxon" << "," << "count" << "," << "superkingdom" << "," << "kingdom" << "," << "phylum" << "," << "class" << "," << "order" << "," << "family" << ","<< "genus" << "," << "species" << "\n";
+    for( const std::pair< uint32_t , wevote::TaxLine > &p : abundance)
+        myfile << p.second.taxon << ","
+               << p.second.count << ","
+               << p.second.superkingdom << ","
+               << p.second.kingdom << ","
+               << p.second.phylum << ","
+               << p.second.clas << ","
+               << p.second.order << ","
+               << p.second.family << ","
+               << p.second.genus << ","
+               << p.second.species << "\n";
     myfile.close();
 }
 }

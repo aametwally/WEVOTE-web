@@ -13,6 +13,27 @@ public:
                      const std::string &namesFilename );
 
     /**
+     * @brief getRank
+     * @param taxid
+     * @return
+     */
+    std::string getRank( uint32_t taxid ) const;
+
+    /**
+     * @brief getTaxName
+     * @param taxid
+     * @return
+     */
+    std::string getTaxName( uint32_t taxid ) const;
+
+    /**
+     * @brief getStandardParent
+     * @param taxid
+     * @return
+     */
+    uint32_t getStandardParent( uint32_t taxid ) const;
+
+    /**
      * @brief correctTaxan
      * Convert non-standard taxon to a standard taxon (per taxon)
      * @param tempTax

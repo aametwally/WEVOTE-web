@@ -4,6 +4,18 @@
 #include <memory>
 #include <QCommandLineParser>
 
+template< typename Parameters >
+struct ParsingResults
+{
+    CommandLineParser::CommandLineResult success;
+    std::string errorMessage;
+    Parameters parameters;
+    ParsingResults()
+        : success( CommandLineParser::CommandLineResult::CommandLineOk ),
+          errorMessage("")
+    {}
+};
+
 class CommandLineParser
 {
 
@@ -20,29 +32,28 @@ public:
                        std::string helpDescription )
         : _app( app )
     {
-        _parser.reset( new QCommandLineParser());
-        _parser->setApplicationDescription( helpDescription );
-        _parser->addHelpOption();
-        _parser->setSingleDashWordOptionMode(
+        _parser.setApplicationDescription( helpDescription );
+        _parser.addHelpOption();
+        _parser.setSingleDashWordOptionMode(
                         QCommandLineParser::ParseAsLongOptions );
         auto qOptions = QList::fromStdList( options );
-        _parser->addOptions( qOptions );
+        _parser.addOptions( qOptions );
     }
 
     void process()
     {
-        _parser->process( _app );
+        _parser.process( _app );
     }
 
-    template< typename ExtractFunction ,  typename ParsingResults >
-    void tokenize( ExtractFunction extractFunction , ParsingResults &results ) const
+    template< typename ExtractFunction ,  typename ParsingResults_T >
+    void tokenize( ExtractFunction extractFunction , ParsingResults_T &results ) const
     {
-        extractFunction( *_parser , results );
+        extractFunction( _parser , results );
     }
 
 protected:
     const QCoreApplication &_app ;
-    std::unique_ptr< QCommandLineParser > _parser ;
+    QCommandLineParser _parser ;
 
 };
 
