@@ -1,11 +1,11 @@
 import * as Express from 'express';
 import * as path from 'path';
 import * as logger from 'morgan';
-import * as cookieParser from 'cookie-parser';
+import * as ExpressSession from 'express-session';
+// let FileStore = require('session-file-store')(ExpressSession);
 import * as bodyParser from 'body-parser';
 import * as mongoose from 'mongoose';
 import errorHandler = require("errorhandler");
-
 
 import  {ReadsRouter} from './routes/reads';
 import  {UploadRouter} from './routes/upload';
@@ -57,9 +57,14 @@ export class Server {
         // uncomment after placing your favicon in /public
         //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
         this._app.use(logger('dev'));
+        this._app.use( ExpressSession({
+            name: 'session-id',
+            secret: '12345-67890-09876-54321',
+            saveUninitialized: true,
+            resave: true
+        }));
         this._app.use(bodyParser.json());
         this._app.use(bodyParser.urlencoded({extended: false}));
-        this._app.use(cookieParser());
         this._app.use(Express.static(path.join(__dirname, 'dist')));
     }
 
@@ -81,4 +86,5 @@ export class Server {
         // error handler
         this._app.use(errorHandler());
     }
+
 }

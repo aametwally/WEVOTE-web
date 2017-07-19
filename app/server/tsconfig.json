@@ -58,7 +58,9 @@
       "mongodb",
       "mongoose",
       "multer",
-      "errorhandler"
+      "errorhandler",
+      "express-session",
+      "session-file-store"
     ]
     /* Type declaration files to be included in compilation. */
     //"allowSyntheticDefaultImports": true
