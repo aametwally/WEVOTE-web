@@ -156,7 +156,8 @@ int main(int argc, char *argv[])
 
     /// Read CSV formated input file
     LOG_INFO("Loading reads..");
-    std::vector< wevote::ReadInfo > reads = wevote::io::getReads( param.query );
+    std::vector< wevote::ReadInfo > reads =
+            wevote::WevoteClassifier::getReads( param.query );
     LOG_INFO("[DONE] Loading reads..");
 
     /// Build taxonomy trees
@@ -169,6 +170,6 @@ int main(int argc, char *argv[])
                                param.penalty , param.threads );
 
     /// Output.
-    wevote::io::writeReads( reads , outputDetails );
+    wevote::WevoteClassifier::writeResults( reads , outputDetails );
     return a.exec();
 }

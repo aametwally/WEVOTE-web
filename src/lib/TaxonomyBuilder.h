@@ -5,6 +5,7 @@
 #include "Taxon.h"
 #include "ReadInfo.h"
 #include "Logger.h"
+#include "Rank.h"
 
 namespace wevote
 {

@@ -3,8 +3,8 @@ include( Qt )
 include_directories( ${WEVOTE_LIB_INCLUDE_DIRS} )
 
 
-set( WEVOTE_APP "wevoteApp")
-set( ABUNDANCE_APP "abundanceApp")
+set( WEVOTE_APP "wevoteClassifier")
+set( ABUNDANCE_APP "abundanceAnnotator")
 ### Generate the executable
 
 set( COMMAND_LINE_PARSER

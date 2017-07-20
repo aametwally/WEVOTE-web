@@ -1,5 +1,6 @@
 #include "headers.hpp"
 #include "helpers.hpp"
+#include "WevoteClassifier.h"
 #include "TaxonomyLineAnnotator.h"
 #include "Logger.h"
 #include "CommandLineParser.hpp"
@@ -100,18 +101,15 @@ int main(int argc, char *argv[])
     /// Build taxonomy trees
     const wevote::TaxonomyBuilder taxonomy( nodesFilename , namesFilename );
 
-    auto taxanCorrector = [&]( uint32_t taxid ){
-        return taxonomy.correctTaxan( taxid );
-    };
-
     /// Read WEVOTE output file
     std::map< uint32_t , wevote::TaxLine > taxonAnnotateMap =
-            wevote::io::readWevoteFile( param.query , taxanCorrector );
+            wevote::WevoteClassifier::readResults( param.query ,
+                                                   taxonomy );
 
 
     wevote::TaxonomyLineAnnotator annotator( taxonomy );
     annotator.annotateTaxonomyLines( taxonAnnotateMap );
 
     /// Export taxonomy and relative abundance to txt file
-    wevote::io::writeAbundance( taxonAnnotateMap , outputProfile );
+    wevote::TaxonomyLineAnnotator::writeResults( taxonAnnotateMap , outputProfile );
 }

@@ -346,10 +346,10 @@ TaxonomyBuilder::buildNameMapTaxid( const std::string &filename )
 
 bool TaxonomyBuilder::isRank( const std::string &rank )
 {
-    return rank=="root" || rank == "superkingdom" ||
-            rank == "kingdom" || rank== "phylum" ||
-            rank == "class" || rank == "order" ||
-            rank == "family" || rank == "genus" ||
-            rank == "species";
+    return std::any_of( Rank::rankLabels.cbegin() ,
+                        Rank::rankLabels.cend() ,
+                        [&rank]( const std::string &r) {
+        return r == rank;
+    });
 }
 }

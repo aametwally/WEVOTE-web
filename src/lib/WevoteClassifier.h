@@ -3,6 +3,7 @@
 
 #include "TaxonomyBuilder.h"
 #include "TaxLine.h"
+#include "helpers.hpp"
 #include "Logger.h"
 
 namespace wevote
@@ -24,6 +25,33 @@ public:
                    int minNumAgreed ,
                    int penalty ,
                    int threads = 1) const;
+
+    /**
+     * @brief getReads
+     * @param filename
+     * @return
+     */
+    static std::vector< ReadInfo >
+    getReads( const std::string &filename );
+
+    /**
+     * @brief writeResults
+     * @param reads
+     * @param fileName
+     */
+    static void writeResults(
+            const std::vector< ReadInfo > &reads ,
+            const std::string &fileName );
+
+    /**
+     * @brief readWevoteFile
+     * @param filename
+     * @param taxonomy
+     * @return
+     */
+    static std::map< uint32_t , TaxLine >
+    readResults( const std::string &filename ,
+                 const TaxonomyBuilder &taxonomy );
 
 protected:
     /**

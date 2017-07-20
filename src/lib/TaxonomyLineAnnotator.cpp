@@ -42,4 +42,26 @@ void TaxonomyLineAnnotator::annotateTaxonomyLines(
     });
 }
 
+void TaxonomyLineAnnotator::writeResults(
+        const std::map<uint32_t, TaxLine> &abundance,
+        const std::string &filename)
+{
+    std::ofstream myfile;
+    myfile.open (filename.c_str());
+    if (!myfile.is_open())
+        LOG_ERROR("Error opening Output file: %s", filename.c_str());
+
+    myfile << "taxon" << ","
+           << "count" << ","
+           << io::join( Rank::rankLabels.cbegin() + 1 ,
+                        Rank::rankLabels.cend() , ",") << "\n";
+
+    for( const std::pair< uint32_t , wevote::TaxLine > &p : abundance)
+        myfile << p.second.taxon << ","
+               << p.second.count << ","
+               << io::join( p.second.line.cbegin() + 1 ,
+                            p.second.line.cend() , ", ") << "\n";
+    myfile.close();
+}
+
 }

@@ -34,23 +34,23 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 ADD_LIBRARY(${PROJECT_NAME} ${${PROJECT_NAME}-sources} ${${PROJECT_NAME}-mocs})
 
 IF(NOT USE_QT_5)
-	TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${QT_LIBRARIES})
+        TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${QT_LIBRARIES})
 ELSE()
-	qt5_use_modules(${PROJECT_NAME} Core Network)
+        qt5_use_modules(${PROJECT_NAME} Core Network)
 ENDIF()
 
 INSTALL(TARGETS ${PROJECT_NAME}
     EXPORT flow-LibraryDependencies
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib
-		)
+                RUNTIME DESTINATION bin
+                LIBRARY DESTINATION lib
+                ARCHIVE DESTINATION lib
+                )
 
-INSTALL(FILES qtservice.h QtServiceBase QtServiceController DESTINATION ${QT_INCLUDE_DIR}/${PROJECT_NAME})
+#INSTALL(FILES qtservice.h QtServiceBase QtServiceController DESTINATION ${QT_INCLUDE_DIR}/${PROJECT_NAME})
 
-IF(UNIX)
-  INSTALL(FILES qtunixserversocket.h qtunixsocket.h DESTINATION ${QT_INCLUDE_DIR}/${PROJECT_NAME})
-ENDIF()
+#IF(UNIX)
+#  INSTALL(FILES qtunixserversocket.h qtunixsocket.h DESTINATION ${QT_INCLUDE_DIR}/${PROJECT_NAME})
+#ENDIF()
 
 CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/ProjectConfig.cmake.in
 	${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake @ONLY )
