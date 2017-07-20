@@ -10,8 +10,8 @@ set( ABUNDANCE_APP "abundanceAnnotator")
 set( COMMAND_LINE_PARSER
     CommandLineParser.hpp )
 
-add_executable( ${WEVOTE_APP} ${COMMAND_LINE_PARSER} WEVOTE.cpp )
-add_executable( ${ABUNDANCE_APP} ${COMMAND_LINE_PARSER} ABUNDANCE.cpp )
+add_executable( ${WEVOTE_APP} ${COMMAND_LINE_PARSER} wevoteClassifier.cpp )
+add_executable( ${ABUNDANCE_APP} ${COMMAND_LINE_PARSER} abundanceAnnotator.cpp )
 
 ### Make sure to use the required Qt modules
 qt5_use_modules( ${WEVOTE_APP} Core )
