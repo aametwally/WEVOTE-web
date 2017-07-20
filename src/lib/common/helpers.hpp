@@ -39,7 +39,7 @@ std::vector< std::string > asStringsVector( SeqIt firstIt , SeqIt lastIt )
     std::vector< std::string > stringified;
     std::transform( firstIt , lastIt ,
                     std::inserter( stringified , std::end( stringified )) ,
-                    toString< SeqIt::value_type > );
+                    toString< typename SeqIt::value_type > );
     return stringified;
 }
 
@@ -148,18 +148,16 @@ void writeAbundance( const std::map< uint32_t , TaxLine > &abundance ,
     if (!myfile.is_open())
         LOG_ERROR("Error opening Output file: %s", filename.c_str());
 
-    myfile << "taxon" << "," << "count" << "," << "superkingdom" << "," << "kingdom" << "," << "phylum" << "," << "class" << "," << "order" << "," << "family" << ","<< "genus" << "," << "species" << "\n";
+    myfile << "taxon" << ","
+           << "count" << ","
+           << join( Rank::rankLabels.cbegin() + 1 ,
+                    Rank::rankLabels.cend() , ",") << "\n";
+
     for( const std::pair< uint32_t , wevote::TaxLine > &p : abundance)
         myfile << p.second.taxon << ","
                << p.second.count << ","
-               << p.second.superkingdom << ","
-               << p.second.kingdom << ","
-               << p.second.phylum << ","
-               << p.second.clas << ","
-               << p.second.order << ","
-               << p.second.family << ","
-               << p.second.genus << ","
-               << p.second.species << "\n";
+               << join( p.second.line.cbegin() + 1 ,
+                        p.second.line.cend() , ", ") << "\n";
     myfile.close();
 }
 }

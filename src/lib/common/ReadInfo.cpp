@@ -2,5 +2,11 @@
 
 namespace wevote
 {
-const uint32_t ReadInfo::noAnnotation = 0;
+const uint32_t ReadInfo::noAnnotation = NO_ANNOTATIOIN;
+
+bool ReadInfo::isAnnotation( uint32_t taxid )
+{
+    return taxid != noAnnotation;
+}
+
 }

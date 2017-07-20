@@ -134,7 +134,7 @@ void WevoteClassifier::_preprocessReads( std::vector<ReadInfo> &reads ) const
         read.numToolsReported = std::count_if( read.annotation.cbegin() ,
                                                read.annotation.cend() ,
                                                []( uint32_t taxid ){
-                return taxid != wevote::ReadInfo::noAnnotation; });
+                return ReadInfo::isAnnotation( taxid ); });
 }
 
 }

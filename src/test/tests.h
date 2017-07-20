@@ -3,7 +3,7 @@
 
 #include "headers.hpp"
 
-#define DATA_DIRECTORY "E:/repo/wevote-service/data"
+#define DATA_DIRECTORY "/home/asem/GP/wevote-service/data"
 
 
 namespace test_utils

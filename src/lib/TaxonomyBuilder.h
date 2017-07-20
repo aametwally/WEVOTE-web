@@ -9,7 +9,7 @@
 namespace wevote
 {
 
-struct PrivateData;
+struct TaxonomyPrivate;
 
 class TaxonomyBuilder
 {
@@ -159,7 +159,7 @@ public:
     static bool isRank( const std::string &rank );
 private:
     mutable uint32_t _undefined;
-    std::unique_ptr< PrivateData > _data;
+    std::unique_ptr< TaxonomyPrivate > _data;
 
 };
 }

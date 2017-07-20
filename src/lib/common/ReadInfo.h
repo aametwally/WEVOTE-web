@@ -2,6 +2,10 @@
 #define READINFO_H
 
 #include "headers.hpp"
+
+#define NO_ANNOTATIOIN 0
+
+
 namespace wevote
 {
 struct ReadInfo{
@@ -12,6 +16,7 @@ struct ReadInfo{
     uint32_t numToolsReported;
     uint32_t numToolsUsed;
     double score;
+    WEVOTE_DLL static bool isAnnotation( uint32_t taxid );
     WEVOTE_DLL static const uint32_t noAnnotation;
 };
 

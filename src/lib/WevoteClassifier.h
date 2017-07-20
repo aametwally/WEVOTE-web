@@ -2,6 +2,7 @@
 #define WEVOTECLASSIFIER_H
 
 #include "TaxonomyBuilder.h"
+#include "TaxLine.h"
 #include "Logger.h"
 
 namespace wevote
@@ -23,6 +24,7 @@ public:
                    int minNumAgreed ,
                    int penalty ,
                    int threads = 1) const;
+
 protected:
     /**
      * @brief _preprocessReads

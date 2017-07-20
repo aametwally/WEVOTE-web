@@ -1,7 +1,6 @@
 #include "headers.hpp"
 #include "helpers.hpp"
-#include "TaxonomyBuilder.h"
-#include "TaxLine.h"
+#include "TaxonomyLineAnnotator.h"
 #include "Logger.h"
 #include "CommandLineParser.hpp"
 
@@ -110,65 +109,8 @@ int main(int argc, char *argv[])
             wevote::io::readWevoteFile( param.query , taxanCorrector );
 
 
-    LOG_INFO("Total #reads have Taxon 0 = %d",  taxonAnnotateMap[0].count );
-
-    uint32_t totalCounts=
-            std::accumulate( taxonAnnotateMap.cbegin() , taxonAnnotateMap.cend() ,
-                             0 , []( int c , const std::pair< uint32_t , wevote::TaxLine > &p ){
-        return c + p.second.count;
-    });
-    LOG_INFO("Total # reads = %d", totalCounts );
-
-    std::for_each( taxonAnnotateMap.begin() , taxonAnnotateMap.end() ,
-                   [&]( std::pair< const uint32_t , wevote::TaxLine > &p )
-    {
-        p.second.RA = ((double)p.second.count/(double)totalCounts)*100;
-        uint32_t taxon = p.first;
-        while(taxon != wevote::ReadInfo::noAnnotation)
-        {
-            const std::string rank = taxonomy.getRank(taxon);
-            const std::string name = taxonomy.getTaxName( taxon );
-
-            if(rank == "species")
-            {
-                p.second.species = name;
-            }
-            else if (rank == "genus")
-            {
-                p.second.genus = name;
-            }
-            else if (rank == "family")
-            {
-                p.second.family = name;
-            }
-            else if (rank == "order")
-            {
-                p.second.order = name;
-            }
-            else if (rank == "class")
-            {
-                p.second.clas = name;
-            }
-            else if (rank == "phylum")
-            {
-                p.second.phylum = name;
-            }
-            else if (rank == "kingdom")
-            {
-                p.second.kingdom = name;
-            }
-            else if (rank == "superkingdom")
-            {
-                p.second.superkingdom = name;
-            }
-            else if (rank == "root")
-            {
-                p.second.root = name;
-            }
-
-            taxon = taxonomy.getStandardParent( taxon );
-        }
-    });
+    wevote::TaxonomyLineAnnotator annotator( taxonomy );
+    annotator.annotateTaxonomyLines( taxonAnnotateMap );
 
     /// Export taxonomy and relative abundance to txt file
     wevote::io::writeAbundance( taxonAnnotateMap , outputProfile );

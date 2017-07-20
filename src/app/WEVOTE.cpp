@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a( argc , argv );
     CommandLineParser cmdLineParser( a , commandLineOptions ,
-                       std::string(argv[0]) + " help" );
+                                     std::string(argv[0]) + " help" );
     ParsingResults<WevoteParameters> parsingResults;
     cmdLineParser.process();
     cmdLineParser.tokenize( extractFunction , parsingResults );

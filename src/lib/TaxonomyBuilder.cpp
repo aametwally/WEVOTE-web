@@ -3,9 +3,9 @@
 namespace wevote
 {
 
-struct PrivateData
+struct TaxonomyPrivate
 {
-    PrivateData( const std::string &nodesFilename  ,
+    TaxonomyPrivate( const std::string &nodesFilename  ,
                  const std::string &namesFilename )
         : parentMap( TaxonomyBuilder::buildFullTaxIdMap( nodesFilename )),
           rankMap( TaxonomyBuilder::buildFullRankMap( nodesFilename )),
@@ -23,7 +23,7 @@ struct PrivateData
 TaxonomyBuilder::TaxonomyBuilder( const std::string &nodesFilename  ,
                                   const std::string &namesFilename )
     : _undefined( 0 ),
-      _data( new PrivateData( nodesFilename  , namesFilename ))
+      _data( new TaxonomyPrivate( nodesFilename  , namesFilename ))
 {
 
 }
@@ -193,7 +193,7 @@ TaxonomyBuilder::correctTaxaVector( const std::vector<uint32_t> &inputTaxa ) con
 {
     std::vector<uint32_t> correctedTaxa;
     std::transform( inputTaxa.cbegin() , inputTaxa.cend() ,
-                    std::inserter( correctedTaxa , std::begin( correctedTaxa )) ,
+                    std::inserter( correctedTaxa , std::end( correctedTaxa )) ,
                     [this]( uint32_t taxid ){
         return correctTaxan( taxid );
     } );

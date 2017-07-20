@@ -7,6 +7,9 @@
 #include <vector>
 #include <string>
 #include <iterator>
+#include <array>
+#include <tr1/unordered_map>
+#include <unordered_map>
 
 // STL Smart Ptrs
 #include <memory>
@@ -34,13 +37,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <math.h>
-
-//#include <getopt.h>
-//#include <err.h>
-//#include <sysexits.h>
-//#include <unistd.h>
-//#include <sys/mman.h>
-//#include <sys/time.h>
+#include <type_traits>
 
 #if defined(__linux__) || defined(__linux) || defined( __GNUC__ )
 #define WEVOTE_DLL

@@ -2,21 +2,15 @@
 #define TAXLINE_H
 
 #include "headers.hpp"
+#include "Rank.h"
 
 namespace wevote
 {
+
 struct TaxLine {
     uint32_t taxon;
     uint32_t count;
-    std::string root;
-    std::string superkingdom;
-    std::string kingdom;
-    std::string phylum;
-    std::string clas;
-    std::string order;
-    std::string family;
-    std::string genus;
-    std::string species;
+    std::array< std::string , RANKS_SIZE > line;
     double RA;
 };
 }

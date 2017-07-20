@@ -6,20 +6,24 @@ set( WEVOTE_LIB "wevote" )
 set( WEVOTE_LIB_SOURCE_FILES
     WevoteClassifier.cpp
     TaxonomyBuilder.cpp
+    TaxonomyLineAnnotator.cpp
     common/ReadInfo.cpp
     common/Taxon.cpp
     common/TaxLine.cpp
+    common/Rank.cpp
     log/Logger.cpp
     )
 
 set( WEVOTE_LIB_HEADER_FILES
     WevoteClassifier.h
     TaxonomyBuilder.h
+    TaxonomyLineAnnotator.h
     common/helpers.hpp
     common/headers.hpp
     common/ReadInfo.h
     common/Taxon.h
     common/TaxLine.h
+    common/Rank.h
     log/Colors.hh
     log/Logger.h
     log/LogLevel.hh )
@@ -29,6 +33,13 @@ set( WEVOTE_LIB_HEADER_FILES
 include_directories( . )
 include_directories( common )
 include_directories( log )
+
+find_package(OpenMP)
+if (OPENMP_FOUND)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+
 
 #### Define the library
 add_library( ${WEVOTE_LIB} SHARED
