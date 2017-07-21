@@ -1,4 +1,7 @@
-.idea/**/*
+.idea/**
+.vscode/**
+app/dist/**
+app/uploads/*
 node_modules/**/*
 bower_components/**/*
 app/build/**
