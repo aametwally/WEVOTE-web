@@ -83,11 +83,13 @@ int main(int argc, char *argv[])
 	cout << "NamesFilename= " << namesFilename << "\n";
 	
 	/// Build taxonomy trees
+    cout << "building taxonomy\n";
 	parentMap = build_full_taxid_map(nodesFilename);	
 	rankMap = build_full_rank_map(nodesFilename);
 	standardMap=build_standard_taxid_map(nodesFilename, parentMap, rankMap);
 	namesMap = build_taxname_map(namesFilename);
-	
+    cout << "done building taxonomy\n";
+
 	
 	/// Read CSV formated input file  
 	vector<readsInfo> Reads;

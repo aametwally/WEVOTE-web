@@ -9,6 +9,11 @@
 namespace wevote
 {
 struct ReadInfo{
+    ReadInfo()
+        : seqID({""}),resolvedTaxon{0},
+          numToolsAgreed{0},numToolsReported{0},
+          numToolsUsed{0} , score{0}
+    {}
     std::string seqID;
     std::vector<uint32_t> annotation;
     uint32_t resolvedTaxon;

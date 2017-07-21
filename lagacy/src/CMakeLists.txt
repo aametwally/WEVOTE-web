@@ -15,10 +15,6 @@ set( LAGACY_WEVOTE_LIB_HEADER_FILES
     headers.hpp
  )
 
-
-### Include directories.
-include_directories( . )
-
 find_package(OpenMP)
 if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
@@ -37,7 +33,7 @@ set_target_properties( ${LAGACY_WEVOTE_LIB} PROPERTIES COMPILE_DEFINITIONS "WEVO
 install( TARGETS ${LAGACY_WEVOTE_LIB} DESTINATION lib )
 
 set(LAGACY_WEVOTE_LIB_INCLUDE_DIRS
-  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/../..
   CACHE INTERNAL "${LAGACY_WEVOTE_LIB} include directories"
 )
 

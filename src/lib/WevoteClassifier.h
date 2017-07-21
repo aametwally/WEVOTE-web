@@ -53,12 +53,11 @@ public:
     readResults( const std::string &filename ,
                  const TaxonomyBuilder &taxonomy );
 
-protected:
     /**
      * @brief _preprocessReads
      * @param reads
      */
-    void _preprocessReads( std::vector< ReadInfo > &reads ) const;
+    void preprocessReads( std::vector< ReadInfo > &reads ) const;
 
 private:
     const TaxonomyBuilder &_taxonomy;

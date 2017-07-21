@@ -46,6 +46,12 @@ std::vector< std::string > asStringsVector( SeqIt firstIt , SeqIt lastIt )
 }
 
 template< typename Container = std::vector< std::string >>
+std::vector< std::string > asStringsVector( const Container &container )
+{
+    return asStringsVector( container.cbegin() , container.cend());
+}
+
+template< typename Container = std::vector< std::string >>
 auto getFileLines( const std::string &filePath )
 {
     std::ifstream f( filePath );

@@ -93,15 +93,15 @@ public:
      * @param inputTaxa
      */
     WEVOTE_DLL std::vector<uint32_t>
-    correctTaxaVector(const std::vector<uint32_t> &inputTaxa) const;
+    correctTaxaVector( const std::vector<uint32_t> &inputTaxa ) const;
 
     /**
      * @brief correctTaxa
      * Convert non-standard taxon to a standard taxon (per vector).
      * @param seq
      */
-    WEVOTE_DLL std::vector<ReadInfo>
-    correctTaxa( const std::vector<ReadInfo> &seq ) const;
+    WEVOTE_DLL void
+    correctTaxa(std::vector<ReadInfo> &seq ) const;
 
     /**
      * @brief getParentMapCopy

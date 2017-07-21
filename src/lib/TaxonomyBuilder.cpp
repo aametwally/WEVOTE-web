@@ -69,16 +69,24 @@ uint32_t TaxonomyBuilder::correctTaxan( uint32_t taxid ) const
         return ReadInfo::noAnnotation;
     try
     {
-        std::string rank = _data->rankMap.at(taxid);
+        std::string rank;
+        auto rankIt = _data->rankMap.find( taxid );
+        if( rankIt == _data->rankMap.end())
+            rank = "";
+        else rank = rankIt->second;
+
         while (!isRank( rank ) )
         {
             taxid = _data->parentMap.at( taxid );
             if( taxid == ReadInfo::noAnnotation )
                 return ReadInfo::noAnnotation;
-            else if( _data->rankMap.find( taxid ) == _data->rankMap.end())
-                rank = "";
             else
-                rank= _data->rankMap.at( taxid );
+            {
+                rankIt = _data->rankMap.find( taxid );
+                if( rankIt == _data->rankMap.end())
+                    rank = "";
+                else rank = rankIt->second;
+            }
         }
     }catch( const std::out_of_range & )
     {
@@ -133,7 +141,7 @@ std::set<uint32_t> TaxonomyBuilder::getAncestry( uint32_t taxon ) const
 }
 
 uint32_t TaxonomyBuilder::resolveTree(
-        std::map<uint32_t, uint32_t> &hitCounts,
+        const std::map<uint32_t, uint32_t> &hitCounts,
         uint32_t numToolsReported, uint32_t minNumAgreed ) const
 {
     std::set<uint32_t> maxTaxa;
@@ -202,13 +210,10 @@ TaxonomyBuilder::correctTaxaVector( const std::vector<uint32_t> &inputTaxa ) con
     return correctedTaxa;
 }
 
-std::vector<ReadInfo>
-TaxonomyBuilder::correctTaxa( const std::vector<ReadInfo> &seq) const
+void TaxonomyBuilder::correctTaxa( std::vector<ReadInfo> &reads ) const
 {
-    std::vector<ReadInfo> reads = seq;
     for ( ReadInfo &read : reads )
         read.annotation = correctTaxaVector( read.annotation );
-    return reads;
 }
 
 std::map<uint32_t, uint32_t> TaxonomyBuilder::getParentMapCopy() const

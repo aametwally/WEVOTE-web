@@ -2,19 +2,13 @@
 #define TESTS_H
 
 #include "headers.hpp"
-#include "helpers.hpp"
-#include "create_db.hpp"
-#include "TaxonomyBuilder.h"
 
-extern map<uint32_t, uint32_t> parentMap;
-extern map<uint32_t, string> rankMap;
-extern map<uint32_t, uint32_t> standardMap;
-extern map<uint32_t, string> namesMap;
 
-#define TAXONOMY_DIRECTORY "/projects/data/taxonomy"
-#define TAXONOMY_NAMES_FILE std::string( TAXONOMY_DIRECTORY ) + "/names.dmp"
-#define TAXONOMY_NODES_FILE std::string( TAXONOMY_DIRECTORY ) + "/nodes.dmp"
 
+#define TEST_TAXONOMY_DIRECTORY "/projects/data/taxonomy"
+#define TEST_TAXONOMY_NAMES_FILE std::string( TEST_TAXONOMY_DIRECTORY ) + "/names.dmp"
+#define TEST_TAXONOMY_NODES_FILE std::string( TEST_TAXONOMY_DIRECTORY ) + "/nodes.dmp"
+#define TEST_ENSEMBLE_CSV_FILE "/projects/data/03C31_S1_71_ensemble.csv"
 namespace test_utils
 {
     auto getFileLines( const std::string &filePath )

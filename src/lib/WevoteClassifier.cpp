@@ -14,7 +14,7 @@ void WevoteClassifier::classify(
         int minNumAgreed, int penalty, int threads) const
 {
     LOG_INFO("Preprocessing reads..");
-    _preprocessReads( reads );
+    preprocessReads( reads );
     LOG_INFO("[DONE] Preprocessing reads..");
 
     /// WEVOTE algorithm
@@ -119,29 +119,19 @@ std::vector<ReadInfo> WevoteClassifier::getReads(
         const std::string &filename )
 {
     std::vector<ReadInfo> reads;
-    std::ifstream file ( filename );
-    std::string line = "";
-    if (!file.is_open())
-        LOG_ERROR("Error opening file:%s",filename);
-
-    while (std::getline(file, line))
+    const std::vector<std::string> lines = io::getFileLines( filename );
+    for( const std::string &line : lines )
     {
-        std::stringstream strstr(line);
-        std::string word = "";
-        int col=0;
-        int value=0;
-        wevote::ReadInfo read;
-        while (std::getline(strstr,word, ','))
+        const std::vector< std::string > tokens = io::split( line , ',');
+        ReadInfo read;
+        read.seqID = tokens.front();
+        std::transform( tokens.begin()+1 , tokens.end() ,
+                        std::inserter( read.annotation , read.annotation.end()) ,
+                        []( const std::string &t )
         {
-            if(col++==0)
-                read.seqID=word;
-            else
-            {
-                value=atoi(word.c_str());
-                read.annotation.push_back(value);
-            }
-        }
-        reads.push_back(read);
+           return atoi( t.c_str());
+        });
+        reads.push_back( read );
     }
     return reads;
 }
@@ -161,7 +151,7 @@ void WevoteClassifier::writeResults(
                << read.numToolsUsed << "\t"
                << read.numToolsReported << "\t"
                << read.numToolsAgreed<<"\t"
-               << read.score << "\t"
+               << read.score << "\t\t"
                << io::join(
                       io::asStringsVector( read.annotation.cbegin() ,
                                            read.annotation.cend()) , "\t") << "\t"
@@ -213,7 +203,7 @@ WevoteClassifier::readResults(
     return taxonAnnotateMap;
 }
 
-void WevoteClassifier::_preprocessReads( std::vector<ReadInfo> &reads ) const
+void WevoteClassifier::preprocessReads( std::vector<ReadInfo> &reads ) const
 {
     uint32_t numToolsUsed= reads.front().annotation.size();
     uint32_t numReads= reads.size();
