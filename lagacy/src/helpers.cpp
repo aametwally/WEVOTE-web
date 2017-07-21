@@ -3,7 +3,10 @@
 
 
 /// Convert non-standard taxon to a standard taxon (per taxon)
-uint32_t correctTaxan(uint32_t tempTax)
+uint32_t correctTaxan(uint32_t tempTax,
+                      map<uint32_t, uint32_t> &parentMap ,
+                      map<uint32_t, string> &rankMap ,
+                      uint32_t &undefined  )
 {
 	string tempRank=rankMap[tempTax];
 		
@@ -38,7 +41,10 @@ uint32_t correctTaxan(uint32_t tempTax)
 
 
 /// Convert non-standard taxon to a standard taxon (per vector)
-void correctTaxa(vector<readsInfo> &seq)
+void correctTaxa(vector<readsInfo> &seq,
+                 map<uint32_t, uint32_t> &parentMap ,
+                 map<uint32_t, string> &rankMap ,
+                 uint32_t &undefined )
 {
 	uint32_t tempTax;
 	string tempRank="";
@@ -84,7 +90,10 @@ void correctTaxa(vector<readsInfo> &seq)
 
 
 /// For an array of taxa: Convert non-standard taxon to a standard taxon
-void correctTaxa_vecTaxa(vector<uint32_t> &InputTaxa)
+void correctTaxa_vecTaxa(vector<uint32_t> &InputTaxa,
+                         map<uint32_t, uint32_t> &parentMap ,
+                         map<uint32_t, string> &rankMap ,
+                         uint32_t &undefined)
 {
 	uint32_t tempTax;
 	string tempRank="";
@@ -126,7 +135,8 @@ void correctTaxa_vecTaxa(vector<uint32_t> &InputTaxa)
 
 
 /// Get LCA
-uint32_t lca(uint32_t a, uint32_t b)
+uint32_t lca(uint32_t a, uint32_t b,
+             map< uint32_t , uint32_t > &standardMap )
 {
 	if (a == 0 || b == 0)
 		return a ? a : b;
@@ -149,7 +159,8 @@ uint32_t lca(uint32_t a, uint32_t b)
 
 
 /// Get all ancestry of a taxon
-set<uint32_t> get_ancestry(uint32_t taxon)
+set<uint32_t> get_ancestry(uint32_t taxon ,
+                           map< uint32_t , uint32_t > standardMap )
 {
 	set<uint32_t> path;
 	path.clear();
@@ -163,7 +174,10 @@ set<uint32_t> get_ancestry(uint32_t taxon)
 
 
 /// Return the taxon of the highest weighted Root-to-Taxon path and passes WEVOTE threshold.
-uint32_t resolve_tree(map<uint32_t, uint32_t> &hit_counts, uint32_t numToolsReported, uint32_t minNumAgreed)
+uint32_t resolve_tree(map<uint32_t, uint32_t> &hit_counts,
+                      uint32_t numToolsReported,
+                      uint32_t minNumAgreed ,
+                      map< uint32_t , uint32_t > &standardMap )
 {
 	set<uint32_t> max_taxa;
 	uint32_t max_taxon = 0, max_score = 0;
@@ -213,8 +227,9 @@ uint32_t resolve_tree(map<uint32_t, uint32_t> &hit_counts, uint32_t numToolsRepo
 		max_taxon = *sit;
 		
 		for (sit++; sit != max_taxa.end(); sit++)
-		max_taxon = lca(max_taxon, *sit);
+        max_taxon = lca(max_taxon, *sit , standardMap );
 	}
 	return max_taxon;
 }
+
 

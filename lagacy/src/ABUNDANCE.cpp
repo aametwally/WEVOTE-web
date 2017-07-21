@@ -89,8 +89,8 @@ int main(int argc, char *argv[])
 	}
 	
 	
-	nodesFilename=taxonomyDB+"/nodes_wevote.dmp";
-	namesFilename=taxonomyDB+"/names_wevote.dmp";
+    nodesFilename=taxonomyDB+"nodes.dmp";
+    namesFilename=taxonomyDB+"names.dmp";
 	string OutputProfile= prefix + "_Abundance.csv";
 	ifstream file (query.c_str());
 	string line = "";
@@ -132,7 +132,8 @@ int main(int argc, char *argv[])
 				{
 					cout << "Taxon 0 presents in line = " << q << "\n";
 				}
-				taxon_temp = correctTaxan(taxon_temp);
+                taxon_temp = correctTaxan(taxon_temp ,parentMap,
+                                          rankMap , undefined );
 			}
 			else if(it==1)
 			{

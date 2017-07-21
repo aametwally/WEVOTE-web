@@ -22,6 +22,7 @@ struct ParsingResults
     {}
 };
 
+
 class CommandLineParser
 {
 public:

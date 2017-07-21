@@ -75,8 +75,8 @@ int main(int argc, char *argv[])
 	}
 	
 	
-	nodesFilename=taxonomyDB+"/nodes_wevote.dmp"; 
-	namesFilename=taxonomyDB+"/names_wevote.dmp";	
+    nodesFilename=taxonomyDB+"nodes.dmp";
+    namesFilename=taxonomyDB+"names.dmp";
 	string OutputDetails= prefix + "_WEVOTE_Details.txt";
 	string OutputWEVOTE= prefix + "_WEVOTE.csv";
 	cout << "NodesFilename= " << nodesFilename << "\n";
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
     
     
     /// Correct TaxonID for the not standard ranks   
-    correctTaxa(Reads);
+    correctTaxa(Reads , parentMap , rankMap , undefined );
    	
     /// Count number of tools that identified each sequences
     uint32_t count=0;
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
 				}
 			}
 			
-			Reads[i].resolvedTaxon=lca(SavedTax_2[0], SavedTax_2[1]);
+            Reads[i].resolvedTaxon=lca(SavedTax_2[0], SavedTax_2[1],standardMap);
 			Reads[i].numToolsAgreed=2;
 			if(Reads[i].numToolsAgreed==Reads[i].numToolsReported)
 			{
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
 			hit_counts.clear();
 			for (uint32_t j=0 ; j<numToolsUsed ; j++)
 			{
-				parents=get_ancestry(Reads[i].annotation[j]);
+                parents=get_ancestry(Reads[i].annotation[j],standardMap);
 				for(set_iterator = parents.begin(); set_iterator != parents.end(); set_iterator++)
 				{	
 					hit_counts[*set_iterator]++;
@@ -243,7 +243,8 @@ int main(int argc, char *argv[])
 			}				
 								
 			/// Resolve tree for each sequence to get WEVOTE annotation  
-			Reads[i].resolvedTaxon=resolve_tree(hit_counts, Reads[i].numToolsReported, minNumAgreed);
+            Reads[i].resolvedTaxon=resolve_tree(hit_counts, Reads[i].numToolsReported, minNumAgreed ,
+                                                standardMap );
 			Reads[i].numToolsAgreed=hit_counts[Reads[i].resolvedTaxon];
 			
 			if(Reads[i].numToolsAgreed==Reads[i].numToolsReported)

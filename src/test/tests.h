@@ -2,9 +2,18 @@
 #define TESTS_H
 
 #include "headers.hpp"
+#include "helpers.hpp"
+#include "create_db.hpp"
+#include "TaxonomyBuilder.h"
 
-#define DATA_DIRECTORY "/home/asem/GP/wevote-service/data"
+extern map<uint32_t, uint32_t> parentMap;
+extern map<uint32_t, string> rankMap;
+extern map<uint32_t, uint32_t> standardMap;
+extern map<uint32_t, string> namesMap;
 
+#define TAXONOMY_DIRECTORY "/projects/data/taxonomy"
+#define TAXONOMY_NAMES_FILE std::string( TAXONOMY_DIRECTORY ) + "/names.dmp"
+#define TAXONOMY_NODES_FILE std::string( TAXONOMY_DIRECTORY ) + "/nodes.dmp"
 
 namespace test_utils
 {

@@ -45,6 +45,46 @@ std::vector< std::string > asStringsVector( SeqIt firstIt , SeqIt lastIt )
     return stringified;
 }
 
+template< typename Container = std::vector< std::string >>
+auto getFileLines( const std::string &filePath )
+{
+    std::ifstream f( filePath );
+    Container lines;
+    std::string line;
+    if( f )
+        while( std::getline( f , line ))
+            lines.push_back( line );
+    else std::cout << "Failed to open file:" << filePath ;
+    return lines;
+}
+
+template< typename Container = std::vector< std::string >>
+auto split( const std::string &s , char delim  )
+{
+    std::stringstream ss( s );
+    Container tokens;
+    std::string token;
+    while( std::getline( ss , token , delim ))
+        tokens.push_back( token );
+    return tokens;
+}
+
+template< typename Container = std::vector< std::string >>
+auto split( const std::string &s , std::string delim  )
+{
+    Container tokens;
+    size_t last = 0; size_t next = 0;
+    while ((next = s.find(delim, last )) != std::string::npos)
+    {
+        tokens.push_back( s.substr(last , next - last));
+        last = next + 1;
+    }
+    last += delim.length() - 1;
+    if( last < s.length() )
+        tokens.push_back( s.substr( last , std::string::npos ));
+    return tokens;
+}
+
 }
 }
 

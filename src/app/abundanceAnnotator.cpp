@@ -1,3 +1,6 @@
+#include <QDir>
+#include <QFile>
+
 #include "headers.hpp"
 #include "helpers.hpp"
 #include "WevoteClassifier.h"
@@ -46,16 +49,25 @@ auto extractFunction = []( const QCommandLineParser &parser ,
         ParsingResults<AbundanceParameters> &results)
 {
     /// parse commandline arguments
-    if( !parser.isSet("input-file"))
+    if( !parser.isSet("input-file") ||
+            !QFile::exists( parser.value("input-file")))
     {
         results.success = CommandLineResult::CommandLineError;
-        results.errorMessage = "Input file is not specified.";
+        results.errorMessage = "Input file is not specified or "
+                               "does not exists.";
         return;
     }
     if( !parser.isSet("taxonomy-db-path"))
     {
         results.success = CommandLineResult::CommandLineError;
         results.errorMessage = "Taxonomy file is not specified.";
+        return;
+    }
+    QDir taxonomyDBPath( parser.value("taxonomy-db-path"));
+    if( !taxonomyDBPath.exists())
+    {
+        results.success = CommandLineResult::CommandLineError;
+        results.errorMessage = "Taxonomy provided dir does not exist.";
         return;
     }
     if( !parser.isSet("output-prefix"))
@@ -91,9 +103,13 @@ int main(int argc, char *argv[])
     const auto &param = parsingResults.parameters;
 
     const std::string nodesFilename=
-            param.taxonomyDB+"/nodes_wevote.dmp";
+            QDir( QString::fromStdString( param.taxonomyDB ))
+            .filePath("nodes.dmp").toStdString();
+
     const std::string namesFilename=
-            param.taxonomyDB+"/names_wevote.dmp";
+            QDir( QString::fromStdString( param.taxonomyDB ))
+            .filePath("names.dmp").toStdString();
+
     const std::string outputProfile=
             param.prefix + "_Abundance.csv";
 
@@ -112,4 +128,6 @@ int main(int argc, char *argv[])
 
     /// Export taxonomy and relative abundance to txt file
     wevote::TaxonomyLineAnnotator::writeResults( taxonAnnotateMap , outputProfile );
+
+    return EXIT_SUCCESS;
 }

@@ -53,5 +53,6 @@ set( DATA_DIRECTORY ${CMAKE_SOURCE_DIR}/data)
 
 
 ### Add all the files in the src directory to the CMake tree
+add_subdirectory( lagacy )
 add_subdirectory( src )
 

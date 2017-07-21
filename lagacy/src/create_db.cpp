@@ -145,3 +145,4 @@ map<string, uint32_t> build_name_map_taxid(string filename)
 	}
 	return pmap;
 }
+

@@ -17,7 +17,7 @@ struct ReadInfo{
     uint32_t numToolsUsed;
     double score;
     WEVOTE_DLL static bool isAnnotation( uint32_t taxid );
-    WEVOTE_DLL static const uint32_t noAnnotation;
+    WEVOTE_DLL static constexpr uint32_t noAnnotation = NO_ANNOTATIOIN;
 };
 
 }

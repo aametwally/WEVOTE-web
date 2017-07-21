@@ -2,6 +2,7 @@
 #define TAXONOMYBUILDER_H
 
 #include "headers.hpp"
+#include "helpers.hpp"
 #include "Taxon.h"
 #include "ReadInfo.h"
 #include "Logger.h"
@@ -82,8 +83,7 @@ public:
      * @param threshold
      * @return
      */
-    WEVOTE_DLL uint32_t resolveTree(
-            const std::map<uint32_t, uint32_t> &hit_counts,
+    WEVOTE_DLL uint32_t resolveTree(const std::map<uint32_t, uint32_t> &hit_counts,
             uint32_t numToolsReported,
             uint32_t minNumAgreed ) const;
 
@@ -102,6 +102,35 @@ public:
      */
     WEVOTE_DLL std::vector<ReadInfo>
     correctTaxa( const std::vector<ReadInfo> &seq ) const;
+
+    /**
+     * @brief getParentMapCopy
+     * @return
+     */
+    WEVOTE_DLL std::map< uint32_t , uint32_t >
+    getParentMapCopy() const;
+
+    /**
+     * @brief getRankMapCopy
+     * @return
+     */
+    WEVOTE_DLL std::map< uint32_t , std::string >
+    getRankMapCopy() const;
+
+    /**
+     * @brief getNamesMapCopy
+     * @return
+     */
+    WEVOTE_DLL std::map< uint32_t , std::string >
+    getNamesMapCopy() const;
+
+
+    /**
+     * @brief getStandardMapCopy
+     * @return
+     */
+    WEVOTE_DLL std::map< uint32_t , uint32_t >
+    getStandardMapCopy() const;
 
     /**
      * @brief buildFullTaxIdMap

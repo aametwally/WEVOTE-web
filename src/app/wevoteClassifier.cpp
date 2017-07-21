@@ -157,14 +157,18 @@ int main(int argc, char *argv[])
     const auto &param = parsingResults.parameters;
 
     const std::string nodesFilename=
-            param.taxonomyDB+"/nodes_wevote.dmp";
+            QDir( QString::fromStdString( param.taxonomyDB ))
+            .filePath("nodes.dmp").toStdString();
+
     const std::string namesFilename=
-            param.taxonomyDB+"/names_wevote.dmp";
+            QDir( QString::fromStdString( param.taxonomyDB ))
+            .filePath("names.dmp").toStdString();
+
     const std::string outputDetails=
             param.prefix + "_WEVOTE_Details.txt";
 
-    LOG_INFO("NodesFilename=%s", nodesFilename);
-    LOG_INFO("NamesFilename=%s", namesFilename);
+    LOG_INFO("NodesFilename=%s", nodesFilename.c_str());
+    LOG_INFO("NamesFilename=%s", namesFilename.c_str());
 
     /// Read CSV formated input file
     LOG_INFO("Loading reads..");
@@ -181,7 +185,16 @@ int main(int argc, char *argv[])
     wevoteClassifier.classify( reads , param.minNumAgreed ,
                                param.penalty , param.threads );
 
+    uint32_t undefined =
+            std::count_if( reads.cbegin() , reads.cend() ,
+                           []( const wevote::ReadInfo &read )
+    {
+        return read.resolvedTaxon == wevote::ReadInfo::noAnnotation;
+    });
+    LOG_INFO("Unresolved taxan=%d/%d",undefined,reads.size());
+
     /// Output.
     wevote::WevoteClassifier::writeResults( reads , outputDetails );
-    return a.exec();
+
+    return EXIT_SUCCESS;
 }

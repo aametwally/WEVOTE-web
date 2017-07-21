@@ -64,7 +64,7 @@ void WevoteClassifier::classify(
                 if( annotation != ReadInfo::noAnnotation )
                     savedTax_2[n++]=annotation;
 
-            WEVOTE_ASSERT( n == 1 , "n must be 1.");
+            WEVOTE_ASSERT( n == 2 , "n must be 2.");
 
             read.resolvedTaxon = _taxonomy.lca(savedTax_2[0], savedTax_2[1]);
             read.numToolsAgreed=2;

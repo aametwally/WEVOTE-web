@@ -37,7 +37,7 @@ cmake -DCMAKE_PREFIX_PATH="<path-to-qt-installed-library>" -DCMAKE_INSTALL_PREFI
 ```
 An example where Qt root directory installed at ```/opt``` and we intend to install the project in ```/projects/wevote```.
 ```
-cmake -DCMAKE_PREFIX_PATH="/opt/Qt5.8.0/5.8/gcc_64/lib/cmake" -DCMAKE_INSTALL_PREFIX="/projects/wevote" ..
+cmake -DCMAKE_PREFIX_PATH="/opt/Qt5.8.0/5.8/gcc_64/lib/cmake" -DCMAKE_INSTALL_PREFIX="/projects/wevote" -DTAXONOMY_DIRECTORY="/projects/data/taxonomy" -DCMAKE_BUILD_TYPE=Release ..
 ```
 
 

@@ -25,7 +25,7 @@ TaxonomyBuilder::TaxonomyBuilder( const std::string &nodesFilename  ,
     : _undefined( 0 ),
       _data( new TaxonomyPrivate( nodesFilename  , namesFilename ))
 {
-
+    LOG_INFO("Taxonomy Builder Constructed.");
 }
 
 TaxonomyBuilder::~TaxonomyBuilder()
@@ -73,8 +73,10 @@ uint32_t TaxonomyBuilder::correctTaxan( uint32_t taxid ) const
         while (!isRank( rank ) )
         {
             taxid = _data->parentMap.at( taxid );
-            if( taxid < 1 )
+            if( taxid == ReadInfo::noAnnotation )
                 return ReadInfo::noAnnotation;
+            else if( _data->rankMap.find( taxid ) == _data->rankMap.end())
+                rank = "";
             else
                 rank= _data->rankMap.at( taxid );
         }
@@ -108,7 +110,7 @@ uint32_t TaxonomyBuilder::lca( uint32_t a, uint32_t b ) const
         }
     }catch( const std::out_of_range & )
     {
-        LOG_DEBUG("A taxon is undefined in the database");
+//        LOG_DEBUG("A taxon is undefined in the database");
     }
     return 1;
 }
@@ -118,20 +120,20 @@ std::set<uint32_t> TaxonomyBuilder::getAncestry( uint32_t taxon ) const
     std::set<uint32_t> path;
     try
     {
-        while (taxon > 0)
+        while ( taxon != ReadInfo::noAnnotation )
         {
             path.insert(taxon);
             taxon = _data->standardMap.at( taxon );
         }
     }catch( const std::out_of_range & )
     {
-        LOG_DEBUG("The taxon = %d is undefined in the database", taxon );
+//        LOG_DEBUG("The taxon = %d is undefined in the database", taxon );
     }
     return path;
 }
 
 uint32_t TaxonomyBuilder::resolveTree(
-        const std::map<uint32_t, uint32_t> &hitCounts,
+        std::map<uint32_t, uint32_t> &hitCounts,
         uint32_t numToolsReported, uint32_t minNumAgreed ) const
 {
     std::set<uint32_t> maxTaxa;
@@ -150,7 +152,7 @@ uint32_t TaxonomyBuilder::resolveTree(
         uint32_t taxon = hit.first;
         uint32_t node = taxon;
         uint32_t score = 0;
-        while ( node > 0 )
+        while ( node != ReadInfo::noAnnotation )
         {
             try
             {
@@ -158,7 +160,7 @@ uint32_t TaxonomyBuilder::resolveTree(
                 node = _data->standardMap.at( node );
             }catch( const std::out_of_range &e )
             {
-                LOG_DEBUG("Undefined taxid(%d): %s", node , e.what());
+//                LOG_DEBUG("Undefined taxid(%d): %s", node , e.what());
                 break;
             }
         }
@@ -209,23 +211,34 @@ TaxonomyBuilder::correctTaxa( const std::vector<ReadInfo> &seq) const
     return reads;
 }
 
+std::map<uint32_t, uint32_t> TaxonomyBuilder::getParentMapCopy() const
+{
+    return _data->parentMap;
+}
+
+std::map<uint32_t, std::string> TaxonomyBuilder::getRankMapCopy() const
+{
+    return _data->rankMap;
+}
+
+std::map<uint32_t, std::string> TaxonomyBuilder::getNamesMapCopy() const
+{
+    return _data->namesMap;
+}
+
+std::map<uint32_t, uint32_t> TaxonomyBuilder::getStandardMapCopy() const
+{
+    return _data->standardMap;
+}
+
 std::map<uint32_t, uint32_t>
-TaxonomyBuilder::buildFullTaxIdMap(const std::string &filename)
+TaxonomyBuilder::buildFullTaxIdMap( const std::string &filename )
 {
     std::map<uint32_t, uint32_t> pmap;
-    uint32_t nodeId, parentId;
-    std::string line;
-    std::ifstream ifs(filename.c_str());
-    if (ifs.rdstate() & std::ifstream::failbit)
-        LOG_ERROR("Error opening %s", filename.c_str());
-
-    while (ifs.good())
+    const std::vector< std::string > lines = io::getFileLines( filename );
+    for( const std::string &line : lines )
     {
-        std::getline(ifs, line);
-
-        if (line.empty())
-            break;
-
+        uint32_t nodeId, parentId;
         sscanf(line.c_str(), "%d\t|\t%d", &nodeId, &parentId);
         pmap[nodeId] = parentId;
     }
@@ -237,25 +250,16 @@ std::map<uint32_t, std::string>
 TaxonomyBuilder::buildFullRankMap(const std::string &filename)
 {
     std::map<uint32_t, std::string> pmap;
-    uint32_t nodeId, parentId;
-    char rank[100];
-    std::string line;
-    std::ifstream ifs(filename.c_str());
-    if (ifs.rdstate() & std::ifstream::failbit)
+    const std::vector< std::string > lines = io::getFileLines( filename );
+    for( const std::string &line : lines )
     {
-        LOG_ERROR("Error opening %s", filename.c_str());
-    }
-    while (ifs.good())
-    {
-        std::getline(ifs, line);
-
-        if (line.empty())
-            break;
-
+        uint32_t nodeId, parentId;
+        char rank[100];
         std::sscanf(line.c_str(), "%d\t|\t%d\t|\t%s", &nodeId, &parentId, rank);
         pmap[nodeId] = rank;
     }
-    pmap[1] = "root";
+
+    pmap[1] = Rank::rankLabels[0];
     return pmap;
 }
 
@@ -266,24 +270,13 @@ TaxonomyBuilder::buildStandardTaxidMap(
         const std::map<uint32_t, std::string> &rankMap )
 {
     std::map<uint32_t, uint32_t> pmap;
-
-    std::ifstream ifs(filename.c_str());
-    if (ifs.rdstate() & std::ifstream::failbit)
-        LOG_ERROR("Error opening %s", filename.c_str());
-
-    while (ifs.good())
+    const std::vector< std::string > lines = io::getFileLines( filename );
+    for( const std::string &line : lines )
     {
-        std::string line;
         uint32_t nodeId, parentId;
         char rank[100];
-
-        std::getline(ifs, line);
-        if (line.empty())
-            break;
-
         std::sscanf(line.c_str(), "%d\t|\t%d\t|\t%s", &nodeId, &parentId, rank);
         std::string rankString = rank;
-
         if(isRank( rankString ))
             while(1)
             {
@@ -296,6 +289,7 @@ TaxonomyBuilder::buildStandardTaxidMap(
                 parentId = parentMap.at( parentId );
             }
     }
+
     pmap[1] = ReadInfo::noAnnotation;
     return pmap;
 }
@@ -304,18 +298,13 @@ std::map<uint32_t, std::string>
 TaxonomyBuilder::buildTaxnameMap( const std::string &filename )
 {
     std::map<uint32_t, std::string> pmap;
-    uint32_t node_id;
-    char name[1000];
-    std::string line;
-    std::ifstream ifs(filename.c_str());
-    if (ifs.rdstate() & std::ifstream::failbit)
-        LOG_ERROR("Error opening %s", filename.c_str());
-
-    while (ifs.good())
+    const std::vector< std::string > lines = io::getFileLines( filename );
+    for( const std::string &line : lines )
     {
-        std::getline(ifs, line);
-        if (line.empty())
+        if( line.empty())
             break;
+        uint32_t node_id;
+        char name[1000];
         sscanf(line.c_str(), "%d\t|\t%s", &node_id, name);
         pmap[node_id] = name;
     }
@@ -326,18 +315,11 @@ std::map<std::string, uint32_t>
 TaxonomyBuilder::buildNameMapTaxid( const std::string &filename )
 {
     std::map<std::string, uint32_t> pmap;
-    uint32_t node_id;
-    char name[1000];
-    std::string line;
-    std::ifstream ifs(filename.c_str());
-    if (ifs.rdstate() & std::ifstream::failbit)
-        LOG_ERROR("Error opening %s", filename.c_str());
-
-    while (ifs.good())
+    const std::vector< std::string > lines = io::getFileLines( filename );
+    for( const std::string &line : lines )
     {
-        std::getline(ifs, line);
-        if (line.empty())
-            break;
+        uint32_t node_id;
+        char name[1000];
         sscanf(line.c_str(), "%d\t|\t%s", &node_id, name);
         pmap[name] = node_id;
     }
