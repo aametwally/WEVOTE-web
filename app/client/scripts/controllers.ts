@@ -3,12 +3,19 @@
  */
 "use strict";
 module wevote {
+
+    export interface MainControllerScope extends ng.IScope
+    {
+        showInput: Boolean,
+        error: Boolean,
+        message: String,
+    }
     export class MainController {
         static readonly $inject: any = ['$scope', MainController];
-        private _scope: ng.IScope;
+        private _scope: MainControllerScope;
 
         constructor($scope: ng.IScope) {
-            this._scope = $scope;
+            this._scope = <MainControllerScope> $scope;
             this._scope.showInput = false;
             this._scope.error = false;
             this._scope.message = "Loading ...";
@@ -21,12 +28,33 @@ module wevote {
         readonly label: string;
     }
 
+    export interface InputControllerScope extends ng.IScope
+    {
+        availableDatabaseLoaded : Boolean ,
+        supportedAlgorithmsLoaded: Boolean,
+        availableDatabase: any,
+        showInput: Boolean,
+        areDataLoaded: any ,
+        error: Boolean,
+        message: String ,
+        supportedAlgorithms: any ,
+        experiment: any ,
+        inputForm: any ,
+        readsSources : any, 
+        taxonomySources: any , 
+        noAlgorithmChosen: Boolean,
+        postExperiment: any, 
+        readsUploader: any,
+        readsUploaderPostValidation: Boolean,
+        taxonomyUploader: any , 
+        taxonomyUploaderPostValidation: Boolean
+    }
     export class InputController {
 
         static readonly $inject = ['$scope', 'SimulatedReadsService',
             'AlgorithmsService', 'ExperimentService', InputController];
 
-        private _scope: ng.IScope;
+        private _scope: InputControllerScope;
 
         private readonly readsSources: ReadsSourceType[] = [{
             value: "client",
@@ -136,7 +164,7 @@ module wevote {
 
         constructor($scope: ng.IScope, private SimulatedReadsService: any,
                     private AlgorithmsService: any, private ExperimentService: any) {
-            this._scope = $scope;
+            this._scope = <InputControllerScope> $scope;
             this._scope.inputForm = {};
 
             this._scope.readsSources = this.readsSources;
@@ -175,8 +203,14 @@ module wevote {
         (fileItem: any): void;
     }
 
+
+    export interface UploaderControllerScope extends ng.IScope
+    {
+        uploader: any,
+        experiment: any
+    }
     abstract class UploaderController {
-        protected _scope: ng.IScope;
+        protected _scope: UploaderControllerScope;
         protected _uploader: any;
 
         protected abstract onSuccessItemCB: OnSuccessCBType;
@@ -184,7 +218,7 @@ module wevote {
         protected abstract onAfterAddingFileCB: OnAfterAddingFileCBType;
 
         constructor($scope: ng.IScope, FileUploaderService: any) {
-            this._scope = $scope;
+            this._scope = <UploaderControllerScope> $scope;
 
         }
     }
@@ -292,12 +326,20 @@ module wevote {
         }
     }
 
+    export interface ExperimentControllerScope extends ng.IScope
+    {
+        experiments: any ,
+        showExperiments: Boolean ,
+        experimentsError : Boolean ,
+        experimentsMessage: String 
+    }
+
     export class ExperimentController {
         static readonly $inject = ['$scope', 'ExperimentService', ExperimentController];
-        private _scope: ng.IScope;
+        private _scope: ExperimentControllerScope;
 
         constructor($scope: ng.IScope, private ExperimentService: any) {
-            this._scope = $scope;
+            this._scope = <ExperimentControllerScope> $scope;
             this._scope.experiments = {};
             this._scope.showExperiments = false;
             this._scope.experimentsError = false;

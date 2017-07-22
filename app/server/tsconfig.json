@@ -1,7 +1,7 @@
 {
-  "files": ["app.ts",
-  "./**/*.ts"],
-
+  "files": 
+  ["app.ts",
+  "**/*.ts"],
   "compileOnSave": false,
   "compilerOptions": {
     /* Basic Options */
