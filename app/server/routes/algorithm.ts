@@ -1,7 +1,6 @@
 import {AlgorithmModel} from '../models/algorithm';
 import {BaseRoute} from "./route";
 import {Request, Response, NextFunction} from 'express';
-import construct = Reflect.construct;
 
 
 // router.route('/:algId')

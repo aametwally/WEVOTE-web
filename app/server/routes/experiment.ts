@@ -56,6 +56,7 @@ export class ExperimentRouter extends BaseRoute
                     config: _config,
                 },function (err: any, exp: any) {
                     if (err) {
+                        console.log("Error:"+err);
                         throw err;
                     }
                     console.log("experiment posted!:" + exp);

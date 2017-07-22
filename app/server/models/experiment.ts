@@ -7,27 +7,27 @@ import * as mongoose from 'mongoose';
 
 
 export interface IStatus extends mongoose.Document {
-    started: Boolean,
-    progress: Number
+    started: Boolean;
+    progress: Number;
 }
 
 
 export interface IConfig extends mongoose.Document {
-    algorithms: mongoose.Types.DocumentArray<IAlgorithmModel>,
-    minNumAgreed: Number,
-    minScore: Number,
-    penalty: Number
+    algorithms: mongoose.Types.DocumentArray<IAlgorithmModel>;
+    minNumAgreed: Number;
+    minScore: Number;
+    penalty: Number;
 }
 
 export interface IExperimentModel extends mongoose.Document {
-    user: String,
-    isPrivate: Boolean,
-    email: String,
-    description: String,
-    reads: IReadsModel,
-    taxonomy: ITaxonomyModel,
-    config: IConfig,
-    status: IStatus
+    user: String;
+    isPrivate: Boolean;
+    email: String;
+    description: String;
+    reads: IReadsModel;
+    taxonomy: ITaxonomyModel;
+    config: IConfig;
+    status: IStatus;
     createdAt: Date;
     modifiedAt: Date;
 }

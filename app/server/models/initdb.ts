@@ -1,8 +1,8 @@
 import * as fs from 'fs';
-import {AlgorithmModel} from './algorithm';
-import {ReadsModel} from './reads';
-import {ExperimentModel} from './experiment';
-import {TaxonomyAbundanceProfileModel} from './taxprofile';
+import { AlgorithmModel } from './algorithm';
+import { ReadsModel } from './reads';
+import { ExperimentModel } from './experiment';
+import { TaxonomyAbundanceProfileModel } from './taxprofile';
 
 let initAlgorithms = function () {
     fs.readFile(__dirname + "/algorithm.json", 'utf8', function (err, data) {
@@ -11,7 +11,7 @@ let initAlgorithms = function () {
         datafromfile.forEach(function (obj: any) {
             AlgorithmModel.repo.create(obj, function (err, doc) {
                 if (err) throw err;
-                console.log("Add algorithm: " + doc);
+                // console.log("Add algorithm: " + doc);
             });
         })
     })
@@ -24,7 +24,7 @@ let initReads = function () {
         datafromfile.forEach(function (obj: any) {
             ReadsModel.repo.create(obj, function (err, doc) {
                 if (err) throw err;
-                console.log("Add reads: " + doc);
+                // console.log("Add reads: " + doc);
             });
         })
     })
@@ -33,10 +33,10 @@ let initReads = function () {
 let initTaxonomyAbundance = function () {
     fs.readFile(__dirname + "/taxprofile.csv", 'utf8', function (err, data) {
         if (err) throw err;
-        let abundance = {taxa_abundance: csvJSON(data)};
+        let abundance = { taxa_abundance: csvJSON(data) };
         TaxonomyAbundanceProfileModel.repo.create(<any>abundance, function (err, doc) {
             if (err) throw err;
-            console.log("Add taxonomy abundance: " + doc);
+            // console.log("Add taxonomy abundance: " + doc);
         });
     })
 };
@@ -51,8 +51,7 @@ export let csvJSON = (csv: any): any => {
 
         let obj = {};
         let currentline = lines[i].trim('\r').split(",");
-        if( currentline.length != headers.length )
-        {
+        if (currentline.length != headers.length) {
             continue;
         }
 

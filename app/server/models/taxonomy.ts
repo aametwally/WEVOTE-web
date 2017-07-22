@@ -2,12 +2,12 @@ import * as Defs from './model';
 import * as mongoose from 'mongoose';
 
 export interface ITaxonomyModel extends mongoose.Document {
-    name: String ,
-    description: String,
-    onServer: Boolean
-    uri: String
-    data: String
-    size: Number 
+    name: String ;
+    description: String;
+    onServer: Boolean;
+    uri: String;
+    data: String;
+    size: Number ;
 }
 
 export class TaxonomyModel

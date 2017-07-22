@@ -61,7 +61,10 @@
       "multer",
       "errorhandler",
       "express-session",
-      "session-file-store"
+      "session-file-store" , 
+      "passport", 
+      "passport-local",
+      "passport-local-mongoose"
     ]
     /* Type declaration files to be included in compilation. */
     //"allowSyntheticDefaultImports": true

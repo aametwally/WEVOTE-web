@@ -2,13 +2,13 @@ import * as Defs from './model';
 import * as mongoose from 'mongoose';
 
 export interface IReadsModel extends mongoose.Document {
-    name: String ,
-    description: String,
-    onServer: Boolean
-    uri: String
-    data: String
-    size: Number ,
-    count: Number
+    name: String ;
+    description: String;
+    onServer: Boolean;
+    uri: String;
+    data: String;
+    size: Number ;
+    count: Number;
 }
 
 export class ReadsModel

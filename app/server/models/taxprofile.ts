@@ -5,22 +5,22 @@ import * as Defs from './model';
 import * as mongoose from 'mongoose';
 
 export interface ITaxonomyAbundance extends mongoose.Document {
-    taxon: Number ,
-    count: Number ,
-    root: String,
-    superkingdom: String,
-    kingdom: String,
-    phylum: String,
-    class: String,
-    order: String,
-    family: String,
-    genus: String,
-    species: String
+    taxon: Number ;
+    count: Number ;
+    root: String;
+    superkingdom: String;
+    kingdom: String;
+    phylum: String;
+    class: String;
+    order: String;
+    family: String;
+    genus: String;
+    species: String;
 }
 
 export interface ITaxonomyAbundanceProfileModel extends mongoose.Document {
-    description: String,
-    taxa_abundance: mongoose.Types.DocumentArray<ITaxonomyAbundance>
+    description: String;
+    taxa_abundance: mongoose.Types.DocumentArray<ITaxonomyAbundance>;
 }
 
 

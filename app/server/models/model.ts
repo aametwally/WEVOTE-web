@@ -30,7 +30,12 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
 
     create(item: T, callback: (error: any, result: T) => void) {
-        this._model.create(item, callback);
+        this._model.create(item, function (error: any, results: T) {
+            if (error)
+                console.log("Error creating data:" + error +
+                    "\ndata:" + results);
+            callback(error, results)
+        });
     }
 
     retrieve(callback: (error: any, result: T) => void) {
