@@ -60,7 +60,12 @@ export class UserRouter extends BaseRoute {
                             });
                         }
 
-                        let token = getToken(user);
+                        let token = getToken({
+                            "username": user.username,
+                            "_id": user._id,
+                            "admin": user.admin
+                        });
+                        
                         res.status(200).json({
                             status: 'Login successful!',
                             success: true,

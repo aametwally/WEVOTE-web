@@ -3,9 +3,8 @@ import { ExperimentModel, IExperimentModel, IConfig, IStatus } from '../models/e
 import { Request, Response, NextFunction } from 'express';
 import { IReadsModel } from "../models/reads";
 import { ITaxonomyModel } from "../models/taxonomy";
-
-
-
+import { UserModel, IUserModel } from '../models/user';
+import { verifyOrdinaryUser } from './verify';
 
 export class ExperimentRouter extends BaseRoute {
 
@@ -13,7 +12,8 @@ export class ExperimentRouter extends BaseRoute {
         super();
 
         this._router.route('/')
-            .post(function (req: any, res: any, next: any) {
+            .post(verifyOrdinaryUser,
+            function (req: any, res: any, next: any) {
                 console.log(req.body);
 
                 let exp = req.body;
@@ -45,7 +45,7 @@ export class ExperimentRouter extends BaseRoute {
                 };
 
                 ExperimentModel.repo.create(<any>{
-                    user: exp.user,
+                    user: req.decoded._id,
                     isPrivate: exp.private,
                     email: exp.email,
                     description: exp.description,
@@ -69,8 +69,9 @@ export class ExperimentRouter extends BaseRoute {
             .get(function (req: Request, res: Response, next: NextFunction) {
                 ExperimentModel.repo.retrieve(function (err: any, experiments: any) {
                     if (err) return next(err);
+
                     res.json(experiments);
-                });
+                }, 'user', 'username');
             })
             ;
 

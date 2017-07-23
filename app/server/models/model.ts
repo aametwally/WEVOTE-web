@@ -38,8 +38,14 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
         });
     }
 
-    retrieve(callback: (error: any, result: T) => void) {
-        return this._model.find({}, callback);
+    retrieve(callback: (error: any, result: T) => void,
+        populateStr?: String, fields?: Object) {
+        if (populateStr)
+            return this._model.find({})
+                .populate(populateStr, fields)
+                .exec(callback);
+        else
+            return this._model.find({}, callback);
     }
 
     update(_id: mongoose.Types.ObjectId, item: T, callback: (error: any, result: any) => void) {
@@ -54,16 +60,34 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
         this._model.remove({}, callback);
     }
 
-    findById(_id: string, callback: (error: any, result: T) => void) {
-        this._model.findById(_id, callback);
+    findById(_id: string, callback: (error: any, result: T) => void,
+        populateStr?: String, fields?: Object) {
+        if (populateStr)
+            return this._model.findById(_id)
+                .populate(populateStr, fields)
+                .exec(callback);
+        else
+            return this._model.findById(_id, callback);
     }
 
-    findOne(cond: Object, callback?: (err: any, res: T) => void): any {
-        return this._model.findOne(cond, callback);
+    findOne(cond: Object, callback?: (err: any, res: T) => void,
+        populateStr?: String, fields?: Object): any {
+        if (populateStr)
+            return this._model.findOne(cond)
+                .populate(populateStr, fields)
+                .exec(callback);
+        else
+            return this._model.findOne(cond, callback);
     }
 
-    find(cond: Object, fields?: Object, options?: Object, callback?: (err: any, res: T[]) => void): any {
-        return this._model.find(cond, options, callback);
+    find(cond: Object, fields?: Object, options?: Object, callback?: (err: any, res: T[]) => void,
+        populateStr?: String, popFields?: Object): any {
+        if (populateStr)
+            return this._model.find(cond, options)
+                .populate(populateStr, popFields)
+                .exec(callback);
+        else
+            return this._model.find(cond, options, callback);
     }
 
     private toObjectId(_id: string): mongoose.Types.ObjectId {

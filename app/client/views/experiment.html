@@ -21,7 +21,7 @@
                     </thead>
                     <tbody>
                     <tr ng-repeat="exp in experiments">
-                        <td><strong>{{ exp.user }}</strong></td>
+                        <td><strong>{{ exp.user['username'] }}</strong></td>
                         <td>
                             <a ng-attr-id="{{exp._id}}" class="btn btn-primary btn-xs"
                                data-toggle="tooltip" title="Used Algorithms"

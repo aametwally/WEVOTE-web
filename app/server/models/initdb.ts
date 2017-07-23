@@ -106,8 +106,8 @@ export let init = function () {
         });
     });
 
-    ExperimentModel.repo.drop(function (err) {
-        if (err) throw err;
-        console.log("Experiments cleared");
-    });
+    // ExperimentModel.repo.drop(function (err) {
+    //     if (err) throw err;
+    //     console.log("Experiments cleared");
+    // });
 };

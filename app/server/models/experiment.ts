@@ -20,7 +20,7 @@ export interface IConfig extends mongoose.Document {
 }
 
 export interface IExperimentModel extends mongoose.Document {
-    user: String;
+    user: mongoose.Schema.Types.ObjectId;
     isPrivate: Boolean;
     email: String;
     description: String;
@@ -68,9 +68,8 @@ export class ExperimentModel
 {
     public static schema = new Defs.Schema({
         user: {
-            type: String,
-            required: true,
-            default: "public"
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
         },
         isPrivate: {
             type: Boolean,
