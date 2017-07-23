@@ -26,6 +26,11 @@
                     <a id="loginButton">
                         <span class="glyphicon glyphicon-log-in"></span> Login</a>
                 </li>
+                <li>
+                    <a id="registerButton">
+                            Register
+                        </a>
+                </li>
             </ul>
         </div>
     </div>
@@ -48,39 +53,70 @@
     </div>
 </header>
 
-
-<div id="loginModal" class="modal fade"
-     role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close"
-                        data-dismiss="modal">&times;
+<div ng-controller="LoginController">
+    <div id="loginModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;
                 </button>
-                <h4 class="modal-title">Login </h4>
-            </div>
-            <div class="modal-body">
-                <form class="form-inline">
-                    <div class="form-group">
-                        <label for="loginmail" class="sr-only">Email</label>
-                        <input type="email" class="form-control input-sm"
-                               id="loginmail" placeholder="Email">
-                    </div>
-                    <div class="form-group">
-                        <label for="loginpassowrd" class="sr-only">Password</label>
-                        <input type="password" class="form-control input-sm"
-                               id="loginpassowrd" placeholder="Password">
-                    </div>
-                    <label class="checkbox-inline" style="color:grey;">
+                    <h4 class="modal-title">Login </h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label for="loginusername" class="sr-only">Username</label>
+                            <input type="text" class="form-control input-sm" pattern="[a-zA-Z0-9!@#$%^*_|]{6,25}" id="loginusername" placeholder="Username">
+                        </div>
+                        <div class="form-group">
+                            <label for="loginpassowrd" class="sr-only">Password</label>
+                            <input type="password" class="form-control input-sm" id="loginpassowrd" placeholder="Password">
+                        </div>
+                        <label class="checkbox-inline" style="color:grey;">
                         <input type="checkbox" name="remember"
                                value="">
                         <strong>Remember me</strong>
                     </label>
-                    <button type="submit" class="btn btn-info btn-sm">Sign in</button>
-                    <button type="button" class="btn btn-default btn-sm"
-                            data-dismiss="modal">Cancel
+                        <button type="submit" class="btn btn-default btn-sm">Sign in</button>
+                        <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Cancel
                     </button>
-                </form>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div ng-controller="RegisterController">
+    <div id="registerModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;
+                </button>
+                    <h4 class="modal-title">Registeration </h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label for="registerusername" class="sr-only">Username</label>
+                            <input type="text" class="form-control input-sm" pattern="[a-zA-Z0-9!@#$%^*_|]{6,25}" id="registerusername" placeholder="Username">
+                        </div>
+                        <div class="form-group">
+                            <label for="registerpassowrd" class="sr-only">Password</label>
+                            <input type="registerpassword" class="form-control input-sm" id="registerpassowrd" placeholder="Password">
+                        </div>
+                        <label class="checkbox-inline" style="color:grey;">
+                        <input type="checkbox" name="remember"
+                               value="">
+                        <strong>Remember me</strong>
+                    </label>
+                        <button type="submit" class="btn btn-default btn-sm">Register</button>
+                        <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Cancel
+                    </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

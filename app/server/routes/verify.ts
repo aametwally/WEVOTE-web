@@ -9,6 +9,19 @@ export let getToken = function (user: any) {
     });
 };
 
+export let isValidToken = function( req: any , res: any , next:any , cbValid: any , cbInvalid: any ) 
+{
+    var token = req.body.token || req.query.token || req.headers['x-access-token'];
+    if( token )
+        // verifies secret and checks exp
+        jwt.verify(token, config.secretKey, function (err:any, decoded:any) {
+            if( err )
+                cbInvalid( req, res , next );
+            else cbValid( req, res , next );
+        }); 
+    else cbInvalid( req , res , next );      
+}
+
 export let verifyOrdinaryUser = function (req: any, res: any, next: any) {
     // check header or url parameters or post parameters for token
     var token = req.body.token || req.query.token || req.headers['x-access-token'];

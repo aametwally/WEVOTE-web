@@ -1,6 +1,8 @@
 // grab the things we need
 import * as Defs from './model';
 import * as mongoose from 'mongoose';
+import * as passport from 'passport';
+import * as passportLocal from 'passport-local';
 import * as passportLocalMongoose from 'passport-local-mongoose';
 
 export interface IUserModel extends mongoose.PassportLocalDocument {
@@ -30,19 +32,18 @@ export class UserModel {
     private static _model = <mongoose.PassportLocalModel<IUserModel>>
     mongoose.model<IUserModel>('User', UserModel.schema);
     public static repo = new Defs.RepositoryBase<IUserModel>(UserModel._model);
-    public static register = UserModel._model.register;
+    public static register = (user: IUserModel, password: string, cb: (err: any, account: any) => void) => {
+        UserModel._model.register(user, password, cb);
+    }
     public static model = (args: any) => {
         return new UserModel._model(args);
     }
-    public static authenticate = () => {
-        return UserModel._model.authenticate;
+
+    public static usePassportLocalStrategyAuthenticate() {
+        passport.use(new passportLocal.Strategy(
+            UserModel._model.authenticate()));
+        passport.serializeUser(UserModel._model.serializeUser());
+        passport.deserializeUser(UserModel._model.deserializeUser());
     }
 
-    public static serializeUser = () => {
-        return UserModel._model.serializeUser;
-    }
-
-    public static deserializeUser = () => {
-        return UserModel._model.deserializeUser;
-    }
 }

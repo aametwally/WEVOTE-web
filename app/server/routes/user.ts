@@ -18,7 +18,7 @@ export class UserRouter extends BaseRoute {
         this._router.route('/')
             .get(function (req: Request, res: Response, next: NextFunction) {
                 UserModel.repo.retrieve(function (err: any, users: any) {
-                    if (err) throw err;
+                    if (err) return next(err);
                     res.json(users);
                 });
             });
@@ -35,7 +35,7 @@ export class UserRouter extends BaseRoute {
                             return res.status(500).json({ err: err });
                         }
                         passport.authenticate('local')(req, res, function () {
-                            return res.status(200).json({ status: 'Registration Successful!' });
+                            res.status(200).json({ status: 'Registration Successful!' });
                         });
                     });
             });

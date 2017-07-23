@@ -1,32 +1,30 @@
-import {BaseRoute} from "./route";
-import {ExperimentModel,IExperimentModel,IConfig,IStatus} from '../models/experiment';
-import {Request, Response, NextFunction} from 'express';
-import {IReadsModel} from "../models/reads";
-import {ITaxonomyModel} from "../models/taxonomy";
+import { BaseRoute } from "./route";
+import { ExperimentModel, IExperimentModel, IConfig, IStatus } from '../models/experiment';
+import { Request, Response, NextFunction } from 'express';
+import { IReadsModel } from "../models/reads";
+import { ITaxonomyModel } from "../models/taxonomy";
 
 
 
 
-export class ExperimentRouter extends BaseRoute
-{
+export class ExperimentRouter extends BaseRoute {
 
-    constructor()
-    {
+    constructor() {
         super();
 
         this._router.route('/')
-            .post(function (req: any, res:any , next: any) {
+            .post(function (req: any, res: any, next: any) {
                 console.log(req.body);
 
                 let exp = req.body;
 
-                let _reads: IReadsModel = <any> {
-                    name: exp.reads.name ,
+                let _reads: IReadsModel = <any>{
+                    name: exp.reads.name,
                     description: "somDesc",
                     onServer: true,
-                    uri: exp.reads.uri ,
-                    data: exp.reads.data ,
-                    size: exp.reads.size ,
+                    uri: exp.reads.uri,
+                    data: exp.reads.data,
+                    size: exp.reads.size,
                     count: exp.reads.count
                 };
 
@@ -46,7 +44,7 @@ export class ExperimentRouter extends BaseRoute
                     penalty: exp.config.penalty
                 };
 
-                ExperimentModel.repo.create( <any> {
+                ExperimentModel.repo.create(<any>{
                     user: exp.user,
                     isPrivate: exp.private,
                     email: exp.email,
@@ -54,10 +52,10 @@ export class ExperimentRouter extends BaseRoute
                     reads: _reads,
                     taxonomy: _taxonomy,
                     config: _config,
-                },function (err: any, exp: any) {
+                }, function (err: any, exp: any) {
                     if (err) {
-                        console.log("Error:"+err);
-                        throw err;
+                        console.log("Error:" + err);
+                        return next(err);
                     }
                     console.log("experiment posted!:" + exp);
                     let id = exp._id;
@@ -69,12 +67,12 @@ export class ExperimentRouter extends BaseRoute
             })
 
             .get(function (req: Request, res: Response, next: NextFunction) {
-                ExperimentModel.repo.retrieve( function (err: any, experiments: any) {
-                    if (err) throw err;
+                ExperimentModel.repo.retrieve(function (err: any, experiments: any) {
+                    if (err) return next(err);
                     res.json(experiments);
                 });
             })
-        ;
+            ;
 
     }
 

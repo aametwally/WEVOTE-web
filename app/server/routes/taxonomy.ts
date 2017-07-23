@@ -11,7 +11,8 @@ export class TaxonomyRouter extends BaseRoute {
             })
             .post((req: Request, res: Response, next: NextFunction) => {
                 this.createTaxonomy(req.body,
-                    function () {
+                    function ( err : any ) {
+                        if( err ) return next( err );
                         res.writeHead(200, {'Content-Type': 'text/plain'});
                         res.end();
                     });
@@ -25,12 +26,10 @@ export class TaxonomyRouter extends BaseRoute {
         });
     }
 
-    private createTaxonomy = (data: any, cb?: any): any => {
+    private createTaxonomy = (data: any, cb: any): any => {
         TaxonomyModel.repo.create( data, function (err: any, taxonomy: any) {
-            if (err) throw err;
-            var id = taxonomy._id;
-            console.log("taxonomy posted!:" + id);
-            if (cb) cb();
+            if (err) return cb( err );
+            cb( null );
         });
     }
 

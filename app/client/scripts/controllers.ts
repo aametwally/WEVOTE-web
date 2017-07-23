@@ -4,8 +4,7 @@
 "use strict";
 module wevote {
 
-    export interface MainControllerScope extends ng.IScope
-    {
+    export interface MainControllerScope extends ng.IScope {
         showInput: Boolean,
         error: Boolean,
         message: String,
@@ -15,7 +14,7 @@ module wevote {
         private _scope: MainControllerScope;
 
         constructor($scope: ng.IScope) {
-            this._scope = <MainControllerScope> $scope;
+            this._scope = <MainControllerScope>$scope;
             this._scope.showInput = false;
             this._scope.error = false;
             this._scope.message = "Loading ...";
@@ -28,25 +27,24 @@ module wevote {
         readonly label: string;
     }
 
-    export interface InputControllerScope extends ng.IScope
-    {
-        availableDatabaseLoaded : Boolean ,
+    export interface InputControllerScope extends ng.IScope {
+        availableDatabaseLoaded: Boolean,
         supportedAlgorithmsLoaded: Boolean,
         availableDatabase: any,
         showInput: Boolean,
-        areDataLoaded: any ,
+        areDataLoaded: any,
         error: Boolean,
-        message: String ,
-        supportedAlgorithms: any ,
-        experiment: any ,
-        inputForm: any ,
-        readsSources : any, 
-        taxonomySources: any , 
+        message: String,
+        supportedAlgorithms: any,
+        experiment: any,
+        inputForm: any,
+        readsSources: any,
+        taxonomySources: any,
         noAlgorithmChosen: Boolean,
-        postExperiment: any, 
+        postExperiment: any,
         readsUploader: any,
         readsUploaderPostValidation: Boolean,
-        taxonomyUploader: any , 
+        taxonomyUploader: any,
         taxonomyUploaderPostValidation: Boolean
     }
     export class InputController {
@@ -60,20 +58,20 @@ module wevote {
             value: "client",
             label: "Upload reads file"
         },
-            {
-                value: "server",
-                label: "Use simulated reads from the server"
-            }
+        {
+            value: "server",
+            label: "Use simulated reads from the server"
+        }
         ];
 
         private readonly taxonomySources: ReadsSourceType[] = [{
             value: "NCBI",
             label: "Use NCBI taxonomy database"
         },
-            {
-                value: "custom",
-                label: "Upload custom taxonomy database"
-            }
+        {
+            value: "custom",
+            label: "Upload custom taxonomy database"
+        }
         ];
 
         private readonly emptyInput: any = {
@@ -163,8 +161,8 @@ module wevote {
         }
 
         constructor($scope: ng.IScope, private SimulatedReadsService: any,
-                    private AlgorithmsService: any, private ExperimentService: any) {
-            this._scope = <InputControllerScope> $scope;
+            private AlgorithmsService: any, private ExperimentService: any) {
+            this._scope = <InputControllerScope>$scope;
             this._scope.inputForm = {};
 
             this._scope.readsSources = this.readsSources;
@@ -204,8 +202,7 @@ module wevote {
     }
 
 
-    export interface UploaderControllerScope extends ng.IScope
-    {
+    export interface UploaderControllerScope extends ng.IScope {
         uploader: any,
         experiment: any
     }
@@ -218,7 +215,7 @@ module wevote {
         protected abstract onAfterAddingFileCB: OnAfterAddingFileCBType;
 
         constructor($scope: ng.IScope, FileUploaderService: any) {
-            this._scope = <UploaderControllerScope> $scope;
+            this._scope = <UploaderControllerScope>$scope;
 
         }
     }
@@ -323,15 +320,47 @@ module wevote {
             $("#loginButton").click(function () {
                 $("#loginModal").modal('toggle');
             });
+            $("#registerButton").click(function () {
+                $("#registerModal").modal('toggle');
+            });
         }
     }
 
-    export interface ExperimentControllerScope extends ng.IScope
-    {
-        experiments: any ,
-        showExperiments: Boolean ,
-        experimentsError : Boolean ,
-        experimentsMessage: String 
+    export interface LoginControllerScope extends ng.IScope {
+        username: String;
+        password: String;
+        rememberMe: Boolean;
+    }
+    export class LoginController {
+        static readonly $inject = ['$scope', LoginController];
+        private _scope: LoginControllerScope;
+
+        constructor($scope: ng.IScope) {
+            this._scope = <LoginControllerScope>$scope;
+
+        }
+    }
+
+    export interface RegisterControllerScope extends ng.IScope {
+        username: String,
+        password: String,
+        email: String
+    }
+
+    export class RegisterController {
+        static readonly $inject = ['$scope', RegisterController];
+        private _scope: RegisterControllerScope;
+
+        constructor($scope: ng.IScope) {
+            this._scope = <RegisterControllerScope>$scope;
+        }
+    }
+
+    export interface ExperimentControllerScope extends ng.IScope {
+        experiments: any,
+        showExperiments: Boolean,
+        experimentsError: Boolean,
+        experimentsMessage: String
     }
 
     export class ExperimentController {
@@ -339,7 +368,7 @@ module wevote {
         private _scope: ExperimentControllerScope;
 
         constructor($scope: ng.IScope, private ExperimentService: any) {
-            this._scope = <ExperimentControllerScope> $scope;
+            this._scope = <ExperimentControllerScope>$scope;
             this._scope.experiments = {};
             this._scope.showExperiments = false;
             this._scope.experimentsError = false;
@@ -420,6 +449,8 @@ module wevote {
         .controller('ReadsUploaderController', ReadsUploaderController.$inject)
         .controller('TaxonomyUploaderController', TaxonomyUploaderController.$inject)
         .controller('HeaderController', HeaderController.$inject)
+        .controller('LoginController' , LoginController.$inject )
+        .controller('RegisterController', RegisterController.$inject )
         .controller('ExperimentController', ExperimentController.$inject)
         .controller('ResultsController', ResultsController.$inject);
 }

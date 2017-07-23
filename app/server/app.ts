@@ -8,7 +8,6 @@ import * as cookieParser from 'cookie-parser';
 import * as mongoose from 'mongoose';
 import errorHandler = require("errorhandler");
 import * as passport from 'passport';
-import * as passportLocal from 'passport-local';
 // routers
 import { UserRouter } from './routes/user';
 import { ReadsRouter } from './routes/reads';
@@ -34,6 +33,7 @@ export class Server {
         this._app = Express();
         this.db();
         this.middleware();
+        this.passport();
         this.routes();
         this.api();
     }
@@ -70,17 +70,14 @@ export class Server {
         this._app.use(bodyParser.json());
         this._app.use(bodyParser.urlencoded({ extended: false }));
         this._app.use(cookieParser());
-
-        // Passport
-        let LocalStrategy = passportLocal.Strategy;
-        this._app.use(passport.initialize());
-        passport.use(new LocalStrategy(UserModel.authenticate()));
-        passport.serializeUser(UserModel.serializeUser());
-        passport.deserializeUser(UserModel.deserializeUser());
-
-        this._app.use(Express.static(path.join(__dirname, 'dist')));
     }
 
+    private passport() {
+        // Passport
+        this._app.use(passport.initialize());
+        this._app.use(passport.session());
+        UserModel.usePassportLocalStrategyAuthenticate();
+    }
     private routes() {
         this._app.use(Express.static(path.join(__dirname, 'public')));
         this._app.use('/reads', ReadsRouter.router());
@@ -89,7 +86,7 @@ export class Server {
         this._app.use('/taxonomy', TaxonomyRouter.router());
         this._app.use('/upload', UploadRouter.router());
         this._app.use('/taxprofile', TaxonomyAbundanceProfileRouter.router());
-        this._app.use('/user', UserRouter.router());
+        this._app.use('/users', UserRouter.router());
         // catch 404 and forward to error handler
         this._app.use(function (err: any, req: Express.Request, res: Express.Response, next: Express.NextFunction) {
             err.status = 404;

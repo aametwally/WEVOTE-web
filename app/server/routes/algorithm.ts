@@ -19,7 +19,7 @@ export class AlgorithmRouter extends BaseRoute {
         this._router.route('/')
             .get(function (req: Request, res: Response, next: NextFunction) {
                 AlgorithmModel.repo.retrieve( function (err: any, algorithms: any) {
-                    if (err) throw err;
+                    if (err) return next(err);
                     res.json(algorithms);
                 });
             });

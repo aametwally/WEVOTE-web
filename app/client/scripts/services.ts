@@ -2,8 +2,7 @@
  * Created by asem on 06/06/17.
  */
 "use strict";
-module wevote
-{
+module wevote {
     export class FileUploaderFactory {
 
         static readonly $inject = ['FileUploader'];
@@ -84,7 +83,7 @@ module wevote
             this._resource = $resource;
         }
 
-        public abstract retrieve: (cbS:Function , cbF: Function) => any;
+        public abstract retrieve: (cbS: Function, cbF: Function) => any;
     }
 
     export class SimulatedReadsFactory extends DataRetriever {
@@ -94,13 +93,13 @@ module wevote
             return instance;
         }
 
-        public retrieve = (cbS:Function , cbF: Function) => {
+        public retrieve = (cbS: Function, cbF: Function) => {
             console.log("retrieving simulated reads");
             return this._resource(this._baseURL + "reads", null, {
                 'update': {
                     method: 'PUT'
                 }
-            }).query(cbS,cbF);
+            }).query(cbS, cbF);
         }
     }
 
@@ -111,12 +110,12 @@ module wevote
             return instance;
         }
 
-        public retrieve = (cbS:Function , cbF: Function) => {
+        public retrieve = (cbS: Function, cbF: Function) => {
             return this._resource(this._baseURL + "algorithm", null, {
                 'update': {
                     method: 'PUT'
                 }
-            }).query(cbS,cbF);
+            }).query(cbS, cbF);
         }
     }
 
@@ -128,16 +127,42 @@ module wevote
         }
 
         public submit(formdata: any): any {
-
-            return this._resource(this._baseURL + "experiment").save({}, formdata);
+            return this._resource(this._baseURL + "experiment")
+                .save({}, formdata);
         }
 
-        public retrieve = (cbS:Function , cbF: Function) => {
+        public retrieve = (cbS: Function, cbF: Function) => {
             return this._resource(this._baseURL + "experiment", null, {
                 'update': {
                     method: 'PUT'
                 }
-            }).query(cbS,cbF);
+            }).query(cbS, cbF);
+        }
+    }
+
+    export class UserFactory extends DataRetriever {
+        static factory() {
+            let instance = (baseURL: string, $resource: ng.resource.IResourceService) =>
+                new UserFactory(baseURL, $resource);
+            return instance;
+        }
+
+        public register = (data: any, cbS: Function, cbF: Function) => {
+            return this._resource(this._baseURL + "users/register")
+                .save({}, data, cbS, cbF);
+        }
+
+        public login = (data: any, cbS: Function, cbF: Function) => {
+            return this._resource(this._baseURL + "users/login")
+                .save({}, data, cbS, cbF);
+        }
+
+        public retrieve = (cbS: Function, cbF: Function) => {
+            return this._resource(this._baseURL + "users", null, {
+                'update': {
+                    method: 'PUT'
+                }
+            }).query(cbS, cbF);
         }
     }
 
@@ -147,4 +172,6 @@ module wevote
         .factory('SimulatedReadsService', SimulatedReadsFactory.factory())
         .factory('AlgorithmsService', AlgorithmsFactory.factory())
         .factory('ExperimentService', ExperimentFactory.factory())
+        .factory('UserService', UserFactory.factory())
+        ;
 }
