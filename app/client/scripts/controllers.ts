@@ -4,7 +4,7 @@
 "use strict";
 module wevote {
 
-    export interface MainControllerScope extends ng.IScope {
+    interface MainControllerScope extends ng.IScope {
         showInput: Boolean,
         error: Boolean,
         message: String,
@@ -27,7 +27,7 @@ module wevote {
         readonly label: string;
     }
 
-    export interface InputControllerScope extends ng.IScope {
+    interface InputControllerScope extends ng.IScope {
         availableDatabaseLoaded: Boolean,
         supportedAlgorithmsLoaded: Boolean,
         availableDatabase: any,
@@ -202,7 +202,7 @@ module wevote {
     }
 
 
-    export interface UploaderControllerScope extends ng.IScope {
+    interface UploaderControllerScope extends ng.IScope {
         uploader: any,
         experiment: any
     }
@@ -311,52 +311,163 @@ module wevote {
     }
 
 
-    export class HeaderController {
-        static readonly $inject = ['$scope', HeaderController];
-        private _scope: ng.IScope;
 
-        constructor($scope: any) {
-            this._scope = $scope;
-            $("#loginButton").click(function () {
-                $("#loginModal").modal('toggle');
+    interface HeaderControllerScope extends ng.IScope {
+        loggedIn: Boolean,
+        username: string,
+        loginDialog: ng.dialog.IDialogOpenResult,
+        registerDialog: ng.dialog.IDialogOpenResult,
+        isState: (state: any) => Boolean;
+        logOut: () => void;
+        openLogin: () => void;
+        openRegister: () => void;
+    }
+
+    export class HeaderController {
+        static readonly $inject = ['$scope', '$state', '$rootScope', 'ngDialog', 'AuthService', HeaderController];
+        private _scope: HeaderControllerScope;
+        private _state: ng.ui.IStateService;
+        private _rootScope: ng.IRootScopeService;
+        private _ngDialog: ng.dialog.IDialogService;
+        private _auth: AuthFactory;
+
+        constructor($scope: ng.IScope, $state: ng.ui.IStateService,
+            $rootScope: ng.IRootScopeService, ngDialog: ng.dialog.IDialogService,
+            auth: AuthFactory) {
+            this._scope = <HeaderControllerScope>$scope;
+            this._scope.loggedIn = false;
+            this._scope.username = '';
+            this._state = $state;
+            this._rootScope = $rootScope;
+            this._ngDialog = ngDialog;
+            this._auth = auth;
+
+            this._scope.isState = (state: string) => {
+                return $state.is(state);
+            }
+
+            this._scope.logOut = () => {
+                this._auth.logout();
+                this._scope.loggedIn = false;
+                this._scope.username = '';
+            }
+
+            this._scope.openLogin = () => {
+                this._ngDialog.open(<any>{
+                    template: 'views/login.html',
+                    scope: this._scope,
+                    className: 'ngdialog-theme-default',
+                    controller: 'LoginController',
+                    showClose: false
+                });
+            }
+
+            this._scope.openRegister = () => {
+                this._ngDialog.open(<any>{
+                    template: 'views/register.html',
+                    scope: this._scope,
+                    className: 'ngdialog-theme-default',
+                    controller: "RegisterController",
+                    showClose: false
+                });
+            }
+
+            this._rootScope.$on('login:Successful', () => {
+                this._scope.loggedIn = this._auth.isAuthenticated();
+                this._scope.username = this._auth.getUsername();
             });
-            $("#registerButton").click(function () {
-                $("#registerModal").modal('toggle');
+
+            this._rootScope.$on('registration:Successful', () => {
+                this._scope.loggedIn = this._auth.isAuthenticated();
+                this._scope.username = this._auth.getUsername();
             });
+
+            if (this._auth.isAuthenticated()) {
+                this._scope.loggedIn = true;
+                this._scope.username = this._auth.getUsername();
+            }
+
         }
     }
 
-    export interface LoginControllerScope extends ng.IScope {
+    interface ILoginData {
         username: String;
         password: String;
+    }
+    interface LoginControllerScope extends ng.IScope {
         rememberMe: Boolean;
+        loginData: ILoginData;
+        doLogin: () => void;
+        openRegister: () => void;
     }
     export class LoginController {
-        static readonly $inject = ['$scope', LoginController];
+        static readonly $inject = ['$scope', 'ngDialog', 'LocalStorageService', 'AuthService', LoginController];
         private _scope: LoginControllerScope;
+        private _ngDialog: ng.dialog.IDialogService;
+        private _localStorage: LocalStorageFactory;
+        private _auth: AuthFactory;
 
-        constructor($scope: ng.IScope) {
+        constructor($scope: ng.IScope, ngDialog: ng.dialog.IDialogService,
+            $localStorage: LocalStorageFactory, auth: AuthFactory) {
             this._scope = <LoginControllerScope>$scope;
+            this._ngDialog = ngDialog;
+            this._localStorage = $localStorage;
+            this._auth = auth;
 
+            this._scope.loginData = this._localStorage.getObject('userinfo', {username:'',password:''});
+            this._scope.doLogin = () => {
+                if (this._scope.rememberMe)
+                    this._localStorage.storeObject('userinfo', this._scope.loginData);
+                this._auth.login(this._scope.loginData,
+                    () => { this._ngDialog.closeAll(); });
+            }
+            this._scope.openRegister = () => {
+                this._ngDialog.open(<any>{
+                    template: 'views/register.html',
+                    scope: this._scope,
+                    className: 'ngdialog-theme-default',
+                    controller: "RegisterController"
+                });
+            }
         }
     }
 
-    export interface RegisterControllerScope extends ng.IScope {
+    interface IRegistration {
         username: String,
         password: String,
-        email: String
+        email: String,
+        firstname: String,
+        lastname: String,
+        rememberMr: Boolean
+    }
+    interface RegisterControllerScope extends ng.IScope {
+        registration: IRegistration;
+        doRegister: () => void;
     }
 
     export class RegisterController {
-        static readonly $inject = ['$scope', RegisterController];
+        static readonly $inject = ['$scope', 'ngDialog', 'LocalStorageService', 'AuthService', RegisterController];
         private _scope: RegisterControllerScope;
+        private _ngDialog: ng.dialog.IDialogService;
+        private _localStorage: LocalStorageFactory;
+        private _auth: AuthFactory;
 
-        constructor($scope: ng.IScope) {
+        constructor($scope: ng.IScope, ngDialog: ng.dialog.IDialogService,
+            $localStorage: LocalStorageFactory, auth: AuthFactory) {
             this._scope = <RegisterControllerScope>$scope;
+            this._ngDialog = ngDialog;
+            this._localStorage = $localStorage;
+            this._auth = auth;
+
+            this._scope.doRegister = () => {
+                console.log('Doing registration', this._scope.registration);
+                this._auth.register(this._scope.registration,
+                    () => { this._ngDialog.closeAll(); });
+            };
         }
     }
 
-    export interface ExperimentControllerScope extends ng.IScope {
+    interface ExperimentControllerScope extends ng.IScope {
         experiments: any,
         showExperiments: Boolean,
         experimentsError: Boolean,
@@ -449,8 +560,8 @@ module wevote {
         .controller('ReadsUploaderController', ReadsUploaderController.$inject)
         .controller('TaxonomyUploaderController', TaxonomyUploaderController.$inject)
         .controller('HeaderController', HeaderController.$inject)
-        .controller('LoginController' , LoginController.$inject )
-        .controller('RegisterController', RegisterController.$inject )
+        .controller('LoginController', LoginController.$inject)
+        .controller('RegisterController', RegisterController.$inject)
         .controller('ExperimentController', ExperimentController.$inject)
         .controller('ResultsController', ResultsController.$inject);
 }

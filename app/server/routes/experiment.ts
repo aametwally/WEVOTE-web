@@ -44,6 +44,7 @@ export class ExperimentRouter extends BaseRoute {
                     penalty: exp.config.penalty
                 };
 
+                console.log("decoded:", req.decoded );
                 ExperimentModel.repo.create(<any>{
                     user: req.decoded._id,
                     isPrivate: exp.private,

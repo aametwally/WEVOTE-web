@@ -1,7 +1,7 @@
 module wevote {
     "use strict";
     export let wevoteApp =
-        angular.module('wevote', ['ui.router', 'ngResource', 'angularFileUpload','ui.bootstrap.popover', 'ui.bootstrap.tpls'])
+        angular.module('wevote', ['ui.router', 'ngResource', 'angularFileUpload','ui.bootstrap.popover', 'ui.bootstrap.tpls' , 'ngDialog'])
             .config(['$stateProvider', '$urlRouterProvider',
                 function ($stateProvider: ng.ui.IStateProvider, $urlRouterProvider: ng.ui.IUrlRouterProvider) {
                     $stateProvider
