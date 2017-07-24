@@ -215,10 +215,6 @@ void lagacyClassification()
 #pragma omp parallel for private (hit_counts, parents, set_iterator, iterator_name, SavedTax_2, n)
     for (uint32_t i=0 ; i<Reads.size() ;i++)
     {
-
-        const int _r =  i * 100.f / Reads.size();
-        cout << _r << std::endl;
-
         if (Reads[i].numToolsReported == 0)
         {
             Reads[i].resolvedTaxon=0;

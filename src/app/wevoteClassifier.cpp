@@ -167,6 +167,9 @@ int main(int argc, char *argv[])
     const std::string outputDetails=
             param.prefix + "_WEVOTE_Details.txt";
 
+    const std::string outputDetailsCSV=
+            param.prefix + "_WEVOTE_Details.csv";
+
     LOG_INFO("NodesFilename=%s", nodesFilename.c_str());
     LOG_INFO("NamesFilename=%s", namesFilename.c_str());
 
@@ -195,6 +198,7 @@ int main(int argc, char *argv[])
 
     /// Output.
     wevote::WevoteClassifier::writeResults( reads , outputDetails );
+    wevote::WevoteClassifier::writeResults( reads , outputDetailsCSV , true );
 
     return EXIT_SUCCESS;
 }

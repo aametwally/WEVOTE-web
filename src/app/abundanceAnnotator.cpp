@@ -14,12 +14,14 @@ struct AbundanceParameters
 {
     std::string query;
     std::string prefix;
+    std::string contigsFile;
     std::string taxonomyDB;
     std::string toString() const
     {
         std::stringstream stream;
         stream << "[input:" << query << "]"
                << "[prefix:" << prefix << "]"
+               << "[contigsFile:" << contigsFile << "]"
                << "[taxonomyDB:" << taxonomyDB << "]";
         return stream.str();
     }
@@ -32,6 +34,11 @@ const std::list< QCommandLineOption > commandLineOptions =
         QStringList() << "i" << "input-file",
         "Input file produced by wevote algorithm."  ,
         "input-file"
+    },
+    {
+        QStringList() << "c" << "contigs-file" ,
+        "Contigs file that provides reads assembeled each contig",
+        "contigs-file"
     },
     {
         QStringList() << "d" <<  "taxonomy-db-path",
@@ -57,6 +64,14 @@ auto extractFunction = []( const QCommandLineParser &parser ,
                                "does not exists.";
         return;
     }
+    if( !parser.isSet("contigs-file") ||
+            !QFile::exists( parser.value("contigs-file")))
+    {
+        results.success = CommandLineResult::CommandLineError;
+        results.errorMessage = "Contigs file is not specified or "
+                               "does not exists.";
+        return;
+    }
     if( !parser.isSet("taxonomy-db-path"))
     {
         results.success = CommandLineResult::CommandLineError;
@@ -79,6 +94,8 @@ auto extractFunction = []( const QCommandLineParser &parser ,
 
     results.parameters.query =
             parser.value("input-file").toStdString();
+    results.parameters.contigsFile =
+            parser.value("contigs-file").toStdString();
     results.parameters.taxonomyDB =
             parser.value("taxonomy-db-path").toStdString();
     results.parameters.prefix =
@@ -118,16 +135,17 @@ int main(int argc, char *argv[])
     const wevote::TaxonomyBuilder taxonomy( nodesFilename , namesFilename );
 
     /// Read WEVOTE output file
-    std::map< uint32_t , wevote::TaxLine > taxonAnnotateMap =
-            wevote::WevoteClassifier::readResults( param.query ,
-                                                   taxonomy );
+    std::vector< wevote::ReadInfo > classifiedReads =
+            wevote::WevoteClassifier::readResults( param.query ,  true );
 
 
     wevote::TaxonomyLineAnnotator annotator( taxonomy );
-    annotator.annotateTaxonomyLines( taxonAnnotateMap );
+
+    std::map< uint32_t , wevote::TaxLine > annotatedTaxa =
+            annotator.annotateTaxonomyLines( classifiedReads );
 
     /// Export taxonomy and relative abundance to txt file
-    wevote::TaxonomyLineAnnotator::writeResults( taxonAnnotateMap , outputProfile );
+    wevote::TaxonomyLineAnnotator::writeResults( annotatedTaxa , outputProfile );
 
     return EXIT_SUCCESS;
 }

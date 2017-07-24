@@ -43,7 +43,7 @@ elseif(UNIX)
     ########################################################################
 endif()
 
-project(wevote-service C CXX)
+project(wevote C CXX)
 
 ### Add CMake modules
 set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )

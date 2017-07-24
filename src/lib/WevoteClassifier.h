@@ -39,9 +39,8 @@ public:
      * @param reads
      * @param fileName
      */
-    static void writeResults(
-            const std::vector< ReadInfo > &reads ,
-            const std::string &fileName );
+    static void writeResults(const std::vector< ReadInfo > &reads ,
+            const std::string &fileName , bool csv = false );
 
     /**
      * @brief readWevoteFile
@@ -49,9 +48,7 @@ public:
      * @param taxonomy
      * @return
      */
-    static std::map< uint32_t , TaxLine >
-    readResults( const std::string &filename ,
-                 const TaxonomyBuilder &taxonomy );
+    static std::vector<ReadInfo> readResults( const std::string &filename , bool csv = false );
 
     /**
      * @brief _preprocessReads

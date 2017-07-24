@@ -18,20 +18,22 @@ public:
      */
     TaxonomyLineAnnotator( const TaxonomyBuilder &taxonomy );
 
+
     /**
      * @brief annotateTaxonomyLines
-     * @param taxa
+     * @param classifiedReads
+     * @return
      */
-    void annotateTaxonomyLines( std::map< uint32_t , TaxLine > &taxa ) const;
+    std::map<uint32_t, TaxLine>
+    annotateTaxonomyLines(const std::vector<ReadInfo> &classifiedReads) const;
 
     /**
      * @brief writeResults
      * @param abundance
      * @param filename
      */
-    static void writeResults(
-            const std::map< uint32_t , TaxLine > &abundance ,
-            const std::string &filename );
+    static void writeResults(const std::map< uint32_t , TaxLine > &abundance ,
+                             const std::string &filename , bool csv = true );
 private:
     const TaxonomyBuilder &_taxonomy;
 };

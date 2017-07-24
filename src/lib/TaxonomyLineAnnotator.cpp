@@ -11,20 +11,34 @@ TaxonomyLineAnnotator::TaxonomyLineAnnotator(
 
 }
 
-void TaxonomyLineAnnotator::annotateTaxonomyLines(
-        std::map<uint32_t, TaxLine> &taxa ) const
+std::map< uint32_t , TaxLine >
+TaxonomyLineAnnotator::annotateTaxonomyLines(
+        const std::vector< ReadInfo > &classifiedReads ) const
 {
-    LOG_INFO("Total #reads have Taxon 0 = %d",  taxa[0].count );
+    std::map< uint32_t , TaxLine > annotatedTaxa;
+    std::map< uint32_t , uint32_t > taxCounter;
+    for( const ReadInfo &read : classifiedReads )
+        taxCounter[ read.resolvedTaxon ]++;
+
+    std::for_each( taxCounter.cbegin() , taxCounter.cend() ,
+                   [&annotatedTaxa]( const std::pair< uint32_t , uint32_t > &p)
+    {
+        annotatedTaxa[ p.first ].taxon = p.first;
+        annotatedTaxa[ p.first ].count = p.second;
+    });
+
 
     uint32_t totalCounts=
-            std::accumulate( taxa.cbegin() , taxa.cend() ,
+            std::accumulate( annotatedTaxa.cbegin() ,
+                             annotatedTaxa.cend() ,
                              0 , []( int c , const std::pair< uint32_t , wevote::TaxLine > &p ){
         return c + p.second.count;
     });
     LOG_INFO("Total # reads = %d", totalCounts );
 
-    std::for_each( taxa.begin() , taxa.end() ,
-                   [&]( std::pair< const uint32_t , wevote::TaxLine > &p )
+    std::for_each( annotatedTaxa.begin() , annotatedTaxa.end() ,
+                   [this,totalCounts](
+                   std::pair< const uint32_t , wevote::TaxLine > &p )
     {
         p.second.RA = ((double)p.second.count/(double)totalCounts)*100;
         uint32_t taxon = p.first;
@@ -40,27 +54,33 @@ void TaxonomyLineAnnotator::annotateTaxonomyLines(
             taxon = _taxonomy.getStandardParent( taxon );
         }
     });
+
+    return annotatedTaxa;
 }
+
 
 void TaxonomyLineAnnotator::writeResults(
         const std::map<uint32_t, TaxLine> &abundance,
-        const std::string &filename)
+        const std::string &filename ,
+        bool csv  )
 {
     std::ofstream myfile;
     myfile.open (filename.c_str());
     if (!myfile.is_open())
         LOG_ERROR("Error opening Output file: %s", filename.c_str());
 
-    myfile << "taxon" << ","
-           << "count" << ","
+    const std::string delim = (csv)? "," : "\t";
+
+    myfile << "taxon" << delim
+           << "count" << delim
            << io::join( Rank::rankLabels.cbegin() + 1 ,
-                        Rank::rankLabels.cend() , ",") << "\n";
+                        Rank::rankLabels.cend() , delim ) << "\n";
 
     for( const std::pair< uint32_t , wevote::TaxLine > &p : abundance)
-        myfile << p.second.taxon << ","
-               << p.second.count << ","
+        myfile << p.second.taxon << delim
+               << p.second.count << delim
                << io::join( p.second.line.cbegin() + 1 ,
-                            p.second.line.cend() , ", ") << "\n";
+                            p.second.line.cend() , delim ) << "\n";
     myfile.close();
 }
 

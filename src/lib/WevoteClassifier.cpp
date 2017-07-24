@@ -129,7 +129,7 @@ std::vector<ReadInfo> WevoteClassifier::getReads(
                         std::inserter( read.annotation , read.annotation.end()) ,
                         []( const std::string &t )
         {
-           return atoi( t.c_str());
+            return atoi( t.c_str());
         });
         reads.push_back( read );
     }
@@ -138,7 +138,8 @@ std::vector<ReadInfo> WevoteClassifier::getReads(
 
 void WevoteClassifier::writeResults(
         const std::vector<ReadInfo> &reads,
-        const std::string &fileName)
+        const std::string &fileName ,
+        bool csv )
 {
     /// Export the detailed output in txt format
     std::ofstream myfile;
@@ -146,61 +147,85 @@ void WevoteClassifier::writeResults(
     if (!myfile.is_open())
         LOG_ERROR("Error opening Output file:%s",fileName);
 
+    const std::string delim = (csv)? ",":"\t";
+
+    std::vector< std::string > tools;
+    for( auto i = 0 ; i < reads.front().numToolsUsed ; i++ )
+        tools.push_back( std::string("tool#") + std::to_string(i));
+
+    // Header line.
+    myfile << "seqId" << delim
+           << "numToolsUsed" << delim
+           << "numToolsReported" << delim
+           << "numToolsAgreed" << delim
+           << "score" << delim
+           << io::join( tools , delim ) << delim
+           << "resolvedTaxon" << "\n";
+
+    // Contents lines.
     for ( const ReadInfo &read : reads )
-        myfile << read.seqID << "\t"
-               << read.numToolsUsed << "\t"
-               << read.numToolsReported << "\t"
-               << read.numToolsAgreed<<"\t"
-               << read.score << "\t\t"
+        myfile << read.seqID << delim
+               << read.numToolsUsed << delim
+               << read.numToolsReported << delim
+               << read.numToolsAgreed<< delim
+               << read.score << delim
                << io::join(
                       io::asStringsVector( read.annotation.cbegin() ,
-                                           read.annotation.cend()) , "\t") << "\t"
+                                           read.annotation.cend()) , delim) << delim
                << read.resolvedTaxon << "\n";
 
     myfile.close();
 }
 
-std::map<uint32_t, TaxLine>
+std::vector< ReadInfo >
 WevoteClassifier::readResults(
-        const std::string &filename,
-        const TaxonomyBuilder &taxonomy )
+        const std::string &filename  ,
+        bool csv )
 {
-    std::map< uint32_t , TaxLine > taxonAnnotateMap;
+    std::vector< ReadInfo > classifiedReads;
+    const std::string delim = (csv)? ",": "\t";
+    const std::vector< std::string > lines = io::getFileLines( filename );
 
-    std::ifstream file (filename);
-    std::string line = "";
-
-    if (!file.is_open())
-        LOG_ERROR("Error opening file:%s",filename.c_str());
-
-    int q=0;
-    while (std::getline(file, line))
+    /// seqId,numToolsUsed,numToolsReported,numToolsAgreed,score,tool#0,resolvedTaxon
+    const int minFieldsCount = 7 ;
+    auto validateInput = [&]()
     {
-        q++;
-        std::stringstream strstr(line);
-        std::string word = "";
-
-        // column:0
-        std::getline(strstr,word, ',');
-        uint32_t taxon = atoi(word.c_str());
-        if( taxon == ReadInfo::noAnnotation )
+        const auto tokens = io::split( lines.front() , delim );
+        const size_t count = tokens.size();
+        return count >= minFieldsCount &&
+                std::all_of( lines.cbegin() , lines.cend() ,
+                             [count,&delim]( const std::string &line )
         {
-            LOG_DEBUG("Taxon 0 presents in line = %d",q);
-            taxon = taxonomy.correctTaxan( taxon );
-        }
-        // column:1
-        std::getline(strstr,word, ',');
-        uint32_t count = atoi(word.c_str());
+            const auto _ = io::split( line , delim );
+            return _.size() == count;
+        });
+    };
 
-        if ( taxonAnnotateMap.find(taxon) == taxonAnnotateMap.end() )
-        {
-            taxonAnnotateMap[taxon].count = count;
-            taxonAnnotateMap[taxon].taxon = taxon;
-        } else {
-            taxonAnnotateMap[taxon].count += count;
-        }
-    }
-    return taxonAnnotateMap;
+    WEVOTE_ASSERT( validateInput() , "Inconsistent input file!");
+
+    std::for_each( lines.cbegin() + 1 /**skip header**/ , lines.cend() ,
+                   [&classifiedReads,&delim]( const std::string &line )
+    {
+        const std::vector< std::string > tokens =  io::split( line , delim );
+        auto tokensIt = tokens.begin();
+        ReadInfo classifiedRead;
+        classifiedRead.seqID = *tokensIt++;
+        classifiedRead.numToolsUsed = atoi( (tokensIt++)->c_str());
+        classifiedRead.numToolsReported = atoi( (tokensIt++)->c_str());
+        classifiedRead.numToolsAgreed = atoi( (tokensIt++)->c_str());
+        classifiedRead.score = atof( (tokensIt++)->c_str());
+        std::vector< std::string > annotations(tokensIt , std::prev( tokens.end()));
+        std::transform( annotations.cbegin() , annotations.cend() ,
+                        std::inserter( classifiedRead.annotation ,
+                                       classifiedRead.annotation.end()),
+                        []( const std::string &annStr ){
+            return atoi( annStr.c_str());
+        });
+        classifiedRead.resolvedTaxon = atoi( tokens.back().c_str());
+
+        classifiedReads.push_back( classifiedRead );
+    });
+    return classifiedReads;
 }
 
 void WevoteClassifier::preprocessReads( std::vector<ReadInfo> &reads ) const
