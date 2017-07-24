@@ -95,3 +95,28 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
 }
 
+export const csvJSON = (csv: any): any => {
+    let lines = csv.split("\n");
+
+    let result = [];
+
+    let headers = lines[0].trim('\r').split(",");
+    for (let i = 1; i < lines.length; i++) {
+
+        let obj = {};
+        let currentline = lines[i].trim('\r').split(",");
+        if (currentline.length != headers.length) {
+            continue;
+        }
+
+
+        for (let j = 0; j < headers.length; j++) {
+            obj[headers[j]] = currentline[j];
+        }
+
+        result.push(obj);
+
+    }
+    //return result; //JavaScript object
+    return result; //JSON
+};

@@ -31,11 +31,11 @@ module wevote {
                                 }
                             }
                         })
-                        .state('app.info', {
-                            url: 'help',
+                        .state('app.track', {
+                            url: 'track',
                             views: {
                                 'content@': {
-                                    template: '<h1>Help To be Completed</h1>'
+                                    templateUrl: "views/experiment.html"
                                 }
                             }
                         })

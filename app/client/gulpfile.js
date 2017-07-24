@@ -67,7 +67,7 @@ gulp.task('copyfonts', function () {
 });
 
 gulp.task('clean', function (cb) {
-    return del(['../build/public'],{force:true},cb)
+    return del(['../build/public'],{force:true},cb);
 });
 
 gulp.task('default', ['clean'], function () {

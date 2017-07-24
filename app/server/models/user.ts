@@ -46,4 +46,18 @@ export class UserModel {
         passport.deserializeUser(UserModel._model.deserializeUser());
     }
 
+    public static reset = (cb?: ( id: mongoose.Schema.Types.ObjectId ) => void ) => {
+        UserModel.repo.drop(function (err: any) {
+            if (err) throw err;
+            console.log("Users cleared");
+            UserModel.register(
+                UserModel.model({ username: "asem_alla" }),
+                "qwerasdf",
+                function (err, user) {
+                    if (err) throw err;
+                    console.log("user created:" + user );
+                    if( cb ) cb( user._id );
+                });
+        });
+    }
 }
