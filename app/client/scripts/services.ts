@@ -35,7 +35,7 @@ module wevote {
             this._window.localStorage[key] = JSON.stringify(value);
         }
 
-        public getObject = (key: string, defaultValue: any) => {
+        public getObject = (key: string, defaultValue: string = '{}') => {
             return JSON.parse(this._window.localStorage[key] || defaultValue);
         }
     }

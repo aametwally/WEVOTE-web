@@ -414,10 +414,13 @@ module wevote {
             this._localStorage = $localStorage;
             this._auth = auth;
 
-            this._scope.loginData = this._localStorage.getObject('userinfo', {username:'',password:''});
+            this._scope.loginData = this._localStorage.getObject('userinfo');
             this._scope.doLogin = () => {
                 if (this._scope.rememberMe)
-                    this._localStorage.storeObject('userinfo', this._scope.loginData);
+                    this._localStorage.storeObject('userinfo', { 
+                        username: this._scope.loginData.username , 
+                        password: this._scope.loginData.password });
+                        
                 this._auth.login(this._scope.loginData,
                     () => { this._ngDialog.closeAll(); });
             }
