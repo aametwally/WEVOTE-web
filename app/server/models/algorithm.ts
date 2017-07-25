@@ -19,7 +19,7 @@ export class AlgorithmModel {
     public static repo = new RepositoryBase<IAlgorithmModel>(AlgorithmModel._model);
 
     public static reset = () => {
-        AlgorithmModel.repo.drop(function (err: any) {
+        AlgorithmModel.repo.drop( (err: any) => {
             if (err) throw err;
             console.log("Algorithm cleared");
             //To initialize when the collection is empty
@@ -27,10 +27,10 @@ export class AlgorithmModel {
                 if (!doc) {
                     //Collection is empty
                     //build fomr file
-                    fs.readFile(__dirname + "/algorithm.json", 'utf8', function (err, data) {
+                    fs.readFile(__dirname + "/algorithm.json", 'utf8', (err, data) => {
                         if (err) throw err;
                         let datafromfile = JSON.parse(data);
-                        datafromfile.forEach(function (obj: any) {
+                        datafromfile.forEach( (obj: any) => {
                             AlgorithmModel.repo.create(obj, function (err, doc) {
                                 if (err) throw err;
                                 // console.log("Add algorithm: " + doc);

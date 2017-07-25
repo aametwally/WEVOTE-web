@@ -9,20 +9,20 @@ import { IUserModel } from './user';
 import * as mongoose from 'mongoose';
 
 
-interface IStatus extends mongoose.Document {
+export interface IStatus extends mongoose.Document {
     started: Boolean;
     progress: Number;
 }
 
 
-interface IConfig extends mongoose.Document {
+export interface IConfig extends mongoose.Document {
     algorithms: mongoose.Types.DocumentArray<IAlgorithmModel>;
     minNumAgreed: Number;
     minScore: Number;
     penalty: Number;
 }
 
-interface IResults extends mongoose.Document {
+export interface IResults extends mongoose.Document {
     wevoteClassification: mongoose.Schema.Types.ObjectId,
     taxonomyAbundanceProfile: mongoose.Schema.Types.ObjectId
 }
@@ -118,7 +118,7 @@ export class ExperimentModel {
     private static _model = mongoose.model<IExperimentModel>('Experiment', ExperimentModel.schema);
     public static repo = new RepositoryBase<IExperimentModel>(ExperimentModel._model);
 
-    public static reset = (userId: mongoose.Schema.Types.ObjectId, cb?: any) => {
+    public static reset = (userId: string, cb?: any) => {
         ExperimentModel.repo.drop((err: any) => {
             if (err) throw err;
             console.log("ExperimentModel cleared");
@@ -131,8 +131,8 @@ export class ExperimentModel {
                         onServer: true,
                         uri: "todo",
                         data: "todo",
-                        size: "todo",
-                        count: "todo"
+                        size: 0,
+                        count: 0
                     };
                     const _taxonomy: ITaxonomyModel = <any>{
                         name: "todo",
@@ -149,9 +149,9 @@ export class ExperimentModel {
                             { name: "tool2", used: true },
                             { name: "tool3", used: true },
                         ],
-                        minScore: "0",
-                        minNumAgreed: "0",
-                        penalty: "0"
+                        minScore: 0,
+                        minNumAgreed: 0,
+                        penalty: 0
                     };
 
                     ExperimentModel.repo.create(<any>{
@@ -162,6 +162,7 @@ export class ExperimentModel {
                         reads: _reads,
                         taxonomy: _taxonomy,
                         config: _config,
+                        results: {}
                     }, (err: any, exp: any) => {
                         if (err) {
                             console.log("Error:" + err);

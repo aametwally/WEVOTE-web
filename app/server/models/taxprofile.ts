@@ -28,7 +28,6 @@ export const taxonomyAbundanceSchema = new mongoose.Schema({
     },
     taxline: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true,
         ref: 'TaxLine'
     }
 });
@@ -50,11 +49,11 @@ export class TaxonomyAbundanceProfileModel {
     mongoose.model<ITaxonomyAbundanceProfileModel>('TaxonomyAbundanceProfile', TaxonomyAbundanceProfileModel.schema);
     public static repo = new RepositoryBase<ITaxonomyAbundanceProfileModel>(TaxonomyAbundanceProfileModel._model);
 
-    public static reset = (experimentId: mongoose.Schema.Types.ObjectId, cb?: any) => {
-        TaxonomyAbundanceProfileModel.repo.drop(function (err: any) {
+    public static reset = (experimentId: string , cb?: any) => {
+        TaxonomyAbundanceProfileModel.repo.drop( (err: any) => {
             if (err) throw err;
             console.log("TaxonomyAbundanceProfile cleared");
-            TaxonomyAbundanceProfileModel.repo.findOne({}, function (err: any, doc: any) {
+            TaxonomyAbundanceProfileModel.repo.findOne({}, (err: any, doc: any) => {
                 if (!doc) {
                     //Collection is empty
                     //build fomr file
@@ -65,7 +64,7 @@ export class TaxonomyAbundanceProfileModel {
                             experiment: experimentId,
                             taxa_abundance: csvJSON(data)
                         };
-                        TaxonomyAbundanceProfileModel.repo.create(<any>abundance, function (err, doc) {
+                        TaxonomyAbundanceProfileModel.repo.create(<any>abundance,  (err, doc) => {
                             if (err) throw err;
                             if (cb) cb( doc._id );
                             // console.log("Add taxonomy abundance: " + doc);

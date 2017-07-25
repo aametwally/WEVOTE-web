@@ -1,6 +1,6 @@
-import {TaxonomyAbundanceProfileModel} from '../models/taxprofile';
-import {BaseRoute} from "./route";
-import {Request, Response, NextFunction} from 'express';
+import { TaxonomyAbundanceProfileModel } from '../models/taxprofile';
+import { BaseRoute } from "./route";
+import { Request, Response, NextFunction } from 'express';
 import construct = Reflect.construct;
 
 
@@ -19,10 +19,13 @@ export class TaxonomyAbundanceProfileRouter extends BaseRoute {
         super();
         this._router.route('/')
             .get(function (req: Request, res: Response, next: NextFunction) {
-                TaxonomyAbundanceProfileModel.repo.retrieve(  (err: any, profiles: any) => {
-                    if (err) return next( err );
+                TaxonomyAbundanceProfileModel.repo.retrieve((err: any, profiles: any) => {
+                    if (err) return next(err);
                     res.json(profiles);
-                });
+                }, [{
+                    path: 'experiment',
+                    select: 'user description email'
+                }]);
             });
     }
 

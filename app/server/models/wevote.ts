@@ -78,7 +78,7 @@ export class WevoteClassificationPatchModel {
     mongoose.model<IWevoteClassificationPatch>('WevoteClassificationPatch', WevoteClassificationPatchModel.schema);
     public static repo = new RepositoryBase<IWevoteClassificationPatch>(WevoteClassificationPatchModel._model);
 
-    public static reset = ( experimentId : mongoose.Schema.Types.ObjectId , cb?: any ) => 
+    public static reset = ( experimentId : string , cb?: any ) => 
     {
         WevoteClassificationPatchModel.repo.drop(function (err: any) {
             if (err) throw err;
@@ -103,7 +103,7 @@ export class WevoteClassificationPatchModel {
                         WevoteClassificationPatchModel.repo.create(wevotePatch, function (err, doc) {
                             if (err) throw err;
                             if( cb ) cb( doc._id );
-                            // console.log("Add taxonomy abundance: " + doc);
+                            // console.log("Wevote Classification Added: " + doc);
                         });
                     })
                 }

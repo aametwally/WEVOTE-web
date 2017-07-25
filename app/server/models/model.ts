@@ -17,17 +17,44 @@ export interface IRead<T> {
 export interface IWrite<T> {
     create: (item: T, callback: (error: any, result: any) => void) => void;
     update: (_id: mongoose.Types.ObjectId, item: T, callback: (error: any, result: any) => void) => void;
+    findByIdAndUpdate: (_id: mongoose.Types.ObjectId, update: Object, callback: (error: any, result: any) => void) => void;
     delete: (_id: string, callback: (error: any, result: any) => void) => void;
     drop: (callback: (error: any) => void) => void;
 }
 
+// export interface IPopulateElement {
+//     foreignField: string,
+//     includeFields?: Object
+// }
+
 export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IWrite<T> {
+
 
     protected _model: mongoose.Model<mongoose.Document>;
 
     constructor(schemaModel: mongoose.Model<mongoose.Document>) {
         this._model = schemaModel;
     }
+
+    private toObjectId(_id: string): mongoose.Types.ObjectId {
+        return mongoose.Types.ObjectId.createFromHexString(_id);
+    }
+
+    // private populate(query: mongoose.DocumentQuery<mongoose.Document | mongoose.Document[] | null, mongoose.Document>, populateElements: Array<IPopulateElement>): mongoose.DocumentQuery<mongoose.Document | mongoose.Document[] | null, mongoose.Document> {
+    //     let _populate: (query: mongoose.DocumentQuery<mongoose.Document | mongoose.Document[] | null, mongoose.Document>, index: number) => mongoose.DocumentQuery<mongoose.Document | mongoose.Document[] | null, mongoose.Document>;
+    //     _populate = function(
+    //         query: mongoose.DocumentQuery<mongoose.Document | mongoose.Document[] | null, mongoose.Document>,
+    //         index: number){
+    //         if (index < populateElements.length)
+    //             return _populate(query.populate(
+    //                 populateElements[index].foreignField,
+    //                 populateElements[index].includeFields
+    //             ), index + 1);
+    //         else return query;
+    //     };
+
+    //     return _populate(query, 0);
+    // }
 
     create(item: T, callback: (error: any, result: T) => void) {
         this._model.create(item, function (error: any, results: T) {
@@ -39,17 +66,21 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
 
     retrieve(callback: (error: any, result: T) => void,
-        populateStr?: String, fields?: Object) {
-        if (populateStr)
+        populateElements?: mongoose.ModelPopulateOptions | mongoose.ModelPopulateOptions[]) {
+        if (populateElements)
             return this._model.find({})
-                .populate(populateStr, fields)
+                .populate(populateElements)
                 .exec(callback);
         else
             return this._model.find({}, callback);
     }
 
     update(_id: mongoose.Types.ObjectId, item: T, callback: (error: any, result: any) => void) {
-        this._model.update({ _id: _id }, item, callback);
+        this._model.findByIdAndUpdate({ _id: _id }, item, callback);
+    }
+
+    findByIdAndUpdate(_id: mongoose.Types.ObjectId, update: Object, callback: (error: any, result: any) => void) {
+        this._model.findByIdAndUpdate( _id, update , callback);
     }
 
     delete(_id: string, callback: (error: any, result: any) => void) {
@@ -61,37 +92,33 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
 
     findById(_id: string, callback: (error: any, result: T) => void,
-        populateStr?: String, fields?: Object) {
-        if (populateStr)
+        populateElements?: mongoose.ModelPopulateOptions | mongoose.ModelPopulateOptions[]) {
+        if (populateElements)
             return this._model.findById(_id)
-                .populate(populateStr, fields)
+                .populate(populateElements)
                 .exec(callback);
         else
             return this._model.findById(_id, callback);
     }
 
     findOne(cond: Object, callback?: (err: any, res: T) => void,
-        populateStr?: String, fields?: Object): any {
-        if (populateStr)
+        populateElements?: mongoose.ModelPopulateOptions | mongoose.ModelPopulateOptions[]): any {
+        if (populateElements)
             return this._model.findOne(cond)
-                .populate(populateStr, fields)
+                .populate(populateElements)
                 .exec(callback);
         else
             return this._model.findOne(cond, callback);
     }
 
     find(cond: Object, fields?: Object, options?: Object, callback?: (err: any, res: T[]) => void,
-        populateStr?: String, popFields?: Object): any {
-        if (populateStr)
+        populateElements?: mongoose.ModelPopulateOptions | mongoose.ModelPopulateOptions[]): any {
+        if (populateElements)
             return this._model.find(cond, options)
-                .populate(populateStr, popFields)
+                .populate(populateElements)
                 .exec(callback);
         else
             return this._model.find(cond, options, callback);
-    }
-
-    private toObjectId(_id: string): mongoose.Types.ObjectId {
-        return mongoose.Types.ObjectId.createFromHexString(_id);
     }
 }
 

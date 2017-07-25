@@ -39,10 +39,10 @@ export class ReadsModel {
     public static repo = new RepositoryBase<IReadsModel>(ReadsModel._model);
 
     public static reset = () => {
-        ReadsModel.repo.drop(function (err: any) {
+        ReadsModel.repo.drop( (err: any) => {
             if (err) throw err;
             console.log("Reads cleared");
-            ReadsModel.repo.findOne({}, function (err: any, doc: any) {
+            ReadsModel.repo.findOne({},  (err: any, doc: any) => {
                 if (!doc) {
                     //Collection is empty
                     //build fomr file
@@ -50,7 +50,7 @@ export class ReadsModel {
                         if (err) throw err;
                         let datafromfile = JSON.parse(data);
                         datafromfile.forEach(function (obj: any) {
-                            ReadsModel.repo.create(obj, function (err, doc) {
+                            ReadsModel.repo.create(obj,  (err, doc) => {
                                 if (err) throw err;
                                 // console.log("Add reads: " + doc);
                             });

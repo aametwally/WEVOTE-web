@@ -44,7 +44,7 @@ export class ExperimentRouter extends BaseRoute {
                     penalty: exp.config.penalty
                 };
 
-                console.log("decoded:", req.decoded );
+                console.log("decoded:", req.decoded);
                 ExperimentModel.repo.create(<any>{
                     user: req.decoded._id,
                     isPrivate: exp.private,
@@ -53,6 +53,7 @@ export class ExperimentRouter extends BaseRoute {
                     reads: _reads,
                     taxonomy: _taxonomy,
                     config: _config,
+                    results: {}
                 }, function (err: any, exp: any) {
                     if (err) {
                         console.log("Error:" + err);
@@ -72,7 +73,11 @@ export class ExperimentRouter extends BaseRoute {
                     if (err) return next(err);
 
                     res.json(experiments);
-                }, 'user', 'username');
+                }, [
+                        {
+                            path: 'user',
+                            select: 'username admin'
+                        }]);
             })
             ;
 
