@@ -1,7 +1,7 @@
 /**
  * Created by asem on 06/06/17.
  */
-module metaviz {
+namespace metaviz {
     "use strict";
     export class HelloFactory  {
         static readonly $inject = [HelloFactory.factory()];

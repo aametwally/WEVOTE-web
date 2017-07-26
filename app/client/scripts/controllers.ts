@@ -10,11 +10,13 @@ module wevote {
         message: String,
     }
     export class MainController {
-        static readonly $inject: any = ['$scope', MainController];
+        static readonly $inject: any = ['$scope','HelloService',MainController];
         private _scope: MainControllerScope;
-
-        constructor($scope: ng.IScope) {
+        private _hello : metaviz.HelloFactory;
+        constructor($scope: ng.IScope , hello: metaviz.HelloFactory  ) {
             this._scope = <MainControllerScope>$scope;
+            this._hello = hello;
+            this._hello.hello();
             this._scope.showInput = false;
             this._scope.error = false;
             this._scope.message = "Loading ...";

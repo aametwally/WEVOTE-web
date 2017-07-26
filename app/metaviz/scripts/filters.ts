@@ -1,5 +1,5 @@
 "use strict";
-module metaviz {
+namespace metaviz {
     export class ShortNumberFilter {
         static readonly $inject: any = [ShortNumberFilter.filter];
 

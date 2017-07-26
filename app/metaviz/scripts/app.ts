@@ -1,6 +1,6 @@
 "use strict";
 
-module metaviz {
+namespace metaviz {
     export let metavizApp =
         angular.module('metaviz', [
             'ngResource',
