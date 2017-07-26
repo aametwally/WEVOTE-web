@@ -20,9 +20,8 @@ var gulp = require('gulp'),
     ngannotate = require('gulp-ng-annotate'),
     del = require('del'),
     tsc = require('gulp-typescript'),
-    tsClientProject = tsc.createProject('tsconfig.json'),
-    sourcemaps = require('gulp-sourcemaps')
-;
+    tsMetavizProject = tsc.createProject('tsconfig.json'),
+    sourcemaps = require('gulp-sourcemaps');
 
 
 gulp.task('jshint', function () {
@@ -39,66 +38,47 @@ gulp.task('usemin', ['ts', 'jshint'], function () {
             js: [
                 // ngannotate(),
                 // uglify().on('error', function(err) {gutil.log(gutil.colors.red('[Error]'), err.toString());this.emit('end');}),
-                rev()]
+                // rev()
+            ]
         }))
-        .pipe(gulp.dest('../build/public'));
+        .pipe(gulp.dest('dist'));
 });
 
 gulp.task('ts', function () {
-    return tsClientProject.src()
-        .pipe(tsClientProject())
-        .js.pipe(gulp.dest("../build/public"));
+    var tsResults = tsMetavizProject.src()
+        .pipe(tsMetavizProject());
+    return tsResults.js.pipe(gulp.dest(".")),
+        tsResults.dts.pipe(gulp.dest("definitions"));
 });
 
 
 // Images
 gulp.task('imagemin', function () {
-    return del(['../build/public/images']), gulp.src('images/**/*')
-        .pipe(cache(imagemin({optimizationLevel: 3, progressive: true, interlaced: true})))
-        .pipe(gulp.dest('../build/public/images'))
-        .pipe(notify({message: 'Images task complete'}));
+    return del(['dist/images']), gulp.src('images/**/*')
+        .pipe(cache(imagemin({
+            optimizationLevel: 3,
+            progressive: true,
+            interlaced: true
+        })))
+        .pipe(gulp.dest('dist/images'))
+        .pipe(notify({
+            message: 'Images task complete'
+        }));
 });
 
 gulp.task('copyfonts', function () {
     return gulp.src('../../node_modules/font-awesome/fonts/**/*.{ttf,woff,eof,svg}*')
-        .pipe(gulp.dest('../build/public/fonts')),
+        .pipe(gulp.dest('dist/fonts')),
         gulp.src('../../node_modules/bootstrap/dist/fonts/**/*.{ttf,woff,eof,svg}*')
-            .pipe(gulp.dest('../build/public/fonts'));
+        .pipe(gulp.dest('dist/fonts'));
 });
 
 gulp.task('clean', function (cb) {
-    return del(['../build/public'],{force:true},cb);
+    return del(['dist'], {
+        force: true
+    }, cb);
 });
 
 gulp.task('default', ['clean'], function () {
     gulp.start('ts', 'usemin', 'imagemin', 'copyfonts');
-});
-
-// Watch
-gulp.task('watch', ['browser-sync'], function () {
-    // Watch .js files
-    gulp.watch('{scripts/**/*.js,styles/**/*.css,**/*.html}', ['usemin']);
-    // Watch image files
-    gulp.watch('images/**/*', ['imagemin']);
-
-});
-
-gulp.task('browser-sync', ['default'], function () {
-    var files = [
-        '**/*.html',
-        'styles/**/*.css',
-        'images/**/*.png',
-        'scripts/**/*.js',
-        'scripts/**/*.ts',
-        '../build/public/**/*',
-    ];
-
-    browserSync.init(files, {
-        server: {
-            baseDir: '../build/public',
-            index: 'index.html'
-        }
-    });
-    // Watch any files in app/dist/, reload on change
-    gulp.watch(['../build/public/**']).on('change', browserSync.reload);
 });

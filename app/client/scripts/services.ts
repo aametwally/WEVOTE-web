@@ -342,6 +342,15 @@ module wevote {
                 }
             }).query(cbS, cbF);
         }
+
+        public getExperiment = (id: string, cbS: Function, cbF: Function) => {
+            return this._resource(this._baseURL + 'experiment/:expId',
+                { expId: id }, {
+                    'update': {
+                        method: 'PUT'
+                    }
+                }).get(cbS, cbF);
+        }
     }
 
     export class UserFactory extends DataRetriever {

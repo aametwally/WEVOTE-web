@@ -295,23 +295,6 @@ module wevote {
         };
     }
 
-    export class ResultsController {
-        static readonly $inject = ['$scope', ResultsController];
-        private _scope: ng.IScope;
-
-        constructor($scope: ng.IScope) {
-            this._scope = $scope;
-            $("#phyltree-a").click(function (e) {
-                e.preventDefault();
-            });
-            $("#phyltable-a").click(function (e) {
-                e.preventDefault();
-            });
-        }
-    }
-
-
-
     interface HeaderControllerScope extends ng.IScope {
         loggedIn: Boolean,
         username: string,
@@ -417,10 +400,11 @@ module wevote {
             this._scope.loginData = this._localStorage.getObject('userinfo');
             this._scope.doLogin = () => {
                 if (this._scope.rememberMe)
-                    this._localStorage.storeObject('userinfo', { 
-                        username: this._scope.loginData.username , 
-                        password: this._scope.loginData.password });
-                        
+                    this._localStorage.storeObject('userinfo', {
+                        username: this._scope.loginData.username,
+                        password: this._scope.loginData.password
+                    });
+
                 this._auth.login(this._scope.loginData,
                     () => { this._ngDialog.closeAll(); });
             }
@@ -470,19 +454,19 @@ module wevote {
         }
     }
 
-    interface ExperimentControllerScope extends ng.IScope {
+    interface ExperimentsListControllerScope extends ng.IScope {
         experiments: any,
         showExperiments: Boolean,
         experimentsError: Boolean,
         experimentsMessage: String
     }
 
-    export class ExperimentController {
-        static readonly $inject = ['$scope', 'ExperimentService', ExperimentController];
-        private _scope: ExperimentControllerScope;
+    export class ExperimentsListController {
+        static readonly $inject = ['$scope', 'ExperimentService', ExperimentsListController];
+        private _scope: ExperimentsListControllerScope;
 
         constructor($scope: ng.IScope, private ExperimentService: any) {
-            this._scope = <ExperimentControllerScope>$scope;
+            this._scope = <ExperimentsListControllerScope>$scope;
             this._scope.experiments = {};
             this._scope.showExperiments = false;
             this._scope.experimentsError = false;
@@ -556,6 +540,96 @@ module wevote {
 
     }
 
+    interface IConfig {
+        algorithms: Array<string>;
+        minNumAgreed: Number;
+        minScore: Number;
+        penalty: Number;
+    }
+
+    interface IWevoteClassification {
+        seqId: string,
+        taxa: Array<Number>,
+        resolvedTaxon: Number,
+        numToolsReported: Number,
+        numToolsAgreed: Number,
+        score: Number,
+    }
+
+    interface ITaxLine {
+        taxon: Number;
+        root: Number;
+        superkingdom: Number;
+        kingdom: Number;
+        phylum: Number;
+        class: Number;
+        order: Number;
+        family: Number;
+        genus: Number;
+        species: Number;
+    }
+
+    interface ITaxonomyAbundance {
+        taxon: Number;
+        count: Number;
+        taxline: ITaxLine;
+    }
+
+    interface IResults {
+        wevoteClassification: Array<IWevoteClassification>,
+        numToolsUsed: Number,
+        taxonomyAbundanceProfile: Array<ITaxonomyAbundance>
+    }
+
+    interface IExperimentScope extends ng.IScope {
+        user: string;
+        isPrivate: Boolean;
+        email: String;
+        description: String;
+        config: IConfig;
+        results: IResults;
+        createdAt: Date;
+        showExperiment: Boolean,
+        experimentError: Boolean,
+        experimentMessage: String
+    }
+
+    export class ExperimentController {
+        static readonly $inject = ['$scope', 'ExperimentService', 'AuthService', '$stateParams', '$timeout', ExperimentController];
+        private _scope: IExperimentScope;
+        private _auth: AuthFactory;
+        private _timeout: ng.ITimeoutService;
+        constructor($scope: ng.IScope, private ExperimentService: any, auth: AuthFactory, $stateParams: ng.ui.IStateParamsService) {
+            this._scope = <IExperimentScope>$scope;
+            this._auth = auth;
+            this._scope.user = auth.getUsername();
+            this._scope.showExperiment = false;
+            this._scope.experimentError = false;
+            this._scope.experimentMessage = "Loading ...";
+
+            ExperimentService.getExperiment($stateParams.expId, this.onExperimentLoadedSuccess, this.onExperimentLoadedFail);
+
+        }
+
+        private onExperimentLoadedSuccess = (response: any) => {
+            this._scope.user = response.user;
+            this._scope.email = response.email;
+            this._scope.description = response.description;
+            this._scope.createdAt = response.createdAt;
+            this._scope.isPrivate = false;
+            this._scope.config = response.config;
+            this._scope.results = response.results;
+            this._scope.showExperiment = true;
+            this._scope.experimentError = false;
+            this._scope.experimentMessage = '';
+        };
+
+        private onExperimentLoadedFail = (response: any) => {
+            this._scope.experimentError = true;
+            this._scope.experimentMessage = response;
+        };
+    }
+
 
     wevoteApp
         .controller('MainController', MainController.$inject)
@@ -565,6 +639,7 @@ module wevote {
         .controller('HeaderController', HeaderController.$inject)
         .controller('LoginController', LoginController.$inject)
         .controller('RegisterController', RegisterController.$inject)
+        .controller('ExperimentsListController', ExperimentsListController.$inject)
         .controller('ExperimentController', ExperimentController.$inject)
-        .controller('ResultsController', ResultsController.$inject);
+        ;
 }

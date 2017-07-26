@@ -1,4 +1,4 @@
-<div ng-controller="ExperimentController">
+<div ng-controller="ExperimentsListController">
     <div ng-if="!showExperiments" class="{{experimentsError? 'alert alert-danger' :'alert alert-warning'}}" role="alert">{{experimentsMessage}}</div>
     <div ng-if="showExperiments">
 
@@ -72,7 +72,7 @@
                                 <span class="glyphicon glyphicon-trash"></span>
                             </button>
                                             <button type="button" class="btn btn-primary btn-xs" data-toggle="tooltip" data-placement="top" title="Visualize" ng-click=""
-                                                ui-sref="app.results">
+                                                ui-sref="app.results({expId: exp._id})">
                                 <span class="glyphicon glyphicon-eye-open"></span>
                             </button>
                                         </td>

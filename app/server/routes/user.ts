@@ -60,7 +60,7 @@ export class UserRouter extends BaseRoute {
                             });
                         }
 
-                        let token = getToken({
+                        const token = getToken({
                             "username": user.username,
                             "_id": user._id,
                             "admin": user.admin

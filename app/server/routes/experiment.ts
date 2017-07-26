@@ -77,7 +77,39 @@ export class ExperimentRouter extends BaseRoute {
                         {
                             path: 'user',
                             select: 'username admin'
-                        }]);
+                        }
+                    ]);
+            })
+            ;
+
+        this._router.route('/:expId')
+            .get( verifyOrdinaryUser,  function ( req: Request, res: Response, next: NextFunction) {
+                console.log('getting experiment:',req.params.expId);
+                ExperimentModel.repo.findById(req.params.expId,
+                    function (err: any, experiment: any) {
+                        if (err) return next(err);
+                        const demandingUser : string = (<any>req).decoded.username;
+                        const experimentUser: string = experiment.user.username;
+                        console.log( experiment.user );
+
+                        if( demandingUser === experimentUser  )
+                            return res.json(experiment);
+                        else {
+                            console.log('Users mismatch!',demandingUser,experimentUser);
+                            const error = new Error('Users mismatch!'+demandingUser+experimentUser);
+                            next(error);
+                        }
+                    }, [
+                        {
+                            path: 'user'
+                        },
+                        {
+                            path: 'results.wevoteClassification'
+                        },
+                        {
+                            path: 'results.taxonomyAbundanceProfile'
+                        }
+                    ]);
             })
             ;
 

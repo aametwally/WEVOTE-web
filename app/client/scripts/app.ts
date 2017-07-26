@@ -1,7 +1,7 @@
 module wevote {
     "use strict";
     export let wevoteApp =
-        angular.module('wevote', ['ui.router', 'ngResource', 'angularFileUpload','ui.bootstrap.popover', 'ui.bootstrap.tpls' , 'ngDialog'])
+        angular.module('wevote', ['ui.router', 'ngResource', 'angularFileUpload','ui.bootstrap.popover', 'ui.bootstrap.tpls' , 'ngDialog' , 'metaviz'])
             .config(['$stateProvider', '$urlRouterProvider',
                 function ($stateProvider: ng.ui.IStateProvider, $urlRouterProvider: ng.ui.IUrlRouterProvider) {
                     $stateProvider
@@ -23,11 +23,11 @@ module wevote {
                         })
 
                         .state('app.results' , {
-                            url: 'results',
+                            url: 'results/:expId',
                             views: {
                                 'content@': {
                                     templateUrl: "views/results.html",
-                                    controller: "ResultsController"
+                                    controller: "ExperimentController"
                                 }
                             }
                         })
