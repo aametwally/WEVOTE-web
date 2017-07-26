@@ -5,6 +5,8 @@ app/uploads/*
 node_modules/**/*
 bower_components/**/*
 app/build/**
+app/metaviz/dist/**
+app/metaviz/*.js
 app/server/routes/*.js
 app/server/models/*.js
 app/client/scripts/*.js
