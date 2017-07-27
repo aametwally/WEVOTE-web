@@ -1,22 +1,47 @@
 <div class="row row-content">
     <div class="col-xs-offset-1 col-xs-11">
-            <div ng-show="!showExperiment" class="{{experimentError? 'alert alert-danger' :'alert alert-warning'}}" role="alert">{{experimentMessage}}</div>
-            <div ng-show="showExperiment">
-                <ul class="nav nav-pills">
-                    <li role="presentation" class="active"><a data-toggle="tab" onclick="event.preventDefault()" id="phyltree-a" href="#phyltree">Phylogeny Tree</a></li>
-                    <li role="presentation"><a data-toggle="tab" onclick="event.preventDefault()" id="phyltable-a" href="#phyltable">Table</a></li>
-                </ul>
+        <div ng-show="!showExperiment" class="{{experimentError? 'alert alert-danger' :'alert alert-warning'}}" role="alert">{{experimentMessage}}</div>
+        <div ng-show="showExperiment">
+            <ul class="nav nav-pills">
+                <li role="presentation" class="active"><a data-toggle="tab" onclick="event.preventDefault()" id="phyltree-a" href="#phyltree">Phylogeny Tree</a></li>
+                <li role="presentation"><a data-toggle="tab" onclick="event.preventDefault()" id="phyltable-a" href="#phyltable">Table</a></li>
+            </ul>
 
-                <div class="tab-content" id="resultstabs">
-                    <div id="phyltree" class="tab-pane fade in active">
-                        <h3>Phylogeny Tree</h3>
-                        <p>Some content.</p>
+            <div class="tab-content" id="resultstabs">
+                <div id="phyltree" class="tab-pane fade in active">
+                    <h3>Phylogeny Tree</h3>
+                    <mv-helloworld></mv-helloworld>
+
+
+                    
+                </div>
+                <div id="phyltable" class="tab-pane fade">
+                    <h3>Phylogeny Table</h3>
+                    <div class="col-xs-12">
+                        <div ng-controller="DonutChartController">
+                            <mv-donutchart array="data"></mv-donutchart>
+                        </div>
                     </div>
-                    <div id="phyltable" class="tab-pane fade">
-                        <h3>Phylogeny Table</h3>
-                        <p>Some content in menu 1.</p>
+
+                    <div class="col-xs-12">
+                        <div ng-controller="DonutChartController">
+                            <mv-donutchart array="data"></mv-donutchart>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12">
+                        <div ng-controller="DonutChartController">
+                            <mv-donutchart array="data"></mv-donutchart>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12">
+                        <div ng-controller="DonutChartController">
+                            <mv-donutchart array="data"></mv-donutchart>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
     </div>
 </div>
