@@ -10,10 +10,10 @@ module wevote {
         message: String,
     }
     export class MainController {
-        static readonly $inject: any = ['$scope','HelloService',MainController];
+        static readonly $inject: any = ['$scope', 'HelloService', MainController];
         private _scope: MainControllerScope;
-        private _hello : metaviz.HelloFactory;
-        constructor($scope: ng.IScope , hello: metaviz.HelloFactory  ) {
+        private _hello: metaviz.HelloFactory;
+        constructor($scope: ng.IScope, hello: metaviz.HelloFactory) {
             this._scope = <MainControllerScope>$scope;
             this._hello = hello;
             this._hello.hello();
@@ -596,6 +596,13 @@ module wevote {
         experimentMessage: String
     }
 
+    interface IAlgorithmsVennSets {
+        count: number, // size
+        sequences: Array<string>, //seqId
+        score: number,
+        resolvedTaxon: number
+    }
+
     export class ExperimentController {
         static readonly $inject = ['$scope', 'ExperimentService', 'AuthService', '$stateParams', '$timeout', ExperimentController];
         private _scope: IExperimentScope;
@@ -630,6 +637,54 @@ module wevote {
             this._scope.experimentError = true;
             this._scope.experimentMessage = response;
         };
+
+        private processResults = (results: IResults, config: IConfig) => {
+            const wevoteClassification = results.wevoteClassification;
+            const algorithms = config.algorithms;
+            if (algorithms.length != wevoteClassification[0].taxa.length) {
+                console.warn("Results inconsistency", algorithms, wevoteClassification[0].taxa);
+                return;
+            }
+
+            const dim = algorithms.length;
+            let _sets: Map<string, IAlgorithmsVennSets> = new Map();
+            // Prepare data to be passed to d3.js venn diagram.
+            wevoteClassification.forEach(function (readClassification: IWevoteClassification, readIndex: number) {
+                let counterMap: Map<number, Array<number>> = new Map();
+                readClassification.taxa.forEach(function (taxid: number, algIdx: number) {
+                    if (!counterMap.has(taxid)) {
+                        counterMap[taxid] = new Array();
+                    }
+                    counterMap[taxid].push(algIdx);
+                });
+                counterMap.forEach(function (algsIdx: number[], taxid: number) {
+                    const algsStr = algsIdx.join(',');
+                    if (!_sets.has(algsStr)) {
+                        _sets[algsStr] = {
+                            count: 0,
+                            score: readClassification.score,
+                            resolvedTaxon: readClassification.resolvedTaxon,
+                            sequences: new Array()
+                        };
+                    }
+                    _sets[algsStr].count++;
+                    _sets[algsStr].sequences.push(readClassification.seqId);
+                });
+            });
+
+            let set: Array<any> = [];
+            _sets.forEach(function (vennBucket: IAlgorithmsVennSets, algorithmsSet: string) {
+                set.push(
+                    {
+                        sets: algorithmsSet.split(',').map(function (algIdx: string) {
+                            return algorithms[parseInt(algIdx)];
+                        }),
+                        size: vennBucket.count , 
+                        nodes: vennBucket.sequences
+                    });
+            });
+
+        }
     }
 
 
