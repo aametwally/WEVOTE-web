@@ -16,6 +16,7 @@ namespace metaviz {
             console.log("Hello, this is HelloFactory");
         }
     }
+
     metavizApp
         .factory('HelloService', HelloFactory.$inject)
 

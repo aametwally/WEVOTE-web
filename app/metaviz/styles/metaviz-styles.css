@@ -1,0 +1,23 @@
+.venntooltip {
+    font-size: 14px;
+    position: absolute;
+    text-align: center;
+    width: 150px;
+    height: 85px;
+    background: #333;
+    color: #fff;
+    padding: 2px;
+    border: 0px;
+    border-radius: 8px;
+    opacity: 0;
+}
+
+.venn {
+    float: right;
+}
+
+svg {
+    font-family: 'Roboto';
+    font-weight: 300;
+    font-size: 12px;
+}

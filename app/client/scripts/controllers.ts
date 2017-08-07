@@ -542,65 +542,19 @@ module wevote {
 
     }
 
-    interface IConfig {
-        algorithms: Array<string>;
-        minNumAgreed: Number;
-        minScore: Number;
-        penalty: Number;
-    }
 
-    interface IWevoteClassification {
-        seqId: string,
-        taxa: Array<Number>,
-        resolvedTaxon: Number,
-        numToolsReported: Number,
-        numToolsAgreed: Number,
-        score: Number,
-    }
-
-    interface ITaxLine {
-        taxon: Number;
-        root: Number;
-        superkingdom: Number;
-        kingdom: Number;
-        phylum: Number;
-        class: Number;
-        order: Number;
-        family: Number;
-        genus: Number;
-        species: Number;
-    }
-
-    interface ITaxonomyAbundance {
-        taxon: Number;
-        count: Number;
-        taxline: ITaxLine;
-    }
-
-    interface IResults {
-        wevoteClassification: Array<IWevoteClassification>,
-        numToolsUsed: Number,
-        taxonomyAbundanceProfile: Array<ITaxonomyAbundance>
-    }
 
     interface IExperimentScope extends ng.IScope {
         user: string;
         isPrivate: Boolean;
         email: String;
         description: String;
-        config: IConfig;
-        results: IResults;
+        config: metaviz.IConfig;
+        results: metaviz.IResults;
         createdAt: Date;
         showExperiment: Boolean,
         experimentError: Boolean,
         experimentMessage: String
-    }
-
-    interface IAlgorithmsVennSets {
-        count: number, // size
-        sequences: Array<string>, //seqId
-        score: number,
-        resolvedTaxon: number
     }
 
     export class ExperimentController {
@@ -627,10 +581,15 @@ module wevote {
             this._scope.createdAt = response.createdAt;
             this._scope.isPrivate = false;
             this._scope.config = response.config;
-            this._scope.results = response.results;
+            this._scope.results = {
+                wevoteClassification: response.results.wevoteClassification.patch,
+                numToolsUsed: response.results.wevoteClassification.numToolsUsed,
+                taxonomyAbundanceProfile: response.results.taxonomyAbundanceProfile
+            };
             this._scope.showExperiment = true;
             this._scope.experimentError = false;
             this._scope.experimentMessage = '';
+
         };
 
         private onExperimentLoadedFail = (response: any) => {
@@ -638,53 +597,6 @@ module wevote {
             this._scope.experimentMessage = response;
         };
 
-        private processResults = (results: IResults, config: IConfig) => {
-            const wevoteClassification = results.wevoteClassification;
-            const algorithms = config.algorithms;
-            if (algorithms.length != wevoteClassification[0].taxa.length) {
-                console.warn("Results inconsistency", algorithms, wevoteClassification[0].taxa);
-                return;
-            }
-
-            const dim = algorithms.length;
-            let _sets: Map<string, IAlgorithmsVennSets> = new Map();
-            // Prepare data to be passed to d3.js venn diagram.
-            wevoteClassification.forEach(function (readClassification: IWevoteClassification, readIndex: number) {
-                let counterMap: Map<number, Array<number>> = new Map();
-                readClassification.taxa.forEach(function (taxid: number, algIdx: number) {
-                    if (!counterMap.has(taxid)) {
-                        counterMap[taxid] = new Array();
-                    }
-                    counterMap[taxid].push(algIdx);
-                });
-                counterMap.forEach(function (algsIdx: number[], taxid: number) {
-                    const algsStr = algsIdx.join(',');
-                    if (!_sets.has(algsStr)) {
-                        _sets[algsStr] = {
-                            count: 0,
-                            score: readClassification.score,
-                            resolvedTaxon: readClassification.resolvedTaxon,
-                            sequences: new Array()
-                        };
-                    }
-                    _sets[algsStr].count++;
-                    _sets[algsStr].sequences.push(readClassification.seqId);
-                });
-            });
-
-            let set: Array<any> = [];
-            _sets.forEach(function (vennBucket: IAlgorithmsVennSets, algorithmsSet: string) {
-                set.push(
-                    {
-                        sets: algorithmsSet.split(',').map(function (algIdx: string) {
-                            return algorithms[parseInt(algIdx)];
-                        }),
-                        size: vennBucket.count , 
-                        nodes: vennBucket.sequences
-                    });
-            });
-
-        }
     }
 
 

@@ -34,7 +34,7 @@ gulp.task('jshint', function () {
 gulp.task('usemin', ['ts', 'jshint'], function () {
     return gulp.src('**/*.html')
         .pipe(usemin({
-            css: [minifycss(), rev()],
+            css: [minifycss()],
             js: [
                 // ngannotate(),
                 // uglify().on('error', function(err) {gutil.log(gutil.colors.red('[Error]'), err.toString());this.emit('end');}),
