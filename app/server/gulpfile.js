@@ -13,7 +13,9 @@ var gulp = require('gulp'),
 gulp.task('ts', function () {
     return tsServerProject.src()
         .pipe(tsServerProject())
-        .js.pipe(gulp.dest("../build"));
+        .js.pipe(gulp.dest("../build")),
+        gulp.src('bin/*') 
+        .pipe( gulp.dest('../build/bin'));
 });
 
 gulp.task('clean', function (cb) {

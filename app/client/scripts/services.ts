@@ -382,7 +382,7 @@ module wevote {
     }
 
     wevoteApp
-        .constant("baseURL", "http://localhost:3001/")
+        .constant("baseURL", "http://localhost:3000/")
         .factory('LocalStorageService', LocalStorageFactory.$inject)
         .factory('AuthService', AuthFactory.$inject)
         .factory('FileUploaderService', FileUploaderFactory.$inject)

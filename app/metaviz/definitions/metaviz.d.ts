@@ -42,26 +42,27 @@ declare namespace metaviz {
         score: Number;
     }
     interface ITaxLine {
-        taxon: Number;
-        root: Number;
-        superkingdom: Number;
-        kingdom: Number;
-        phylum: Number;
-        class: Number;
-        order: Number;
-        family: Number;
-        genus: Number;
-        species: Number;
+        taxon: number;
+        superkingdom: string;
+        phylum: string;
+        class: string;
+        order: string;
+        family: string;
+        genus: string;
+        species: string;
     }
     interface ITaxonomyAbundance {
-        taxon: Number;
-        count: Number;
+        taxon: number;
+        count: number;
         taxline: ITaxLine;
+    }
+    interface ITaxonomyAbundanceProfile {
+        taxa_abundance: Array<ITaxonomyAbundance>;
     }
     interface IResults {
         wevoteClassification: Array<IWevoteClassification>;
-        numToolsUsed: Number;
-        taxonomyAbundanceProfile: Array<ITaxonomyAbundance>;
+        numToolsUsed: number;
+        taxonomyAbundanceProfile: ITaxonomyAbundanceProfile;
     }
     interface IAlgorithmsVennSets {
         count: number;
@@ -83,6 +84,24 @@ declare namespace metaviz {
         private _scope;
         constructor(scope: ng.IScope);
         private processResults;
+    }
+    interface IAbundanceNode {
+        name: string;
+        size?: number;
+        children: Map<string, IAbundanceNode>;
+    }
+    interface IAbundanceSubburstScope extends ng.IScope {
+        results: IResults;
+        config: IConfig;
+        hierarchy: any;
+    }
+    class AbundanceSubburstController {
+        static readonly $inject: any;
+        private _scope;
+        constructor(scope: ng.IScope);
+        private processResults;
+        private hierarchyAsObject(tree);
+        private buildHierarchy;
     }
 }
 declare namespace metaviz {
@@ -131,6 +150,59 @@ declare namespace metaviz {
         private readonly _h;
         private readonly _min;
         link: (scope: IVennDiagramDirectiveScope, element: angular.IAugmentedJQuery, attrs: angular.IAttributes, ngModel: any) => void;
+        constructor();
+        static factory(): ng.IDirectiveFactory;
+    }
+    interface IAbundanceSunburstDirectiveScope extends ng.IScope {
+        hierarchy: any;
+        totalSize: number;
+    }
+    interface IAbundanceSubburstHTMLElement {
+        main: any;
+        sequence: any;
+        chart: any;
+        explanation: any;
+        percentage: any;
+        sidebar: any;
+        togglelegend: any;
+        legend: any;
+        vis: any;
+        trail: any;
+        endlabel: any;
+    }
+    class AbundanceSunburstDirective implements ng.IDirective {
+        restrict: string;
+        replace: boolean;
+        static readonly directiveName: string;
+        private static readonly _inject;
+        scope: {
+            hierarchy: string;
+        };
+        readonly b: {
+            w: number;
+            h: number;
+            s: number;
+            t: number;
+        };
+        readonly colors: {
+            "home": string;
+            "product": string;
+            "search": string;
+            "account": string;
+            "other": string;
+            "end": string;
+        };
+        private readonly _w;
+        private readonly _h;
+        private readonly _radius;
+        link: (scope: IAbundanceSunburstDirectiveScope, element: angular.IAugmentedJQuery, attrs: angular.IAttributes, ngModel: any) => void;
+        private mouseover;
+        private mouseleave;
+        private initializeBreadcrumbTrail;
+        breadcrumbPoints: (d: any, i: any) => string;
+        updateBreadcrumbs: (nodeArray: any, percentageString: any, all: IAbundanceSubburstHTMLElement) => void;
+        private drawLegend;
+        private toggleLegend;
         constructor();
         static factory(): ng.IDirectiveFactory;
     }

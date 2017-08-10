@@ -66,31 +66,33 @@ namespace metaviz {
         score: Number,
     }
 
+    // Note: Root and Kingdom are not included.
     export interface ITaxLine {
-        taxon: Number;
-        root: Number;
-        superkingdom: Number;
-        kingdom: Number;
-        phylum: Number;
-        class: Number;
-        order: Number;
-        family: Number;
-        genus: Number;
-        species: Number;
+        taxon: number;
+        superkingdom: string;
+        phylum: string;
+        class: string;
+        order: string;
+        family: string;
+        genus: string;
+        species: string;
     }
 
     export interface ITaxonomyAbundance {
-        taxon: Number;
-        count: Number;
+        taxon: number;
+        count: number;
         taxline: ITaxLine;
+    }
+
+    export interface ITaxonomyAbundanceProfile {
+        taxa_abundance: Array<ITaxonomyAbundance>
     }
 
     export interface IResults {
         wevoteClassification: Array<IWevoteClassification>,
-        numToolsUsed: Number,
-        taxonomyAbundanceProfile: Array<ITaxonomyAbundance>
+        numToolsUsed: number,
+        taxonomyAbundanceProfile: ITaxonomyAbundanceProfile
     }
-
 
     export interface IAlgorithmsVennSets {
         count: number, // size
@@ -195,6 +197,147 @@ namespace metaviz {
         }
 
     }
+
+    export interface IAbundanceNode {
+        name: string,
+        size?: number,
+        children: Map<string, IAbundanceNode>
+    }
+
+    export interface IAbundanceSubburstScope extends ng.IScope {
+        results: IResults,
+        config: IConfig,
+        hierarchy: any
+    }
+
+    export class AbundanceSubburstController {
+        static readonly $inject: any = ['$scope', AbundanceSubburstController];
+        private _scope: IAbundanceSubburstScope;
+
+        constructor(scope: ng.IScope) {
+            this._scope = <IAbundanceSubburstScope>scope;
+            this._scope.$watch('results', (results: IResults) => {
+                if (results && this._scope.config) {
+                    console.log("processing results..");
+                    this.processResults(results, this._scope.config);
+                }
+                else
+                    console.log("results is not yet defined.");
+            });
+        };
+
+        private processResults = (results: IResults, config: IConfig) => {
+            const tree = this.buildHierarchy(results.taxonomyAbundanceProfile.taxa_abundance);
+
+            this._scope.hierarchy = this.hierarchyAsObject(tree);
+
+            console.log(this._scope.hierarchy);
+
+        };
+
+        private hierarchyAsObject(tree: IAbundanceNode) {
+            const obj = Object.create(null);
+            if (tree.name) obj.name = tree.name;
+            if (tree.size) obj.size = tree.size;
+            if (tree.children) {
+                obj.children = Object.create(null);
+                tree.children.forEach((value: IAbundanceNode, key: string) => {
+                    // We don’t escape the key '__proto__'
+                    // which can cause problems on older engines
+                    obj.children[key] = this.hierarchyAsObject(value);
+                });
+            }
+
+            return obj;
+        }
+
+        private buildHierarchy = (taxonomyAbundanceProfile: Array<ITaxonomyAbundance>): IAbundanceNode => {
+
+            const tree: IAbundanceNode = {
+                name: "Abundance Tree",
+                children: new Map<string, IAbundanceNode>()
+            }
+            for (let taxonomyAbundance of taxonomyAbundanceProfile) {
+                if (!taxonomyAbundance.taxline.superkingdom) continue;
+
+                let currentNode = tree;
+
+                const taxlineArray = [
+                    taxonomyAbundance.taxline.superkingdom,
+                    taxonomyAbundance.taxline.phylum,
+                    taxonomyAbundance.taxline.class,
+                    taxonomyAbundance.taxline.order,
+                    taxonomyAbundance.taxline.family,
+                    taxonomyAbundance.taxline.genus,
+                    taxonomyAbundance.taxline.species
+                ];
+
+                for (const level of taxlineArray) {
+                    if (!level) break;
+                    const successor = currentNode.children.get(level);
+                    if (successor) currentNode = successor;
+                    else {
+                        const newSuccessor: IAbundanceNode = {
+                            name: level,
+                            children: new Map<string, IAbundanceNode>()
+                        };
+
+                        currentNode.children.set(level, newSuccessor);
+                        currentNode = newSuccessor;
+                    }
+                }
+                currentNode.size = taxonomyAbundance.count;
+            }
+            return tree;
+
+            /**
+             * // Take a 2-column CSV and transform it into a hierarchical structure suitable
+            // for a partition layout. The first column is a sequence of step names, from
+            // root to leaf, separated by hyphens. The second column is a count of how 
+            // often that sequence occurred.
+            function buildHierarchy(csv) {
+              var root = {"name": "root", "children": []};
+              for (var i = 0; i < csv.length; i++) {
+                var sequence = csv[i][0];
+                var size = +csv[i][1];
+                if (isNaN(size)) { // e.g. if this is a header row
+                  continue;
+                }
+                var parts = sequence.split("-");
+                var currentNode = root;
+                for (var j = 0; j < parts.length; j++) {
+                  var children = currentNode["children"];
+                  var nodeName = parts[j];
+                  var childNode;
+                  if (j + 1 < parts.length) {
+               // Not yet at the end of the sequence; move down the tree.
+                  var foundChild = false;
+                  for (var k = 0; k < children.length; k++) {
+                    if (children[k]["name"] == nodeName) {
+                      childNode = children[k];
+                      foundChild = true;
+                      break;
+                    }
+                  }
+              // If we don't already have a child node for this branch, create it.
+                  if (!foundChild) {
+                    childNode = {"name": nodeName, "children": []};
+                    children.push(childNode);
+                  }
+                  currentNode = childNode;
+                  } else {
+                  // Reached the end of the sequence; create a leaf node.
+                  childNode = {"name": nodeName, "size": size};
+                  children.push(childNode);
+                  }
+                }
+              }
+              return root;
+            };
+             */
+        }
+    }
+
     /** 
         enum Normalization {
             LOG,
@@ -376,5 +519,6 @@ namespace metaviz {
         .controller('MainController', MainController.$inject)
         .controller('DonutChartController', DonutChartController.$inject)
         .controller('VennDiagramController', VennDiagramController.$inject)
+        .controller('AbundanceSubburstController', AbundanceSubburstController.$inject)
         ;
 }

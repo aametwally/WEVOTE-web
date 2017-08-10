@@ -107,7 +107,11 @@ export class ExperimentRouter extends BaseRoute {
                             path: 'results.wevoteClassification'
                         },
                         {
-                            path: 'results.taxonomyAbundanceProfile'
+                            path: 'results.taxonomyAbundanceProfile',
+                            model: 'TaxonomyAbundanceProfile' ,
+                            populate : {
+                                path: 'taxline' 
+                            }
                         }
                     ]);
             })

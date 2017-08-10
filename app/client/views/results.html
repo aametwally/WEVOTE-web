@@ -6,21 +6,26 @@
                 <li role="presentation" class="active"><a data-toggle="tab" onclick="event.preventDefault()" id="phyltree-a" href="#phyltree">Phylogeny Tree</a></li>
                 <li role="presentation"><a data-toggle="tab" onclick="event.preventDefault()" id="phyltable-a" href="#phyltable">Table</a></li>
                 <li role="presentation"><a data-toggle="tab" onclick="event.preventDefault()" id="vennalg-a" href="#vennalg">Algorithms Agreement</a></li>
-
+                <li role="presentation"><a data-toggle="tab" onclick="event.preventDefault()" id="abundance-a" href="#abundance">Abundance</a></li>
             </ul>
 
             <div class="tab-content" id="resultstabs">
                 <div id="phyltree" class="tab-pane fade in active">
                     <h3>Phylogeny Tree</h3>
                     <mv-helloworld></mv-helloworld>
-
-
-                    
                 </div>
+
                 <div id="vennalg" class="tab-pane fade">
                     <h3>Algorithms Agreement</h3>
                     <div ng-controller="VennDiagramController">
                         <mv-algorithms-venn sets="sets"></mv-algorithms-venn>
+                    </div>
+                </div>
+
+                <div id="abundance" class="tab-pane fade in active">
+                    <h3>Abundance</h3>
+                    <div ng-controller="AbundanceSubburstController">
+                        <mv-abundance-sunburst hierarchy="hierarchy"></mv-abundance-sunburst>
                     </div>
                 </div>
 

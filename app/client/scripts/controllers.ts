@@ -589,7 +589,6 @@ module wevote {
             this._scope.showExperiment = true;
             this._scope.experimentError = false;
             this._scope.experimentMessage = '';
-
         };
 
         private onExperimentLoadedFail = (response: any) => {

@@ -14,8 +14,10 @@
 
 #### VIZ
 * Tools agreement Venn diagram
-* Phylogeny visualization
+* Phylogeny visualization: Radial Tidy Tree: https://bl.ocks.org/mbostock/4063550
+* Abundance visualization: Sequences sunburst: https://bl.ocks.org/kerryrodden/766f8f6d31f645c39f488a0befa1e3c8 OR http://bl.ocks.org/wizicer/f662a0b04425fc0f7489
 * Identification score histogram
+
 
 #### Backend
 * Communicate server with wevote service.
