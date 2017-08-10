@@ -200,7 +200,7 @@ namespace metaviz {
         sidebar: any,
         togglelegend: any,
         legend: any,
-        vis: any,
+        svg: any,
         trail: any,
         endlabel: any
     }
@@ -212,20 +212,6 @@ namespace metaviz {
          * 1. https://bl.ocks.org/kerryrodden/766f8f6d31f645c39f488a0befa1e3c8
          */
         restrict: string = 'E';
-        // public template =
-        // '<div id="main">' +
-        // '   <div id="sequence"></div>' +
-        // '   <div id="chart">' +
-        // '       <div id="explanation" style="visibility: hidden;">' +
-        // '       <span id="percentage"></span><br/>' +
-        // '       of visits begin with this sequence of pages' +
-        // '       </div>' +
-        // '   </div>' +
-        // '</div>' +
-        // '<div id="sidebar">' +
-        // '   <input type="checkbox" id="togglelegend"> Legend<br/>' +
-        // '   <div id="legend" style="visibility: hidden;"></div>' +
-        // '</div>';
         public replace: boolean = false;
         public static readonly directiveName: string = 'mvAbundanceSunburst';
         private static readonly _inject: string[] = [];
@@ -235,8 +221,10 @@ namespace metaviz {
 
         // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
         readonly b = {
-            w: 75, h: 30, s: 3, t: 10
+            w: 135, h: 30, s: 3, t: 10
         };
+
+        readonly maxVisibleTrailAncestry = 5;
 
         // Mapping of step names to colors.
         readonly colors = {
@@ -258,22 +246,22 @@ namespace metaviz {
             // Total size of all segments; we set this later, after loading the data.
             scope.totalSize = 0;
 
-            let all: IAbundanceSubburstHTMLElement = <any>{};
-            all.main = d3.select(element[0]).append('div');
-            all.sequence = all.main.append('div');
-            all.chart = all.main.append('div');
-            all.explanation = all.chart.append('div').attr('style', 'visibility: hidden;');
-            all.percentage = all.explanation.append('span');
-            all.explanation.append('p').html('<br/> of visits begin with this sequence of pages');
-            all.sidebar = d3.select(element[0]).append('div');
-            all.togglelegend = all.sidebar.append('input').attr('type', 'checkbox');
-            all.sidebar.append('p').html(' Legend<br/>');
-            all.legend = all.sidebar.append('div').attr('style', "visibility: hidden;");
+            let vis: IAbundanceSubburstHTMLElement = <any>{};
+            vis.main = d3.select(element[0]).append('div').attr('class', 'sunburst-main');
+            vis.sequence = vis.main.append('div').attr('class', 'sunburst-sequence');
+            vis.chart = vis.main.append('div').attr('class', 'sunburst-chart');
+            vis.explanation = vis.chart.append('div').attr('class', 'sunburst-explanation').attr('style', 'visibility: hidden;');
+            vis.percentage = vis.explanation.append('span').attr('class', 'sunburst-percentage');
+            vis.explanation.append('p').html('<br/> of visits begin with this sequence of pages');
+            vis.sidebar = d3.select(element[0]).append('div').attr('class', 'sunburst-sidebar');
+            vis.togglelegend = vis.sidebar.append('input').attr('type', 'checkbox');
+            vis.sidebar.append('p').html(' Legend<br/>');
+            vis.legend = vis.sidebar.append('div').attr('class', 'sunburst-legend').attr('style', "visibility: hidden;");
 
-            all.vis = all.chart.append("svg:svg")
+            vis.svg = vis.chart.append('svg')
                 .attr("width", this._w)
                 .attr("height", this._h)
-                .append("svg:g")
+                .append('g')
                 .attr("transform", `translate(${this._w / 2}, ${this._h / 2})`);
 
             let partition = d3.partition()
@@ -285,80 +273,88 @@ namespace metaviz {
                 .innerRadius(function (d: any) { return Math.sqrt(d.y0); })
                 .outerRadius(function (d: any) { return Math.sqrt(d.y1); });
 
-            scope.$watch('hierarchy', (hierarchy: JSON) => {
+            scope.$watch('hierarchy', (hierarchy: any) => {
                 if (hierarchy) {
 
                     // Basic setup of page elements.
-                    // this.initializeBreadcrumbTrail();
-                    this.drawLegend(all);
-                    all.togglelegend.on("click", this.toggleLegend(all));
+                    this.initializeBreadcrumbTrail(vis);
+                    this.drawLegend(vis);
+                    vis.togglelegend.on("click", this.toggleLegend(vis));
 
                     // Bounding circle underneath the sunburst, to make it easier to detect
                     // when the mouse leaves the parent g.
-                    all.vis.append("svg:circle")
+                    vis.svg.append('circle')
                         .attr("r", this._radius)
                         .style("opacity", 0);
 
                     // Turn the data into a d3 hierarchy and calculate the sums.
-                    var root = d3.hierarchy(hierarchy)
+                    const root = d3.hierarchy(hierarchy)
                         .sum(function (d: any) { return d.size; })
                         .sort(function (a: any, b: any) { return b.value - a.value; });
 
                     // For efficiency, filter nodes to keep only those large enough to see.
-                    var nodes = partition(root).descendants()
+                    const nodes = partition(root).descendants()
                         .filter(function (d: any) {
                             return (d.x1 - d.x0 > 0.005); // 0.005 radians = 0.29 degrees
                         });
 
-                    var path = all.vis.data([hierarchy]).selectAll("path")
+                    const mouseOverCB = this.mouseover(scope, vis);
+                    const path = vis.svg.data([hierarchy]).selectAll("path")
                         .data(nodes)
-                        .enter().append("svg:path")
+                        .enter().append('path')
                         .attr("display", function (d: any) { return d.depth ? null : "none"; })
-                        .attr("d", <any>arc) // Suspected Bug.
+                        .attr("d", arc) // Suspected Bug.
                         .attr("fill-rule", "evenodd")
-                        .style("fill", (d: any) => { return this.colors['end']; })
+                        .style("fill", (d: any) => { return "#7b615c"; })
                         .style("opacity", 1)
-                        // .on("mouseover", this.mouseover(scope.totalSize, all.vis))
+                        .on("mouseover", mouseOverCB)
                         ;
 
                     // Add the mouseleave handler to the bounding circle.
-                    // all.vis.on("mouseleave", this.mouseleave(this.mouseover(scope.totalSize, all), all));
+                    vis.svg.on("mouseleave", this.mouseleave(mouseOverCB, vis));
 
                     // Get total size of the tree = value of root node from partition.
-                    scope.totalSize = path.datum().value || 0;
+                    scope.totalSize = path.datum().value;
                 }
             }, false);
         };
 
         // Fade all but the current sequence, and show it in the breadcrumb trail.
-        private mouseover = (totalSize: number, all: IAbundanceSubburstHTMLElement) => {
+        private mouseover(
+            scope: IAbundanceSunburstDirectiveScope,
+            vis: IAbundanceSubburstHTMLElement):
+            (d: any) => void {
 
             let mouseoverCallback = (d: any) => {
 
-                const percentage = (100 * d.value / totalSize).toPrecision(3);
+                const percentage = (100 * d.value / scope.totalSize).toPrecision(3);
                 let percentageString = percentage + "%";
                 if (parseFloat(percentage) < 0.1) {
                     percentageString = "< 0.1%";
                 }
 
-                all.percentage
+                vis.percentage
                     .text(percentageString);
 
-                all.explanation
+                vis.explanation
                     .style("visibility", "");
-
-                var sequenceArray = d.ancestors().reverse();
-                sequenceArray.shift(); // remove root node from the array
-                // this.updateBreadcrumbs(sequenceArray, percentageString);
-
+                
+                const ancestry: Array<any> = d.ancestors();
+                ancestry.pop(); // remove the root node.
+                while( ancestry.length > this.maxVisibleTrailAncestry )
+                    ancestry.pop();
+                
+                const nodesSequence = ancestry.reverse();
+                this.updateBreadcrumbs( nodesSequence , percentageString, vis);
+                
                 // Fade all the segments.
                 d3.selectAll("path")
                     .style("opacity", 0.3);
 
                 // Then highlight only those that are an ancestor of the current segment.
-                all.vis.selectAll("path")
+                vis.svg.selectAll("path")
                     .filter(function (node: any) {
-                        return (sequenceArray.indexOf(node) >= 0);
+                        return (nodesSequence.indexOf(node) >= 0);
                     })
                     .style("opacity", 1);
             };
@@ -367,11 +363,12 @@ namespace metaviz {
         }
 
         // Restore everything to full opacity when moving off the visualization.
-        private mouseleave = (mouseOverCB: any, all: IAbundanceSubburstHTMLElement) => {
+        private mouseleave = (mouseOverCB: (d: any) => void, vis: IAbundanceSubburstHTMLElement):
+            ((d: any) => void) => {
             let mouseLeaveCB = (d: any) => {
 
                 // Hide the breadcrumb trail
-                all.trail
+                vis.trail
                     .style("visibility", "hidden");
 
                 // Deactivate all segments during transition.
@@ -386,26 +383,26 @@ namespace metaviz {
                         d3.select(this).on("mouseover", mouseOverCB);
                     });
 
-                all.explanation
+                vis.explanation
                     .style("visibility", "hidden");
             }
             return mouseLeaveCB;
         }
 
 
-        private initializeBreadcrumbTrail = (all: IAbundanceSubburstHTMLElement) => {
+        private initializeBreadcrumbTrail = (vis: IAbundanceSubburstHTMLElement) => {
             // Add the svg area.
-            all.trail = all.sequence.append("svg:svg")
+            vis.trail = vis.sequence.append('svg')
                 .attr("width", this._w)
                 .attr("height", 50);
 
             // Add the label at the end, for the percentage.
-            all.endlabel = all.trail.append("svg:text")
+            vis.endlabel = vis.trail.append("svg:text")
                 .style("fill", "#000");
         }
 
         // Generate a string that describes the points of a breadcrumb polygon.
-        breadcrumbPoints = (d: any, i: any) => {
+        private breadcrumbPoints = (d: any, i: any) => {
             var points = [];
             points.push("0,0");
             points.push(`${this.b.w},0`);
@@ -419,21 +416,23 @@ namespace metaviz {
         }
 
         // Update the breadcrumb trail to show the current sequence and percentage.
-        updateBreadcrumbs = (nodeArray: any, percentageString: any, all: IAbundanceSubburstHTMLElement) => {
+        updateBreadcrumbs = (nodeArray: any, percentageString: any, vis: IAbundanceSubburstHTMLElement) => {
 
             // Data join; key function combines name and depth (= position in sequence).
-            all.trail.selectAll("g")
-                .data(nodeArray, function (d: any) { return d.data.name + d.depth; });
+            let trail = vis.trail.selectAll("g")
+                .data(nodeArray, function (d: any) {
+                    return d.data.name + d.depth;
+                });
 
             // Remove exiting nodes.
-            all.trail.exit().remove();
+            trail.exit().remove();
 
             // Add breadcrumb and label for entering nodes.
-            var entering = all.trail.enter().append("svg:g");
+            var entering = trail.enter().append("svg:g");
 
             entering.append("svg:polygon")
                 .attr("points", this.breadcrumbPoints)
-                .style("fill", (d: any) => { return this.colors['end']; });
+                .style("fill", (d: any) => { return "#7b615c"; });
 
             entering.append("svg:text")
                 .attr("x", (this.b.w + this.b.t) / 2)
@@ -443,35 +442,35 @@ namespace metaviz {
                 .text(function (d: any) { return d.data.name; });
 
             // Merge enter and update selections; set position for all nodes.
-            entering.merge(all.trail).attr("transform", (d: any, i: any) => {
+            entering.merge(trail).attr("transform", (d: any, i: any) => {
                 return `translate( ${i * (this.b.w + this.b.s)}, ${0})`;
             });
 
             // Now move and update the percentage at the end.
-            all.endlabel
-                .attr("x", (nodeArray.length + 0.5) * (this.b.w + this.b.s))
+            vis.endlabel
+                .attr("x", (nodeArray.length + 0.3) * (this.b.w + this.b.s))
                 .attr("y", this.b.h / 2)
                 .attr("dy", "0.35em")
                 .attr("text-anchor", "middle")
                 .text(percentageString);
 
             // Make the breadcrumb trail visible, if it's hidden.
-            all.trail
+            vis.trail
                 .style("visibility", "");
         }
 
-        private drawLegend = (all: IAbundanceSubburstHTMLElement) => {
+        private drawLegend = (vis: IAbundanceSubburstHTMLElement) => {
 
             // Dimensions of legend item: width, height, spacing, radius of rounded rect.
             const li = {
                 w: 75, h: 30, s: 3, r: 3
             };
 
-            all.legend.append("svg:svg")
+            vis.legend.append("svg:svg")
                 .attr("width", li.w)
                 .attr("height", d3.keys(this.colors).length * (li.h + li.s));
 
-            let g = all.legend.selectAll("g")
+            let g = vis.legend.selectAll("g")
                 .data(d3.entries(this.colors))
                 .enter().append("svg:g")
                 .attr("transform", function (d: any, i: any) {
@@ -493,14 +492,15 @@ namespace metaviz {
                 .text(function (d: any) { return d.key; });
         }
 
-        private toggleLegend = (all: IAbundanceSubburstHTMLElement) => {
-            return () => {
-                if (all.legend.style("visibility") == "hidden") {
-                    all.legend.style("visibility", "");
+        private toggleLegend = (vis: IAbundanceSubburstHTMLElement) => {
+            let cb = () => {
+                if (vis.legend.style("visibility") == "hidden") {
+                    vis.legend.style("visibility", "");
                 } else {
-                    all.legend.style("visibility", "hidden");
+                    vis.legend.style("visibility", "hidden");
                 }
             }
+            return cb;
         }
 
 
@@ -516,7 +516,6 @@ namespace metaviz {
             return d;
         }
     }
-
 
     metavizApp
         .directive(HelloWorldDirective.directiveName,

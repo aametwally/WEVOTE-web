@@ -43,7 +43,6 @@ export interface ITaxonomyAbundanceProfileModel extends mongoose.Document {
     taxa_abundance: mongoose.Types.DocumentArray<ITaxonomyAbundance>;
 }
 
-
 export const taxonomyAbundanceSchema = new mongoose.Schema({
     taxon: {
         type: Number,

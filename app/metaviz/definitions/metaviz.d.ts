@@ -90,12 +90,12 @@ declare namespace metaviz {
         size?: number;
         children: Map<string, IAbundanceNode>;
     }
-    interface IAbundanceSubburstScope extends ng.IScope {
+    interface IAbundanceSunburstScope extends ng.IScope {
         results: IResults;
         config: IConfig;
         hierarchy: any;
     }
-    class AbundanceSubburstController {
+    class AbundanceSunburstController {
         static readonly $inject: any;
         private _scope;
         constructor(scope: ng.IScope);
@@ -166,7 +166,7 @@ declare namespace metaviz {
         sidebar: any;
         togglelegend: any;
         legend: any;
-        vis: any;
+        svg: any;
         trail: any;
         endlabel: any;
     }
@@ -184,6 +184,7 @@ declare namespace metaviz {
             s: number;
             t: number;
         };
+        readonly maxVisibleTrailAncestry: number;
         readonly colors: {
             "home": string;
             "product": string;
@@ -196,11 +197,11 @@ declare namespace metaviz {
         private readonly _h;
         private readonly _radius;
         link: (scope: IAbundanceSunburstDirectiveScope, element: angular.IAugmentedJQuery, attrs: angular.IAttributes, ngModel: any) => void;
-        private mouseover;
+        private mouseover(scope, vis);
         private mouseleave;
         private initializeBreadcrumbTrail;
-        breadcrumbPoints: (d: any, i: any) => string;
-        updateBreadcrumbs: (nodeArray: any, percentageString: any, all: IAbundanceSubburstHTMLElement) => void;
+        private breadcrumbPoints;
+        updateBreadcrumbs: (nodeArray: any, percentageString: any, vis: IAbundanceSubburstHTMLElement) => void;
         private drawLegend;
         private toggleLegend;
         constructor();

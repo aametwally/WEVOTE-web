@@ -204,18 +204,18 @@ namespace metaviz {
         children: Map<string, IAbundanceNode>
     }
 
-    export interface IAbundanceSubburstScope extends ng.IScope {
+    export interface IAbundanceSunburstScope extends ng.IScope {
         results: IResults,
         config: IConfig,
         hierarchy: any
     }
 
-    export class AbundanceSubburstController {
-        static readonly $inject: any = ['$scope', AbundanceSubburstController];
-        private _scope: IAbundanceSubburstScope;
+    export class AbundanceSunburstController {
+        static readonly $inject: any = ['$scope', AbundanceSunburstController];
+        private _scope: IAbundanceSunburstScope;
 
         constructor(scope: ng.IScope) {
-            this._scope = <IAbundanceSubburstScope>scope;
+            this._scope = <IAbundanceSunburstScope>scope;
             this._scope.$watch('results', (results: IResults) => {
                 if (results && this._scope.config) {
                     console.log("processing results..");
@@ -230,9 +230,6 @@ namespace metaviz {
             const tree = this.buildHierarchy(results.taxonomyAbundanceProfile.taxa_abundance);
 
             this._scope.hierarchy = this.hierarchyAsObject(tree);
-
-            console.log(this._scope.hierarchy);
-
         };
 
         private hierarchyAsObject(tree: IAbundanceNode) {
@@ -240,14 +237,14 @@ namespace metaviz {
             if (tree.name) obj.name = tree.name;
             if (tree.size) obj.size = tree.size;
             if (tree.children) {
-                obj.children = Object.create(null);
-                tree.children.forEach((value: IAbundanceNode, key: string) => {
+                const childrenArray: Array<IAbundanceNode> = Array.from(tree.children.values());
+                obj.children = new Array<IAbundanceNode>();                
+                childrenArray.forEach((node: IAbundanceNode) => {
                     // We don’t escape the key '__proto__'
                     // which can cause problems on older engines
-                    obj.children[key] = this.hierarchyAsObject(value);
+                    obj.children.push( this.hierarchyAsObject(node) );
                 });
             }
-
             return obj;
         }
 
@@ -289,236 +286,15 @@ namespace metaviz {
                 currentNode.size = taxonomyAbundance.count;
             }
             return tree;
-
-            /**
-             * // Take a 2-column CSV and transform it into a hierarchical structure suitable
-            // for a partition layout. The first column is a sequence of step names, from
-            // root to leaf, separated by hyphens. The second column is a count of how 
-            // often that sequence occurred.
-            function buildHierarchy(csv) {
-              var root = {"name": "root", "children": []};
-              for (var i = 0; i < csv.length; i++) {
-                var sequence = csv[i][0];
-                var size = +csv[i][1];
-                if (isNaN(size)) { // e.g. if this is a header row
-                  continue;
-                }
-                var parts = sequence.split("-");
-                var currentNode = root;
-                for (var j = 0; j < parts.length; j++) {
-                  var children = currentNode["children"];
-                  var nodeName = parts[j];
-                  var childNode;
-                  if (j + 1 < parts.length) {
-               // Not yet at the end of the sequence; move down the tree.
-                  var foundChild = false;
-                  for (var k = 0; k < children.length; k++) {
-                    if (children[k]["name"] == nodeName) {
-                      childNode = children[k];
-                      foundChild = true;
-                      break;
-                    }
-                  }
-              // If we don't already have a child node for this branch, create it.
-                  if (!foundChild) {
-                    childNode = {"name": nodeName, "children": []};
-                    children.push(childNode);
-                  }
-                  currentNode = childNode;
-                  } else {
-                  // Reached the end of the sequence; create a leaf node.
-                  childNode = {"name": nodeName, "size": size};
-                  children.push(childNode);
-                  }
-                }
-              }
-              return root;
-            };
-             */
         }
     }
 
-    /** 
-        enum Normalization {
-            LOG,
-            SQRT
-        }
-        enum LayerType {
-            NEWICK_TREE,
-            STACKBAR_LAYER,
-            CATEGORICAL_LAYER,
-            NUMERICAL_LAYER
-        }
-    
-        export interface ILayerFonts {
-    
-        }
-        export interface IViewSetting {
-            normalization?: any, //css:normalization
-            min?: any, // css:input-min
-            minDisabled?: Boolean, // css:input-min:disbled
-            max?: any // css:input-max
-            maxDisabled?: Boolean // css:input-max:disbaled
-        }
-        export interface ILayerSetting {
-            color: string | number | string[], // css:colorpicker:last
-            height: string | number | string[], // css:input-height
-            margin: string | number | string[], // css:input-margin
-            type: string | number | string[], // css:type  if type=='text', height=0;
-            colorStart: string | number | string[] // css:colorpicker:first
-        }
-    
-        export interface ILayerData {
-    
-        }
-    
-        export interface ILayer {
-            layerSetting?: ILayerSetting,
-            layerData?: ILayerData
-            name?: string,
-            order?: number,
-            fonts?: ILayerFonts,
-        }
-    
-        export interface IView {
-            setting?: Map<any, IViewSetting>,
-            layers?: Map<any, ILayer>
-            layersOrder?: Array<any>
-        }
-    
-        export interface ITimer {
-    
-        }
-    
-    
-        export interface ITreeDrawerScope extends ng.IScope {
-            timer: ITimer,
-            view: IView,
-            treeSVGId: string,
-            fontHeight: number,
-            rootLength: number,
-            hasTree: Boolean
-        }
-    
-        export class TreeDrawerController {
-    
-            static readonly $inject: any = ['$scope', '$interval', TreeDrawerController];
-            private _scope: ITreeDrawerScope;
-            private _currentView: string;
-    
-            constructor(private $scope: ng.IScope, private $interval: ng.IIntervalService) {
-                this._scope = <ITreeDrawerScope>$scope;
-            }
-    
-            private populateDrawerData = () => {
-    
-            }
-    
-            private getLayerId = (layerName: string) => {
-                const layers = this._scope.view.layers;
-                const layersCount = layers.size;
-                for (let i = 0; i < layersCount; i++)
-                    if (layers[i].name == layerName)
-                        return i;
-    
-                return -1;
-            }
-    
-            private getLayerName = (layerId: any): string => {
-                return this._scope.view.layers[layerId].name;
-            }
-    
-            // From table to model.
-            private syncViews = () => {
-                let view = this._scope.view;
-                let layersOrder = view.layersOrder;
-                let viewSetting = view.setting;
-                let layers = view.layers;
-    
-                layersOrder = new Array();
-                viewSetting = new Map();
-                $('#tbody_layers tr').each(
-                    (index, layer) => {
-    
-                        const layerIdStr: string = $(layer).find('.input-height')[0].id.replace('height', '');
-                        const layerId: any = this.getLayerId(layerIdStr);
-                        layers[layerId] = {};
-                        layersOrder.push(layerId);
-    
-                        let vSetting: IViewSetting = viewSetting[layerId];
-                        vSetting.normalization = $(layer).find('.normalization').val();
-                        vSetting.min = $(layer).find('.input-min').val();
-                        vSetting.minDisabled = $(layer).find('.input-min').is(':disabled');
-                        vSetting.max = $(layer).find('.input-max').val();
-                        vSetting.maxDisabled = $(layer).find('.input-max').is(':disabled');
-    
-                        let lSetting: ILayerSetting = layers[layerId].layerSetting;
-                        lSetting.color = $(layer).find('.colorpicker:last').attr('color');
-                        lSetting.height = $(layer).find('.input-height').val();
-                        lSetting.margin = $(layer).find('.input-margin').val();
-                        lSetting.type = $(layer).find('.type').val();
-                        lSetting.colorStart = $(layer).find('.colorpicker:first').attr('color');
-    
-                        if (lSetting.type === 'text')
-                            lSetting.height = '0';
-                    }
-                );
-            }
-    
-    
-            private drawTree = () => {
-                var settings = serializeSettings();
-                tree_type = settings['tree-type'];
-    
-                $('#draw_delta_time').html('');
-                $('#btn_draw_tree').prop('disabled', true);
-                $('#bin_settings_tab').removeClass("disabled"); // enable bins tab
-                $('#sample_settings_tab').removeClass("disabled"); // enable bins tab
-                $('#mouse_tooltips_tab').removeClass("disabled"); // enable bins tab
-                $('#search_panel_tab').removeClass("disabled"); // enable bins tab
-    
-    
-                // clear existing diagram, if any
-                document.getElementById('svg').innerHTML = "";
-    
-                waitingDialog.show('Drawing ...',
-                    {
-                        dialogSize: 'sm',
-                        onShow: function () {
-                            var drawer = new Drawer(settings);
-                            drawer.draw();
-    
-                            // last_settings used in export svg for layer information,
-                            // we didn't use "settings" sent to draw_tree because draw_tree updates layer's min&max
-                            last_settings = serializeSettings();
-    
-                            redrawBins();
-    
-                            waitingDialog.hide();
-                            $('#btn_draw_tree').prop('disabled', false);
-                            $('#btn_redraw_samples').prop('disabled', false);
-    
-                            if (settings['tree-radius'] == 0) {
-                                $('#tree-radius-container').show();
-                                $('#tree-radius').val(Math.max(VIEWER_HEIGHT, VIEWER_WIDTH));
-                            }
-    
-                            if (autoload_collection !== null) {
-                                loadCollection(autoload_collection);
-                                autoload_collection = null;
-                            }
-                        },
-                    });
-            }
-    
-    
-        }
-        **/
+   
 
     metavizApp
         .controller('MainController', MainController.$inject)
         .controller('DonutChartController', DonutChartController.$inject)
         .controller('VennDiagramController', VennDiagramController.$inject)
-        .controller('AbundanceSubburstController', AbundanceSubburstController.$inject)
+        .controller('AbundanceSunburstController', AbundanceSunburstController.$inject)
         ;
 }
