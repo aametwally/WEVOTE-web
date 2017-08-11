@@ -5,10 +5,10 @@
 
 
 
-#define TEST_TAXONOMY_DIRECTORY "/projects/data/taxonomy"
+#define TEST_TAXONOMY_DIRECTORY ""
 #define TEST_TAXONOMY_NAMES_FILE std::string( TEST_TAXONOMY_DIRECTORY ) + "/names.dmp"
 #define TEST_TAXONOMY_NODES_FILE std::string( TEST_TAXONOMY_DIRECTORY ) + "/nodes.dmp"
-#define TEST_ENSEMBLE_CSV_FILE "/projects/data/03C31_S1_71_ensemble.csv"
+#define TEST_ENSEMBLE_CSV_FILE ""
 namespace test_utils
 {
     auto getFileLines( const std::string &filePath )

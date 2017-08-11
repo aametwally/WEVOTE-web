@@ -9,7 +9,7 @@
 namespace wevote
 {
 
-class TaxonomyLineAnnotator
+class WEVOTE_DLL TaxonomyLineAnnotator
 {
 public:
     /**

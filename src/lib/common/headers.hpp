@@ -8,7 +8,7 @@
 #include <string>
 #include <iterator>
 #include <array>
-#include <tr1/unordered_map>
+//#include <tr1/unordered_map>
 #include <unordered_map>
 
 // STL Smart Ptrs
@@ -31,6 +31,7 @@
 // STL Misc
 #include <algorithm>
 #include <functional>
+#include <numeric>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdint.h>

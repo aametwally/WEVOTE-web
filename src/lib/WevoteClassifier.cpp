@@ -29,7 +29,7 @@ void WevoteClassifier::classify(
 
     LOG_INFO("Classification (%d threads)..",threads);
 #pragma omp parallel for
-    for (uint32_t i=0 ; i<reads.size() ;i++)
+    for (int i=0 ; i<reads.size() ;i++)
     {
         ReadInfo &read = reads[i];
         if ( read.numToolsReported == 0)
