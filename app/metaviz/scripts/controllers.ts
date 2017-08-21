@@ -239,9 +239,16 @@ namespace metaviz {
 
     }
 
+    export interface IHCLColor
+    {
+        H: number , 
+        C: number , 
+        L: number
+    }
     export interface IAbundanceNode {
         name: string,
         size?: number,
+        color?:IHCLColor,
         children: Map<string, IAbundanceNode>
     }
 
