@@ -88,10 +88,15 @@ namespace metaviz {
         taxa_abundance: Array<ITaxonomyAbundance>
     }
 
+    export interface IResutlsStatistics {
+        readsCount: number
+        nonAbsoluteAgreement: number
+    }
     export interface IResults {
         wevoteClassification: Array<IWevoteClassification>,
         numToolsUsed: number,
-        taxonomyAbundanceProfile: ITaxonomyAbundanceProfile
+        taxonomyAbundanceProfile: ITaxonomyAbundanceProfile,
+        statistics: IResutlsStatistics
     }
 
     export interface IAlgorithmsVennSets {
@@ -109,6 +114,7 @@ namespace metaviz {
     export interface IVennDiagramScope extends ng.IScope {
         results: IResults,
         config: IConfig,
+        wevoteContribution: boolean,
         sets: Array<IVennDiagramSet>
     }
 
@@ -121,61 +127,95 @@ namespace metaviz {
             this._scope.$watch('results', (results: IResults) => {
                 if (results && this._scope.config) {
                     console.log("processing results..");
-                    this.processResults(results, this._scope.config);
+                    if (this._scope.wevoteContribution) {
+                        this._scope.results.statistics.nonAbsoluteAgreement =
+                            this.processResults(results.wevoteClassification, this._scope.config,
+                                (readClassification: IWevoteClassification) => {
+                                    const firstTaxid = readClassification.taxa[0];
+                                    return readClassification.taxa.reduce((acc: Boolean, curr: Number): Boolean => {
+                                        return acc && (curr == 0 || curr == 1);
+                                    }, true) ||
+                                        // Ignore when all algorithms agree (not a wevote contribution).
+                                        readClassification.taxa.reduce((acc: Boolean, curr: Number): Boolean => {
+                                            return acc && curr == firstTaxid;
+                                        }, true);
+                                }, true);
+                    }
+                    else {
+                        this._scope.results.statistics.readsCount =
+                            this.processResults(results.wevoteClassification, this._scope.config,
+                                (readClassification: IWevoteClassification) => {
+                                    return readClassification.taxa.reduce((acc: Boolean, curr: Number): Boolean => {
+                                        return acc && (curr == 0 || curr == 1);
+                                    }, true);
+                                }, false );
+                    }
                 }
-                else
-                    console.log("results is not yet defined.");
-            });
-        };
+                else console.log("results is not yet defined.");
+            })
+        }
 
-        private processResults = (results: IResults, config: IConfig) => {
-            const wevoteClassification = results.wevoteClassification;
-            const algorithms = config.algorithms;
-            if (algorithms.length != wevoteClassification[0].taxa.length) {
-                console.warn("Results inconsistency", algorithms, wevoteClassification[0].taxa);
-                return;
+
+        protected processResults = (wevoteClassification: Array<IWevoteClassification>, config: IConfig,
+            filter?: (readClassification: IWevoteClassification) => Boolean,
+            showWevote: Boolean = false): number => {
+            const algorithms = config.algorithms.concat({name:'WEVOTE',used:true});
+            if (algorithms.length - 1 != wevoteClassification[0].taxa.length ) {
+                console.warn("Results inconsistency", algorithms.length - 1, wevoteClassification[0].taxa);
+                return 0;
             }
 
             let _sets: Map<string, IAlgorithmsVennSets> = <any>new Map<string, IAlgorithmsVennSets>();
+
+            let ignored = 0;
             // Prepare data to be passed to d3.js venn diagram.
             wevoteClassification.forEach(function (readClassification: IWevoteClassification, readIndex: number) {
-                // counterMap< targeted taxid , algorithms agreed >
-                let counterMap: Map<number, Set<Array<number>>> = <any>new Map<number, Array<number>>();
 
-                readClassification.taxa.forEach(function (taxid: number, algIdx: number) {
-                    let set = counterMap.get(taxid);
-                    if (set) {
-                        let combinations: Set<Array<number>> = new Set<Array<number>>();
-                        set.forEach((arr: Array<number>) => {
-                            combinations.add(arr.concat(algIdx));
-                        });
-                        combinations.forEach((arr: Array<number>) => {
-                            if (set) set.add(arr);
-                        });
-                        set.add([algIdx]);
-                    }
-                    else {
-                        let newSet = new Set<Array<number>>();
-                        newSet.add([algIdx]);
-                        counterMap.set(taxid, newSet);
-                    }
-                });
+                // Ignore all taxid=0,1 when all algorithms agree.
+                const ignore = filter ? filter(readClassification) : false;
 
-                counterMap.forEach(function (agreedAlgorithmsIdxSets: Set<number[]>, taxid: number) {
-                    agreedAlgorithmsIdxSets.forEach(function (agreedAlgorithmsIdx: number[]) {
-                        const algsStr = agreedAlgorithmsIdx.join(',');
-                        let set = _sets.get(algsStr);
+                if (ignore) ignored++;
+                else {
+                    // counterMap< targeted taxid , algorithms agreed >
+                    let counterMap: Map<number, Set<Array<number>>> = new Map<number, Set<Array<number>>>();
+                    const taxa = (showWevote) ?
+                        readClassification.taxa.concat(readClassification.resolvedTaxon) : readClassification.taxa;
+                    
+                    taxa.forEach(function (taxid: number, algIdx: number) {
+                        const set = counterMap.get(taxid);
                         if (set) {
-                            set.count++;
-                            set.reads.push(readClassification);
-                        }
-                        else
-                            _sets.set(algsStr, {
-                                count: 1,
-                                reads: [readClassification]
+                            const combinations: Set<Array<number>> = new Set<Array<number>>();
+                            set.forEach((arr: Array<number>) => {
+                                combinations.add(arr.concat(algIdx));
                             });
+                            combinations.forEach((arr: Array<number>) => {
+                                if (set) set.add(arr);
+                            });
+                            set.add([algIdx]);
+                        }
+                        else {
+                            const newSet = new Set<Array<number>>();
+                            newSet.add([algIdx]);
+                            counterMap.set(taxid, newSet);
+                        }
                     });
-                });
+
+                    counterMap.forEach(function (agreedAlgorithmsIdxSets: Set<number[]>, taxid: number) {
+                        agreedAlgorithmsIdxSets.forEach(function (agreedAlgorithmsIdx: number[]) {
+                            const algsStr = agreedAlgorithmsIdx.join(',');
+                            let set = _sets.get(algsStr);
+                            if (set) {
+                                set.count++;
+                                set.reads.push(readClassification);
+                            }
+                            else
+                                _sets.set(algsStr, {
+                                    count: 1,
+                                    reads: [readClassification]
+                                });
+                        });
+                    });
+                }
             });
 
             let sets: Array<any> = [];
@@ -194,6 +234,7 @@ namespace metaviz {
             });
 
             this._scope.sets = sets;
+            return wevoteClassification.length - ignored;
         }
 
     }
@@ -238,11 +279,11 @@ namespace metaviz {
             if (tree.size) obj.size = tree.size;
             if (tree.children) {
                 const childrenArray: Array<IAbundanceNode> = Array.from(tree.children.values());
-                obj.children = new Array<IAbundanceNode>();                
+                obj.children = new Array<IAbundanceNode>();
                 childrenArray.forEach((node: IAbundanceNode) => {
                     // We don’t escape the key '__proto__'
                     // which can cause problems on older engines
-                    obj.children.push( this.hierarchyAsObject(node) );
+                    obj.children.push(this.hierarchyAsObject(node));
                 });
             }
             return obj;
@@ -289,7 +330,7 @@ namespace metaviz {
         }
     }
 
-   
+
 
     metavizApp
         .controller('MainController', MainController.$inject)

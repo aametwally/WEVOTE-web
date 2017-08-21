@@ -1,6 +1,4 @@
 'use strict';
-
-'use strict';
 namespace metaviz {
     export interface IHellloWorldDirectiveScope extends ng.IScope {
         name: string;
@@ -30,16 +28,17 @@ namespace metaviz {
         }
     }
 
-
+    declare let DCC: any;
     export class DonutChartDirective implements ng.IDirective {
         restrict: string = 'E';
-        public replace: boolean = true;
         public static readonly directiveName: string = 'mvDonutchart';
         private static readonly _inject: string[] = [];
-        // public require = 'array';
-        public scope = {
-            data: '=array'
+        public controller = DonutChartController.$inject;
+        public scope = true;
+        public bindToController = {
+            data: '='
         };
+
 
         private readonly _w = 500;
         private readonly _h = 500;
@@ -50,7 +49,7 @@ namespace metaviz {
             .innerRadius(this._min * 0.5 * 0.9)
             .outerRadius(this._min * 0.5 * 0.5);
 
-        public link = (scope: ng.IScope, element: ng.IAugmentedJQuery, attrs: ng.IAttributes, ngModel: any) => {
+        public link = (scope: any, element: ng.IAugmentedJQuery, attrs: ng.IAttributes, ngModel: any) => {
 
             let svg = d3.select(element[0]).append('svg').attr('width', this._w).attr('height', this._h);
             let g = svg.append('g').attr('transform', `translate(${this._w / 2},${this._h / 2})`);
@@ -85,7 +84,10 @@ namespace metaviz {
     }
 
     export interface IVennDiagramDirectiveScope extends ng.IScope {
-        sets: Array<IAlgorithmsVennSets>
+        results: IResults,
+        config: IConfig,
+        wevoteContribution: boolean,
+        sets: Array<IVennDiagramSet>
     }
 
     declare var venn: any
@@ -104,11 +106,21 @@ namespace metaviz {
         public replace: boolean = false;
         public static readonly directiveName: string = 'mvAlgorithmsVenn';
         private static readonly _inject: string[] = [];
+
+        public controller = VennDiagramController.$inject;
         public scope = {
-            sets: '=sets'
+            wevoteContribution: '=wevoteContribution',
+            results: '=results',
+            config: '=config'
+        };
+        public bindToController = {
+            sets: '=',
+            results: '=',
+            wevoteContribution: '=',
+            config: '='
         };
 
-        private readonly _w = 500;
+        private readonly _w = 750;
         private readonly _h = 500;
         private readonly _min = Math.min(this._w, this._h);
 
@@ -138,10 +150,14 @@ namespace metaviz {
                             // sort all the areas relative to the current item
                             venn.sortAreas(diagram, d);
 
+                            tooltip
+                                .style("left", `${d3.event.pageX}px`)
+                                .style("top", `${d3.event.pageY - 28}px`);
+
                             // Display a tooltip with the current size
                             tooltip
                                 .transition()
-                                .duration(400)
+                                .duration(50)
                                 .style("opacity", .9);
 
                             tooltip
@@ -151,15 +167,20 @@ namespace metaviz {
                             var selection =
                                 d3.select(this)
                                     .transition()
-                                    .duration(400);
+                                    .duration(100);
 
                             selection.select("path")
                                 .style("fill-opacity", d.sets.length == 1 ? .4 : .1)
                                 .style("stroke-opacity", 1);
                         })
                         .on("mousemove", function () {
-                            tooltip.style("left", `${d3.event.pageX}px`)
-                                .style("top", `${d3.event.pageY - 28}px`);
+                            // if (Math.abs(parseInt(tooltip.style('left').split("px")[0]) - d3.event.pageX) < 15 &&
+                            //     Math.abs(parseInt(tooltip.style('top').split("px")[0]) - (d3.event.pageY - 28)) < 15)
+                            //     return;
+                            // else
+                            //     tooltip
+                            //         .style("left", `${d3.event.pageX}px`)
+                            //         .style("top", `${d3.event.pageY - 28}px`);
                         })
                         .on("mouseout", function (d: any, i: any) {
                             tooltip.transition().duration(400).style("opacity", 0);
@@ -252,7 +273,7 @@ namespace metaviz {
             vis.chart = vis.main.append('div').attr('class', 'sunburst-chart');
             vis.explanation = vis.chart.append('div').attr('class', 'sunburst-explanation').attr('style', 'visibility: hidden;');
             vis.percentage = vis.explanation.append('span').attr('class', 'sunburst-percentage');
-            vis.explanation.append('p').html('<br/> of visits begin with this sequence of pages');
+            vis.explanation.append('p').html('<br/> Abundance in sample');
             vis.sidebar = d3.select(element[0]).append('div').attr('class', 'sunburst-sidebar');
             vis.togglelegend = vis.sidebar.append('input').attr('type', 'checkbox');
             vis.sidebar.append('p').html(' Legend<br/>');
@@ -311,7 +332,7 @@ namespace metaviz {
                         ;
 
                     // Add the mouseleave handler to the bounding circle.
-                    vis.svg.on("mouseleave", this.mouseleave(mouseOverCB, vis));
+                    // vis.svg.on("mouseleave", this.mouseleave(mouseOverCB, vis));
 
                     // Get total size of the tree = value of root node from partition.
                     scope.totalSize = path.datum().value;
@@ -338,15 +359,15 @@ namespace metaviz {
 
                 vis.explanation
                     .style("visibility", "");
-                
+
                 const ancestry: Array<any> = d.ancestors();
                 ancestry.pop(); // remove the root node.
-                while( ancestry.length > this.maxVisibleTrailAncestry )
+                while (ancestry.length > this.maxVisibleTrailAncestry)
                     ancestry.pop();
-                
+
                 const nodesSequence = ancestry.reverse();
-                this.updateBreadcrumbs( nodesSequence , percentageString, vis);
-                
+                this.updateBreadcrumbs(nodesSequence, percentageString, vis);
+
                 // Fade all the segments.
                 d3.selectAll("path")
                     .style("opacity", 0.3);

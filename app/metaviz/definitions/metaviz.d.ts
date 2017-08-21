@@ -59,10 +59,15 @@ declare namespace metaviz {
     interface ITaxonomyAbundanceProfile {
         taxa_abundance: Array<ITaxonomyAbundance>;
     }
+    interface IResutlsStatistics {
+        readsCount: number;
+        nonAbsoluteAgreement: number;
+    }
     interface IResults {
         wevoteClassification: Array<IWevoteClassification>;
         numToolsUsed: number;
         taxonomyAbundanceProfile: ITaxonomyAbundanceProfile;
+        statistics: IResutlsStatistics;
     }
     interface IAlgorithmsVennSets {
         count: number;
@@ -77,13 +82,14 @@ declare namespace metaviz {
     interface IVennDiagramScope extends ng.IScope {
         results: IResults;
         config: IConfig;
+        wevoteContribution: boolean;
         sets: Array<IVennDiagramSet>;
     }
     class VennDiagramController {
         static readonly $inject: any;
         private _scope;
         constructor(scope: ng.IScope);
-        private processResults;
+        protected processResults: (wevoteClassification: IWevoteClassification[], config: IConfig, filter?: ((readClassification: IWevoteClassification) => Boolean) | undefined, showWevote?: Boolean) => number;
     }
     interface IAbundanceNode {
         name: string;
@@ -119,10 +125,11 @@ declare namespace metaviz {
     }
     class DonutChartDirective implements ng.IDirective {
         restrict: string;
-        replace: boolean;
         static readonly directiveName: string;
         private static readonly _inject;
-        scope: {
+        controller: any;
+        scope: boolean;
+        bindToController: {
             data: string;
         };
         private readonly _w;
@@ -131,20 +138,32 @@ declare namespace metaviz {
         private readonly _colors;
         private readonly _pie;
         private readonly _arcgen;
-        link: (scope: angular.IScope, element: angular.IAugmentedJQuery, attrs: angular.IAttributes, ngModel: any) => void;
+        link: (scope: any, element: angular.IAugmentedJQuery, attrs: angular.IAttributes, ngModel: any) => void;
         constructor();
         static factory(): ng.IDirectiveFactory;
     }
     interface IVennDiagramDirectiveScope extends ng.IScope {
-        sets: Array<IAlgorithmsVennSets>;
+        results: IResults;
+        config: IConfig;
+        wevoteContribution: boolean;
+        sets: Array<IVennDiagramSet>;
     }
     class AlgorithmsVennDiagramDirective implements ng.IDirective {
         restrict: string;
         replace: boolean;
         static readonly directiveName: string;
         private static readonly _inject;
+        controller: any;
         scope: {
+            wevoteContribution: string;
+            results: string;
+            config: string;
+        };
+        bindToController: {
             sets: string;
+            results: string;
+            wevoteContribution: string;
+            config: string;
         };
         private readonly _w;
         private readonly _h;

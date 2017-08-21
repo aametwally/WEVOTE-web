@@ -15,12 +15,18 @@
 #### VIZ
 * Tools agreement Venn diagram
 * Phylogeny visualization: Radial Tidy Tree: https://bl.ocks.org/mbostock/4063550
-* Abundance visualization: Sequences sunburst: https://bl.ocks.org/kerryrodden/766f8f6d31f645c39f488a0befa1e3c8 OR http://bl.ocks.org/wizicer/f662a0b04425fc0f7489
+* Enhance Abundance visualization: using hierarchial color palette to represent abundance tree.
+References: (1) Martijn Tennekes and Edwin de Jonge, Tree Colors: Color Schemes for Tree-Structured Data.
 * Identification score histogram
 
 
 #### Backend
-* Communicate server with wevote service.
+* Communicate server with wevote service. Ideas:
+(1) Integrate wevote app inside a C++ web app. Issue requests from the wevote-web app to wevote-service.
+Similar examples: http://www.dotnetcurry.com/nodejs/1225/call-external-service-using-nodejs 
+see:
+https://codereview.stackexchange.com/questions/122043/simple-multi-threaded-web-server
+
 
 #### Wishlist
 * Integrate anvio.

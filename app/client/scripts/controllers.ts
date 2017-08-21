@@ -584,7 +584,8 @@ module wevote {
             this._scope.results = {
                 wevoteClassification: response.results.wevoteClassification.patch,
                 numToolsUsed: response.results.wevoteClassification.numToolsUsed,
-                taxonomyAbundanceProfile: response.results.taxonomyAbundanceProfile
+                taxonomyAbundanceProfile: response.results.taxonomyAbundanceProfile, 
+                statistics: {readsCount:0,nonAbsoluteAgreement:0}
             };
             this._scope.showExperiment = true;
             this._scope.experimentError = false;
