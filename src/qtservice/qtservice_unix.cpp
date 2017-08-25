@@ -281,7 +281,7 @@ public:
     QtServiceBase::ServiceFlags serviceFlags;
 
 protected:
-    void incomingConnection(int socketDescriptor);
+    void incomingConnection(qintptr socketDescriptor) Q_DECL_OVERRIDE;
 
 private slots:
     void slotReady();
@@ -303,7 +303,7 @@ QtServiceSysPrivate::~QtServiceSysPrivate()
 	delete[] ident;
 }
 
-void QtServiceSysPrivate::incomingConnection(int socketDescriptor)
+void QtServiceSysPrivate::incomingConnection(qintptr socketDescriptor)
 {
     QTcpSocket *s = new QTcpSocket(this);
     s->setSocketDescriptor(socketDescriptor);

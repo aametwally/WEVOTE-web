@@ -33,11 +33,13 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 ADD_LIBRARY(${PROJECT_NAME} ${${PROJECT_NAME}-sources} ${${PROJECT_NAME}-mocs})
 
-IF(NOT USE_QT_5)
-        TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${QT_LIBRARIES})
-ELSE()
-        qt5_use_modules(${PROJECT_NAME} Core Network)
-ENDIF()
+qt5_use_modules(${PROJECT_NAME} Core Network)
+
+#IF(NOT USE_QT_5)
+#        TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${QT_LIBRARIES})
+#ELSE()
+#        qt5_use_modules(${PROJECT_NAME} Core Network)
+#ENDIF()
 
 INSTALL(TARGETS ${PROJECT_NAME}
     EXPORT flow-LibraryDependencies
