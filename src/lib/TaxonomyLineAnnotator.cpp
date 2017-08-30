@@ -68,19 +68,7 @@ void TaxonomyLineAnnotator::writeResults(
     myfile.open (filename.c_str());
     if (!myfile.is_open())
         LOG_ERROR("Error opening Output file: %s", filename.c_str());
-
-    const std::string delim = (csv)? "," : "\t";
-
-    myfile << "taxon" << delim
-           << "count" << delim
-           << io::join( Rank::rankLabels.cbegin() + 1 ,
-                        Rank::rankLabels.cend() , delim ) << "\n";
-
-    for( const std::pair< uint32_t , wevote::TaxLine > &p : abundance)
-        myfile << p.second.taxon << delim
-               << p.second.count << delim
-               << io::join( p.second.line.cbegin() + 1 ,
-                            p.second.line.cend() , delim ) << "\n";
+    myfile << TaxLine::toString( abundance , csv );
     myfile.close();
 }
 

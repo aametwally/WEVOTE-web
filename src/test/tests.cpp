@@ -305,7 +305,7 @@ void lagacyClassification()
 }
 
 wevote::WevoteClassifier classifier( taxonomy );
-std::vector< wevote::ReadInfo > reads = wevote::WevoteClassifier::getReads( TEST_ENSEMBLE_CSV_FILE );
+std::vector< wevote::ReadInfo > reads = wevote::WevoteClassifier::getUnclassifiedReads( TEST_ENSEMBLE_CSV_FILE );
 static void preprocessReads()
 {
     classifier.preprocessReads( reads );

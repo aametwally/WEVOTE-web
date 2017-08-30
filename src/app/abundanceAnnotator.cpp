@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 
     /// Read WEVOTE output file
     std::vector< wevote::ReadInfo > classifiedReads =
-            wevote::WevoteClassifier::readResults( param.query ,  true );
+            wevote::WevoteClassifier::getClassifiedReads( param.query ,  true );
 
 
     wevote::TaxonomyLineAnnotator annotator( taxonomy );

@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.9)
 
-### c++11 standards
-set( CMAKE_CXX_STANDARD 14 )
-
+### c++14 standards
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 
 if(WIN32)
@@ -53,5 +54,5 @@ set( DATA_DIRECTORY ${CMAKE_SOURCE_DIR}/data)
 
 
 ### Add all the files in the src directory to the CMake tree
-#add_subdirectory( lagacy )
+add_subdirectory( lagacy )
 add_subdirectory( src )

@@ -32,7 +32,7 @@ public:
      * @return
      */
     static std::vector< ReadInfo >
-    getReads( const std::string &filename );
+    getUnclassifiedReads(const std::string &filename , std::string delim = ",");
 
     /**
      * @brief writeResults
@@ -48,7 +48,7 @@ public:
      * @param taxonomy
      * @return
      */
-    static std::vector<ReadInfo> readResults( const std::string &filename , bool csv = false );
+    static std::vector<ReadInfo> getClassifiedReads( const std::string &filename , bool csv = false );
 
     /**
      * @brief _preprocessReads

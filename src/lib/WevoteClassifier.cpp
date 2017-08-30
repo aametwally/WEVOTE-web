@@ -115,25 +115,11 @@ void WevoteClassifier::classify(
     LOG_INFO("WEVOTE classification executed in=%f" , total );
 }
 
-std::vector<ReadInfo> WevoteClassifier::getReads(
-        const std::string &filename )
+std::vector<ReadInfo> WevoteClassifier::getUnclassifiedReads(
+        const std::string &filename , std::string delim )
 {
-    std::vector<ReadInfo> reads;
     const std::vector<std::string> lines = io::getFileLines( filename );
-    for( const std::string &line : lines )
-    {
-        const std::vector< std::string > tokens = io::split( line , ',');
-        ReadInfo read;
-        read.seqID = tokens.front();
-        std::transform( tokens.begin()+1 , tokens.end() ,
-                        std::inserter( read.annotation , read.annotation.end()) ,
-                        []( const std::string &t )
-        {
-            return atoi( t.c_str());
-        });
-        reads.push_back( read );
-    }
-    return reads;
+    return ReadInfo::parseUnclassifiedReads( lines.cbegin() , lines.cend() , delim );
 }
 
 void WevoteClassifier::writeResults(
@@ -146,86 +132,18 @@ void WevoteClassifier::writeResults(
     myfile.open (fileName.c_str());
     if (!myfile.is_open())
         LOG_ERROR("Error opening Output file:%s",fileName);
-
-    const std::string delim = (csv)? ",":"\t";
-
-    std::vector< std::string > tools;
-    for( auto i = 0 ; i < reads.front().numToolsUsed ; i++ )
-        tools.push_back( std::string("tool#") + std::to_string(i));
-
-    // Header line.
-    myfile << "seqId" << delim
-           << "numToolsUsed" << delim
-           << "numToolsReported" << delim
-           << "numToolsAgreed" << delim
-           << "score" << delim
-           << io::join( tools , delim ) << delim
-           << "resolvedTaxon" << "\n";
-
-    // Contents lines.
-    for ( const ReadInfo &read : reads )
-        myfile << read.seqID << delim
-               << read.numToolsUsed << delim
-               << read.numToolsReported << delim
-               << read.numToolsAgreed<< delim
-               << read.score << delim
-               << io::join(
-                      io::asStringsVector( read.annotation.cbegin() ,
-                                           read.annotation.cend()) , delim) << delim
-               << read.resolvedTaxon << "\n";
-
+    myfile << ReadInfo::toString( reads.cbegin() , reads.cend() , csv );
     myfile.close();
 }
 
 std::vector< ReadInfo >
-WevoteClassifier::readResults(
+WevoteClassifier::getClassifiedReads(
         const std::string &filename  ,
         bool csv )
 {
-    std::vector< ReadInfo > classifiedReads;
     const std::string delim = (csv)? ",": "\t";
     const std::vector< std::string > lines = io::getFileLines( filename );
-
-    /// seqId,numToolsUsed,numToolsReported,numToolsAgreed,score,tool#0,resolvedTaxon
-    const int minFieldsCount = 7 ;
-    auto validateInput = [&]()
-    {
-        const auto tokens = io::split( lines.front() , delim );
-        const size_t count = tokens.size();
-        return count >= minFieldsCount &&
-                std::all_of( lines.cbegin() , lines.cend() ,
-                             [count,&delim]( const std::string &line )
-        {
-            const auto _ = io::split( line , delim );
-            return _.size() == count;
-        });
-    };
-
-    WEVOTE_ASSERT( validateInput() , "Inconsistent input file!");
-
-    std::for_each( lines.cbegin() + 1 /**skip header**/ , lines.cend() ,
-                   [&classifiedReads,&delim]( const std::string &line )
-    {
-        const std::vector< std::string > tokens =  io::split( line , delim );
-        auto tokensIt = tokens.begin();
-        ReadInfo classifiedRead;
-        classifiedRead.seqID = *tokensIt++;
-        classifiedRead.numToolsUsed = atoi( (tokensIt++)->c_str());
-        classifiedRead.numToolsReported = atoi( (tokensIt++)->c_str());
-        classifiedRead.numToolsAgreed = atoi( (tokensIt++)->c_str());
-        classifiedRead.score = atof( (tokensIt++)->c_str());
-        std::vector< std::string > annotations(tokensIt , std::prev( tokens.end()));
-        std::transform( annotations.cbegin() , annotations.cend() ,
-                        std::inserter( classifiedRead.annotation ,
-                                       classifiedRead.annotation.end()),
-                        []( const std::string &annStr ){
-            return atoi( annStr.c_str());
-        });
-        classifiedRead.resolvedTaxon = atoi( tokens.back().c_str());
-
-        classifiedReads.push_back( classifiedRead );
-    });
-    return classifiedReads;
+    return ReadInfo::parseClassifiedReads( lines.cbegin() , lines.cend() , delim );
 }
 
 void WevoteClassifier::preprocessReads( std::vector<ReadInfo> &reads ) const
