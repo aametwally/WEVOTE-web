@@ -1,4 +1,5 @@
 import { TaxonomyAbundanceProfileModel } from '../models/taxprofile';
+import { WevoteClassificationPatchModel , IWevoteClassificationPatch } from '../models/wevote';
 import { BaseRoute } from "./route";
 import { Request, Response, NextFunction } from 'express';
 import construct = Reflect.construct;
@@ -27,6 +28,22 @@ export class TaxonomyAbundanceProfileRouter extends BaseRoute {
                     select: 'user description email'
                 }]);
             });
+
+        this._router.route('/wevote/ensemble')
+        .get(function( req: Request , res: Response , next: NextFunction ){ 
+            WevoteClassificationPatchModel.repo.findOne( {} , 
+                (err: any , result: IWevoteClassificationPatch ) => {
+                    if( err ) return next( err );
+                    const wevoteSubmitEnsembleRequest = {
+                        jobID : result.experiment , 
+                        reads : result.patch , 
+                        score : 2 , 
+                        penalty: 3 ,
+                        minNumAgreed: 2
+                    }
+                    res.json( wevoteSubmitEnsembleRequest );
+                });
+        });
     }
 
     public static router() {

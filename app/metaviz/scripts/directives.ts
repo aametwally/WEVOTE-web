@@ -262,7 +262,6 @@ namespace metaviz {
         private readonly _h = 600;
         private readonly _radius = Math.min(this._w, this._h) / 2;
 
-
         public link = (scope: IAbundanceSunburstDirectiveScope, element: ng.IAugmentedJQuery, attrs: ng.IAttributes, ngModel: any) => {
             // Total size of all segments; we set this later, after loading the data.
             scope.totalSize = 0;
@@ -326,7 +325,9 @@ namespace metaviz {
                         .attr("display", function (d: any) { return d.depth ? null : "none"; })
                         .attr("d", arc) // Suspected Bug.
                         .attr("fill-rule", "evenodd")
-                        .style("fill", (d: any) => { return "#7b615c"; })
+                        .style("fill", (d: any) => {
+                            return d3.hcl(d.data.color.H, d.data.color.C, d.data.color.L);
+                        })
                         .style("opacity", 1)
                         .on("mouseover", mouseOverCB)
                         ;
@@ -370,7 +371,7 @@ namespace metaviz {
 
                 // Fade all the segments.
                 d3.selectAll("path")
-                    .style("opacity", 0.3);
+                    .style("opacity", 0.7);
 
                 // Then highlight only those that are an ancestor of the current segment.
                 vis.svg.selectAll("path")
@@ -453,7 +454,7 @@ namespace metaviz {
 
             entering.append("svg:polygon")
                 .attr("points", this.breadcrumbPoints)
-                .style("fill", (d: any) => { return "#7b615c"; });
+                .style("fill", (d: any) => { return d3.hcl(d.data.color.H, d.data.color.C, d.data.color.L); });
 
             entering.append("svg:text")
                 .attr("x", (this.b.w + this.b.t) / 2)

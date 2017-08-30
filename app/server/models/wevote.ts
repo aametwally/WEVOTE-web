@@ -8,7 +8,7 @@ import { ITaxonomyAbundance } from './taxprofile';
 
 export interface IWevoteClassification extends mongoose.Document {
     seqId: string,
-    taxa: mongoose.Types.Array<Number>,
+    votes: mongoose.Types.Array<Number>,
     resolvedTaxon: Number,
     numToolsReported: Number,
     numToolsAgreed: Number,
@@ -27,7 +27,7 @@ export const wevoteClassificationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    taxa: {
+    votes: {
         type: [Number],
         required: true
     },
@@ -91,7 +91,7 @@ export class WevoteClassificationPatchModel {
                         if (err) throw err;
                         let wevoteOutputData = csvJSON( data );
                         wevoteOutputData.forEach( function(readInfo:any){
-                            readInfo.taxa = [ readInfo.tool0 , readInfo.tool1 , readInfo.tool2 ];
+                            readInfo.votes = [ readInfo.tool0 , readInfo.tool1 , readInfo.tool2 ];
                         });
                         let numToolsUsed = wevoteOutputData[0].numToolsUsed;
 

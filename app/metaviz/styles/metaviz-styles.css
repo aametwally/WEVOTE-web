@@ -53,7 +53,7 @@ mv-abundance-sunburst
 
 .sunburst-sequence text, .sunburst-legend text {
   font-weight: 500;
-  fill: #fff;
+  fill: black;
 }
 
 .sunburst-chart {

@@ -35,7 +35,7 @@ declare namespace metaviz {
     }
     interface IWevoteClassification {
         seqId: string;
-        taxa: Array<Number>;
+        votes: Array<Number>;
         resolvedTaxon: Number;
         numToolsReported: Number;
         numToolsAgreed: Number;
@@ -91,9 +91,15 @@ declare namespace metaviz {
         constructor(scope: ng.IScope);
         protected processResults: (wevoteClassification: IWevoteClassification[], config: IConfig, filter?: ((readClassification: IWevoteClassification) => Boolean) | undefined, showWevote?: Boolean) => number;
     }
+    interface IHCLColor {
+        H: number;
+        C: number;
+        L: number;
+    }
     interface IAbundanceNode {
         name: string;
         size?: number;
+        color?: IHCLColor;
         children: Map<string, IAbundanceNode>;
     }
     interface IAbundanceSunburstScope extends ng.IScope {
@@ -104,7 +110,8 @@ declare namespace metaviz {
     class AbundanceSunburstController {
         static readonly $inject: any;
         private _scope;
-        constructor(scope: ng.IScope);
+        private _treeColoring;
+        constructor(scope: ng.IScope, treeColoring: TreemapColorSchemeFactory);
         private processResults;
         private hierarchyAsObject(tree);
         private buildHierarchy;
@@ -238,5 +245,22 @@ declare namespace metaviz {
         static readonly $inject: (() => HelloFactory)[];
         static factory(): () => HelloFactory;
         hello: () => void;
+    }
+    interface IPair {
+        initial: number;
+        final: number;
+    }
+    class TreemapColorSchemeFactory {
+        private initialChroma;
+        private initialLuminance;
+        private chromaSlope;
+        private luminanceSlope;
+        private chroma;
+        private luminance;
+        static readonly $inject: (() => TreemapColorSchemeFactory)[];
+        static factory(): () => TreemapColorSchemeFactory;
+        colorizeTree: (tree: IAbundanceNode, range?: IPair, fraction?: number, perm?: Boolean, rev?: Boolean) => void;
+        private assignHCL;
+        private distributeColorRange;
     }
 }

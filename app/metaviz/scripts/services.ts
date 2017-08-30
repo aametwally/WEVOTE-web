@@ -17,12 +17,26 @@ namespace metaviz {
         }
     }
 
-    interface Pair {
+    export interface IPair {
         initial: number,
         final: number
     }
 
     export class TreemapColorSchemeFactory {
+
+        private initialChroma = 10;
+        private initialLuminance = 90;
+        private chromaSlope = 70 / 9.0;
+        private luminanceSlope = 40 / 9.0;
+
+        private chroma = (level: number): number => {
+            return this.initialChroma + this.chromaSlope * level;
+        }
+
+        private luminance = (level: number): number => {
+            return this.initialLuminance - this.luminanceSlope * level;
+        }
+
         static readonly $inject = [TreemapColorSchemeFactory.factory()];
 
         static factory() {
@@ -31,63 +45,62 @@ namespace metaviz {
             return instance;
         }
 
-        public colorizeTree = (tree: IAbundanceNode, range: Pair,
-            fraction: number = 5, perm: Boolean = true, rev: Boolean = true ) => {
+        public colorizeTree = (tree: IAbundanceNode,
+            range: IPair = { initial: 0, final: 360 },
+            fraction: number = 0.7, perm: Boolean = true, rev: Boolean = true) => {
             console.log("Hello, TreemapColorSchemeFactory.colorizeTree()");
-            this.assignHue( tree , range , fraction , perm , rev );
+            this.assignHCL(tree, range, this.chroma(0),
+                this.luminance(0), 0, fraction, perm, rev);
         }
 
-        private assignHue = (node: IAbundanceNode, range: Pair,
-            fraction: number = 5, perm: Boolean = true, rev: Boolean = true) => {
+        private assignHCL = (node: IAbundanceNode, range: IPair,
+            chroma: number, luminance: number, level: number, fraction: number = 0.7, perm: Boolean = true,
+            rev: Boolean = true) => {
+            node.color = { H: 0, C: 0, L: 0 };
             node.color.H = (range.initial + range.final) / 2.0;
-            const childrenRanges = this.distributeColorRange( node , range , fraction , perm , rev );
-            let idx = 0 ;
-            node.children.forEach(function (child: IAbundanceNode, key: string, map: Map<string, IAbundanceNode>) {
-                this.assignHue( child , childrenRanges[idx++] , fraction , perm , rev );
-            })
+            node.color.C = chroma;
+            node.color.L = luminance;
+            if (node.children) {
+                const childrenRanges = this.distributeColorRange(node, range, fraction, perm, rev);
+                let idx = 0;
+                const newChroma = this.chroma(level + 1);
+                const newLuminance = this.luminance(level + 1);
+                node.children.forEach((child: IAbundanceNode, key: string, map: Map<string, IAbundanceNode>) => {
+                    this.assignHCL(child, childrenRanges[idx++],
+                        newChroma, newLuminance, level + 1, fraction, perm, rev);
+                })
+            }
         }
 
-        private assignChromaLuminance = ( node: IAbundanceNode , chroma: number = 70, 
-        luminance: number = 60 , slope: number = 10 ,  level: number = 0 ) => {
-            node.color.C = chroma; 
-            node.color.L = luminance;
-            const newChroma = chroma - slope * level; // Apply a saturation function. e.g tansh
-            const newLuminance = luminance + slope * level; // Apply a saturation function. e.g tansh
-            node.children.forEach( (child: IAbundanceNode,key:string ) => {
-                this.assignChromaLuminance( child , newChroma , newLuminance , slope , level + 1 );
-            });
-        };
-
-        private distributeColorRange = (node: IAbundanceNode, range: Pair,
-            fraction: number, perm: Boolean, rev: Boolean): Array<Pair> => {
+        private distributeColorRange = (node: IAbundanceNode, range: IPair,
+            fraction: number, perm: Boolean, rev: Boolean): Array<IPair> => {
             const children = node.children;
             const n = children.size;
-            const step = range.final - range.initial / n;
+            const step = (range.final - range.initial) / n;
             const margin = step * (1 - fraction) / 2;
-            let ranges = new Array<Pair>();
+            let ranges = new Array<IPair>();
             for (let i = 0; i < n; i++)
                 ranges.push({
                     initial: range.initial + i * step + margin,
                     final: range.initial + (i + 1) * step - margin
                 });
-            if( perm )
-            {
-                const idxArray = new Array<number>( n );
-                const idxBool = new Array<Boolean>( n ).fill( false );
-                for( let i = 0 ; i < n ; i ++ )
-                {
-                    let index = (i*2) % n ;
-                    while( idxBool[index] )
+            console.log(range);
+            console.log(ranges);
+            if (perm) {
+                const idxBool = new Array<Boolean>(n).fill(false);
+                const permutedRanges = new Array<IPair>(n);
+                for (let i = 0; i < n; i++) {
+                    let index = (i * 2) % n;
+                    while (idxBool[index])
                         index++;
                     idxBool[index] = true;
-                    idxArray[ index ] = i;
+                    permutedRanges[index] = ranges[i];
                 }
-                ranges = d3.permute( ranges , idxArray );
+                ranges = permutedRanges;
             }
-            if( rev )
-                ranges.forEach( (pair: Pair , index: number) => {
-                    if( index %2 === 0 )
-                    {
+            if (rev)
+                ranges.forEach((pair: IPair, index: number) => {
+                    if (index % 2 === 0) {
                         const temp = pair.initial;
                         pair.initial = pair.final;
                         pair.final = temp;

@@ -59,7 +59,7 @@ namespace metaviz {
 
     export interface IWevoteClassification {
         seqId: string,
-        taxa: Array<Number>,
+        votes: Array<Number>,
         resolvedTaxon: Number,
         numToolsReported: Number,
         numToolsAgreed: Number,
@@ -131,12 +131,12 @@ namespace metaviz {
                         this._scope.results.statistics.nonAbsoluteAgreement =
                             this.processResults(results.wevoteClassification, this._scope.config,
                                 (readClassification: IWevoteClassification) => {
-                                    const firstTaxid = readClassification.taxa[0];
-                                    return readClassification.taxa.reduce((acc: Boolean, curr: Number): Boolean => {
+                                    const firstTaxid = readClassification.votes[0];
+                                    return readClassification.votes.reduce((acc: Boolean, curr: Number): Boolean => {
                                         return acc && (curr == 0 || curr == 1);
                                     }, true) ||
                                         // Ignore when all algorithms agree (not a wevote contribution).
-                                        readClassification.taxa.reduce((acc: Boolean, curr: Number): Boolean => {
+                                        readClassification.votes.reduce((acc: Boolean, curr: Number): Boolean => {
                                             return acc && curr == firstTaxid;
                                         }, true);
                                 }, true);
@@ -145,7 +145,7 @@ namespace metaviz {
                         this._scope.results.statistics.readsCount =
                             this.processResults(results.wevoteClassification, this._scope.config,
                                 (readClassification: IWevoteClassification) => {
-                                    return readClassification.taxa.reduce((acc: Boolean, curr: Number): Boolean => {
+                                    return readClassification.votes.reduce((acc: Boolean, curr: Number): Boolean => {
                                         return acc && (curr == 0 || curr == 1);
                                     }, true);
                                 }, false );
@@ -160,8 +160,8 @@ namespace metaviz {
             filter?: (readClassification: IWevoteClassification) => Boolean,
             showWevote: Boolean = false): number => {
             const algorithms = config.algorithms.concat({name:'WEVOTE',used:true});
-            if (algorithms.length - 1 != wevoteClassification[0].taxa.length ) {
-                console.warn("Results inconsistency", algorithms.length - 1, wevoteClassification[0].taxa);
+            if (algorithms.length - 1 != wevoteClassification[0].votes.length ) {
+                console.warn("Results inconsistency", algorithms.length - 1, wevoteClassification[0].votes);
                 return 0;
             }
 
@@ -178,10 +178,10 @@ namespace metaviz {
                 else {
                     // counterMap< targeted taxid , algorithms agreed >
                     let counterMap: Map<number, Set<Array<number>>> = new Map<number, Set<Array<number>>>();
-                    const taxa = (showWevote) ?
-                        readClassification.taxa.concat(readClassification.resolvedTaxon) : readClassification.taxa;
+                    const votes = (showWevote) ?
+                        readClassification.votes.concat(readClassification.resolvedTaxon) : readClassification.votes;
                     
-                    taxa.forEach(function (taxid: number, algIdx: number) {
+                    votes.forEach(function (taxid: number, algIdx: number) {
                         const set = counterMap.get(taxid);
                         if (set) {
                             const combinations: Set<Array<number>> = new Set<Array<number>>();
@@ -259,10 +259,11 @@ namespace metaviz {
     }
 
     export class AbundanceSunburstController {
-        static readonly $inject: any = ['$scope', AbundanceSunburstController];
+        static readonly $inject: any = ['$scope','TreemapColorSchemeService', AbundanceSunburstController];
         private _scope: IAbundanceSunburstScope;
-
-        constructor(scope: ng.IScope) {
+        private _treeColoring : TreemapColorSchemeFactory;
+        constructor(scope: ng.IScope , treeColoring: TreemapColorSchemeFactory ) {
+            this._treeColoring = treeColoring;
             this._scope = <IAbundanceSunburstScope>scope;
             this._scope.$watch('results', (results: IResults) => {
                 if (results && this._scope.config) {
@@ -276,7 +277,7 @@ namespace metaviz {
 
         private processResults = (results: IResults, config: IConfig) => {
             const tree = this.buildHierarchy(results.taxonomyAbundanceProfile.taxa_abundance);
-
+            this._treeColoring.colorizeTree( tree ); 
             this._scope.hierarchy = this.hierarchyAsObject(tree);
         };
 
@@ -284,6 +285,7 @@ namespace metaviz {
             const obj = Object.create(null);
             if (tree.name) obj.name = tree.name;
             if (tree.size) obj.size = tree.size;
+            if (tree.color) obj.color = tree.color;
             if (tree.children) {
                 const childrenArray: Array<IAbundanceNode> = Array.from(tree.children.values());
                 obj.children = new Array<IAbundanceNode>();

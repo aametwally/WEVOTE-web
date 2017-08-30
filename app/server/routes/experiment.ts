@@ -116,7 +116,6 @@ export class ExperimentRouter extends BaseRoute {
                     ]);
             })
             ;
-
     }
 
     public static router() {
