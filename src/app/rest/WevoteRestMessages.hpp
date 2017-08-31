@@ -3,9 +3,13 @@
 
 #include "WevoteJSON.hpp"
 #include "ReadInfo.h"
+#include "Serializable.hpp"
 
-class WevoteSubmitEnsemble
+class WevoteSubmitEnsemble : public Serializable< WevoteSubmitEnsemble >
 {
+protected:
+    friend class Serializable< WevoteSubmitEnsemble >;
+public:
     WevoteSubmitEnsemble()
         : _d( new Data ){}
 
@@ -19,13 +23,6 @@ class WevoteSubmitEnsemble
         properties.objectify( _meta( Meta::MinNumAgreed  ) , _d->minNumAgreed );
     }
 
-    template< typename DeObjectifier >
-    static WevoteSubmitEnsemble fromObject( const DeObjectifier &properties )
-    {
-        WevoteSubmitEnsemble w;
-        w._populateFromObject( properties );
-        return w;
-    }
 private:
     enum class Meta
     {
@@ -65,11 +62,6 @@ private:
             { Meta::MinNumAgreed , "minNumAgreed"}
         };
         return m;
-    }
-
-    static std::string _meta( Meta meta )
-    {
-        return _metaMap().at( meta );
     }
 
     std::shared_ptr< Data > _d;

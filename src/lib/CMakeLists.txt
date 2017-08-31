@@ -11,6 +11,7 @@ set( WEVOTE_LIB_SOURCE_FILES
     common/Taxon.cpp
     common/TaxLine.cpp
     common/Rank.cpp
+    common/Serializable.hpp
     log/Logger.cpp
     )
 

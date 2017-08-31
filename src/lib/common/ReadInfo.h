@@ -3,14 +3,17 @@
 
 #include "headers.hpp"
 #include "helpers.hpp"
-
+#include "Serializable.hpp"
 #define NO_ANNOTATIOIN 0
 
 
 namespace wevote
 {
-struct ReadInfo{
-
+struct ReadInfo : public Serializable< ReadInfo >
+{
+protected:
+    friend class Serializable< ReadInfo >;
+public:
     enum class Meta {
         SeqId = 0 ,
         ResolvedTaxon ,
@@ -161,14 +164,6 @@ struct ReadInfo{
         properties.objectify( _meta( Meta::ResolvedTaxon  ) , resolvedTaxon );
     }
 
-    template< typename DeObjectifier >
-    static ReadInfo fromObject( const DeObjectifier &properties )
-    {
-        ReadInfo ri;
-        ri._populateFromObject( properties );
-        return ri;
-    }
-
     std::string seqID;
     std::vector<uint32_t> annotation;
     uint32_t resolvedTaxon;
@@ -179,14 +174,7 @@ struct ReadInfo{
     WEVOTE_DLL static bool isAnnotation( uint32_t taxid );
     WEVOTE_DLL static constexpr uint32_t noAnnotation = NO_ANNOTATIOIN;
 
-private:
-
-
-    static std::string _meta( Meta m )
-    {
-        return _metaMap().at( m );
-    }
-
+protected:
     template< typename DeObjectifier >
     void _populateFromObject( const DeObjectifier &properties )
     {

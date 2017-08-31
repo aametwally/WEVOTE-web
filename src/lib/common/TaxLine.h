@@ -4,17 +4,22 @@
 #include "headers.hpp"
 #include "helpers.hpp"
 #include "Rank.h"
+#include "Serializable.hpp"
 
 namespace wevote
 {
 
-struct TaxLine {
+struct TaxLine : public Serializable<TaxLine>
+{
+protected:
+    friend class Serializable< TaxLine >;
     enum class Meta{
         Taxon ,
         Count ,
         Line
     };
 
+public:
     uint32_t taxon;
     uint32_t count;
     std::array< std::string , RANKS_SIZE > line;
@@ -60,27 +65,13 @@ struct TaxLine {
         properties.objectify( _meta( Meta::Line  ) , line.cbegin() , line.cend());
     }
 
-    template< typename DeObjectifier >
-    static TaxLine fromObject( const DeObjectifier &properties )
-    {
-        TaxLine tl;
-        tl._populateFromObject( properties );
-        return tl;
-    }
-
-private:
+protected:
     template< typename DeObjectifier >
     void _populateFromObject( const DeObjectifier &properties )
     {
         properties.deObjectify( _meta( Meta::Taxon ) , taxon );
         properties.deObjectify( _meta( Meta::Count ) , count );
         properties.deObjectifyArray( _meta( Meta::Line  ) , line );
-    }
-
-
-    static std::string _meta( Meta m )
-    {
-        return _metaMap().at( m );
     }
 
     static const std::map< Meta , std::string > &_metaMap()
