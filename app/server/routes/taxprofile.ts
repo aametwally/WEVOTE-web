@@ -1,5 +1,5 @@
 import { TaxonomyAbundanceProfileModel } from '../models/taxprofile';
-import { WevoteClassificationPatchModel , IWevoteClassificationPatch } from '../models/wevote';
+import { WevoteClassificationPatchModel , IWevoteClassificationPatch , IWevoteClassification } from '../models/wevote';
 import { BaseRoute } from "./route";
 import { Request, Response, NextFunction } from 'express';
 import construct = Reflect.construct;

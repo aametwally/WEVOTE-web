@@ -12,6 +12,7 @@ export interface IWevoteClassification extends mongoose.Document {
     resolvedTaxon: Number,
     numToolsReported: Number,
     numToolsAgreed: Number,
+    numToolsUsed: Number,
     score: Number,
     // resolvedTaxonline: mongoose.Schema.Types.ObjectId
 }
@@ -42,6 +43,10 @@ export const wevoteClassificationSchema = new mongoose.Schema({
     },
     numToolsAgreed: {
         type: Number,
+        required: true
+    },
+    numToolsUsed: {
+        type: Number , 
         required: true
     },
     score: {
