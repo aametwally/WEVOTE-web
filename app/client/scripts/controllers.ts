@@ -24,9 +24,48 @@ module wevote {
 
     }
 
-    interface ReadsSourceType {
-        readonly value: string;
-        readonly label: string;
+    interface IUsageScenario {
+        readonly value: string,
+        readonly usage: string,
+        readonly hint: string
+    }
+
+    interface ITaxonomySource
+    {
+        readonly value: string ,
+        readonly label: string
+    }
+    
+    interface IRemoteFile
+    {
+        name: string ,
+        description: string , 
+        onServer?: Boolean,
+        uri: string , 
+        data: string , 
+        size: string , 
+        count?: number 
+    }
+    interface IConfig
+    {
+        minScore: number , 
+        minNumAgreed: number , 
+        penalty: number , 
+        algorithms: any
+    }
+
+    interface IExperiment 
+    {
+        user: string,
+        email: string,
+        description: string,
+        private: Boolean,
+        usageScenario: IUsageScenario,
+        taxonomySource: ITaxonomySource,
+        reads: IRemoteFile,
+        ensemble: IRemoteFile,
+        taxonomy: IRemoteFile,
+        config: IConfig
     }
 
     interface InputControllerScope extends ng.IScope {
@@ -38,14 +77,16 @@ module wevote {
         error: Boolean,
         message: String,
         supportedAlgorithms: any,
-        experiment: any,
+        experiment: IExperiment,
         inputForm: any,
-        readsSources: any,
-        taxonomySources: any,
+        usageScenarios: IUsageScenario[],
+        taxonomySources: ITaxonomySource[],
         noAlgorithmChosen: Boolean,
         postExperiment: any,
         readsUploader: any,
         readsUploaderPostValidation: Boolean,
+        ensembleUploader: any , 
+        ensembleUploaderPostValidation: Boolean,
         taxonomyUploader: any,
         taxonomyUploaderPostValidation: Boolean
     }
@@ -56,17 +97,24 @@ module wevote {
 
         private _scope: InputControllerScope;
 
-        private readonly readsSources: ReadsSourceType[] = [{
-            value: "client",
-            label: "Upload reads file"
+        private readonly usageScenarios: IUsageScenario[] = [{
+            value: "pipelineFromReads",
+            usage: "Full Pipeline",
+            hint: "upload reads file"
         },
         {
-            value: "server",
-            label: "Use simulated reads from the server"
+            value: "pipelineFromSimulatedReads",
+            usage: "Full Pipeline" ,
+            hint: "use simulated reads from the server"
+        },
+        {
+            value: "classificationFromEnsemble" , 
+            usage: "Classification" ,
+            hint: "upload a wevote ensemble file"
         }
         ];
 
-        private readonly taxonomySources: ReadsSourceType[] = [{
+        private readonly taxonomySources: ITaxonomySource[] = [{
             value: "NCBI",
             label: "Use NCBI taxonomy database"
         },
@@ -76,17 +124,25 @@ module wevote {
         }
         ];
 
-        private readonly emptyInput: any = {
+        private readonly emptyInput: IExperiment = {
             user: "public",
             email: "",
             description: "",
             private: false,
-            readsSource: this.readsSources[0].value,
-            taxonomySource: this.taxonomySources[0].value,
+            usageScenario: this.usageScenarios[0],
+            taxonomySource: this.taxonomySources[0],
             reads: {
                 name: "",
                 description: "",
                 onServer: true,
+                uri: "",
+                data: "",
+                size: "",
+                count: 0
+            },
+            ensemble: {
+                name: "",
+                description: "",
                 uri: "",
                 data: "",
                 size: "",
@@ -167,7 +223,7 @@ module wevote {
             this._scope = <InputControllerScope>$scope;
             this._scope.inputForm = {};
 
-            this._scope.readsSources = this.readsSources;
+            this._scope.usageScenarios = this.usageScenarios;
             this._scope.taxonomySources = this.taxonomySources;
 
             this._scope.availableDatabase = {};
@@ -190,6 +246,8 @@ module wevote {
 
             this._scope.readsUploader = {};
             this._scope.readsUploaderPostValidation = true;
+            this._scope.ensembleUploader = {};
+            this._scope.ensembleUploaderPostValidation = true;
             this._scope.taxonomyUploader = {};
             this._scope.taxonomyUploaderPostValidation = true;
         }
@@ -251,6 +309,46 @@ module wevote {
             this._scope.experiment.reads.name =
                 JSON.parse(JSON.stringify(fileItem.file.name));
             this._scope.experiment.reads.size =
+                JSON.parse(JSON.stringify(fileItem.file.size));
+
+            setTimeout(function () {
+                $("[data-toggle='tooltip']").tooltip({
+                    trigger: 'hover'
+                });
+            }, 500);
+        };
+    }
+
+
+    export class EnsembleUploaderController extends UploaderController {
+        static readonly $inject = ['$scope', 'FileUploaderService', EnsembleUploaderController];
+
+        constructor($scope: ng.IScope, FileUploaderService: any) {
+            super($scope, FileUploaderService);
+            this._uploader = FileUploaderService.getFileUploader(
+                'upload/ensemble', 'Drop ensemble file here', 'Ensemble file uploader');
+            this._uploader.onSuccessItem = this.onSuccessItemCB;
+            this._uploader.onAfterAddingFile = this.onAfterAddingFileCB;
+            this._scope.uploader = this._uploader;
+        };
+
+        protected onSuccessItemCB = (fileItem: any, response: any, status: any, header: any) => {
+            // console.info('onSuccessItem', fileItem, response, status, headers);
+            console.log('success', response, header);
+            this._scope.experiment.ensemble.uri =
+                JSON.parse(JSON.stringify(header.filename));
+            this._scope.experiment.ensemble.count =
+                parseInt(header.ensemblecount, 10);
+        };
+
+        protected onAfterAddingFileCB = (fileItem: any) => {
+            console.info('onAfterAddingFile', fileItem);
+
+            this._scope.uploader.queue = [fileItem];
+
+            this._scope.experiment.ensemble.name =
+                JSON.parse(JSON.stringify(fileItem.file.name));
+            this._scope.experiment.ensemble.size =
                 JSON.parse(JSON.stringify(fileItem.file.size));
 
             setTimeout(function () {
@@ -605,6 +703,7 @@ module wevote {
         .controller('InputController', InputController.$inject)
         .controller('ReadsUploaderController', ReadsUploaderController.$inject)
         .controller('TaxonomyUploaderController', TaxonomyUploaderController.$inject)
+        .controller('EnsembleUploaderController' , EnsembleUploaderController.$inject )
         .controller('HeaderController', HeaderController.$inject)
         .controller('LoginController', LoginController.$inject)
         .controller('RegisterController', RegisterController.$inject)

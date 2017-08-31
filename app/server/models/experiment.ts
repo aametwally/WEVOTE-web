@@ -1,7 +1,9 @@
 // grab the things we need
 import { AlgorithmModel, IAlgorithmModel } from './algorithm';
-import { ReadsModel, IReadsModel } from './reads';
-import { TaxonomyModel, ITaxonomyModel } from './taxonomy';
+import { ReadModel  } from './reads';
+import { EnsembleFileModel } from './ensemblefile';
+import { TaxonomyModel } from './taxonomy';
+import { IRemoteFile , RemoteFileModel } from './remotefile';
 import { WevoteClassificationPatchModel, IWevoteClassificationPatch } from './wevote';
 import { TaxonomyAbundanceProfileModel, ITaxonomyAbundanceProfileModel } from './taxprofile';
 import { RepositoryBase, csvJSON } from './model';
@@ -32,16 +34,15 @@ export interface IExperimentModel extends mongoose.Document {
     isPrivate: Boolean;
     email: String;
     description: String;
-    reads: IReadsModel;
-    taxonomy: ITaxonomyModel;
+    reads: IRemoteFile;
+    taxonomy: IRemoteFile;
+    ensemble: IRemoteFile;
     config: IConfig;
     status: IStatus;
     results: IResults;
     createdAt: Date;
     modifiedAt: Date;
 }
-
-
 
 const configSchema = new mongoose.Schema({
     algorithms: {
@@ -102,12 +103,14 @@ export class ExperimentModel {
             type: String
         },
         reads: {
-            type: ReadsModel.schema,
-            required: true
+            type: ReadModel.schema 
         },
         taxonomy: {
             type: TaxonomyModel.schema,
             required: true
+        },
+        ensemble: {
+            type: EnsembleFileModel.schema
         },
         config: configSchema,
         status: statusSchema,
@@ -125,7 +128,7 @@ export class ExperimentModel {
             ExperimentModel.repo.findOne({}, (err: any, doc: any) => {
                 if (!doc) {
                     //Collection is empty
-                    const _reads: IReadsModel = <any>{
+                    const _reads: IRemoteFile = <any>{
                         name: "todo",
                         description: "todo:somDesc",
                         onServer: true,
@@ -134,7 +137,7 @@ export class ExperimentModel {
                         size: 0,
                         count: 0
                     };
-                    const _taxonomy: ITaxonomyModel = <any>{
+                    const _taxonomy: IRemoteFile = <any>{
                         name: "todo",
                         description: "todo",
                         onServer: true,
@@ -142,12 +145,20 @@ export class ExperimentModel {
                         data: "todo",
                         size: 0
                     };
+                    const _ensemble: IRemoteFile = <any>{
+                        name: "todo",
+                        description: "todo",
+                        onServer: false,
+                        uri: "todo",
+                        data: "todo",
+                        size: 0
+                    }
 
                     const _config: IConfig = <any>{
                         algorithms: [
-                            { name: "tool1", used: true },
-                            { name: "tool2", used: true },
-                            { name: "tool3", used: true },
+                            { name: "ALG0", used: true },
+                            { name: "ALG1", used: true },
+                            { name: "ALG2", used: true },
                         ],
                         minScore: 0,
                         minNumAgreed: 0,
@@ -160,6 +171,7 @@ export class ExperimentModel {
                         email: "asem_alla@msn.com",
                         description: "todo",
                         reads: _reads,
+                        ensemble: _ensemble,
                         taxonomy: _taxonomy,
                         config: _config,
                         results: {}

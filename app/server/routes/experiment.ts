@@ -1,8 +1,7 @@
 import { BaseRoute } from "./route";
 import { ExperimentModel, IExperimentModel, IConfig, IStatus } from '../models/experiment';
 import { Request, Response, NextFunction } from 'express';
-import { IReadsModel } from "../models/reads";
-import { ITaxonomyModel } from "../models/taxonomy";
+import { IRemoteFile } from "../models/remotefile";
 import { UserModel, IUserModel } from '../models/user';
 import { verifyOrdinaryUser } from './verify';
 
@@ -18,7 +17,11 @@ export class ExperimentRouter extends BaseRoute {
 
                 let exp = req.body;
 
-                let _reads: IReadsModel = <any>{
+                // ///////////////////////////
+                ///////////////////////////////////
+                /////////
+                COMPLETE THIS:RECEIVE ENSEB<E FILE APPROPRIATELY
+                let _reads: IRemoteFile = <any>{
                     name: exp.reads.name,
                     description: "somDesc",
                     onServer: true,
@@ -28,7 +31,7 @@ export class ExperimentRouter extends BaseRoute {
                     count: exp.reads.count
                 };
 
-                let _taxonomy: ITaxonomyModel = <any>{
+                let _taxonomy: IRemoteFile = <any>{
                     name: "taxName",
                     description: "somDesc",
                     onServer: true,

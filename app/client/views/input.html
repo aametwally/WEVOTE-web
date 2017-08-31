@@ -11,23 +11,31 @@
                     <div class="panel-body data-submission-form">
                         <div class="form-group">
                             <div class="form-group" ng-class="{'has-error has-feedback':
-                                !inputForm.form.readsOptionSelect.$pristine &&
-                                experiment.readsSource==='client' &&
-                                !uploader.atLeastSingleFileUploaded &&
-                                readsUploaderPostValidation }">
-                                <label><h4><strong>Upload or use simulated reads from the server.</strong></h4>
+                                !inputForm.form.usageScenariosSelect.$pristine &&
+                                ( experiment.usageScenario.value==='pipelineFromReads' &&
+                                !readsUploader.atLeastSingleFileUploaded &&
+                                readsUploaderPostValidation ) || 
+                                ( experiment.usageScenario.value==='classification' &&
+                                !ensembleUploader.atLeastSingleFileUploaded &&
+                                ensembleUploaderPostValidation ) }">
+                                <label><h4><strong>Select a usage scenario of WEVOTE pipeline.</strong></h4>
                                     <select class="form-control" ng-model="experiment.readsSource"
-                                            name="readsOptionSelect"
-                                            ng-options="readsSource.value as readsSource.label for readsSource in readsSources">
-                                    </select>
+                                            name="usageScenariosSelect" >
+                                            <option ng-repeat="usageScenario in usageScenarios" value="{{usageScenario.value}}"><b>{{usageSenario.usage}}</b>:{{usageSenario.hint}}</option>                                            
+                                        </select>
                                 </label>
                                 <div class="col-xs-8 col-sm-6 col-md-5">
                                     <div ng-controller="ReadsUploaderController">
-                                        <div ng-include="'views/readsupload.html'" ng-show="experiment.readsSource==='client'" nv-file-drop="" uploader="uploader"
+                                        <div ng-include="'views/readsupload.html'" ng-show="experiment.usageScenario.value==='pipelineFromReads'" nv-file-drop="" uploader="uploader"
                                             filters="queueLimit, customFilter">
                                         </div>
                                     </div>
-                                    <div class="well well-scrollable" ng-show="experiment.readsSource==='server'">
+                                    <div ng-controller="EnsembleUploaderController">
+                                        <div ng-include="'views/readsupload.html'" ng-show="experiment.usageScenario.value==='classification'" nv-file-drop="" uploader="uploader"
+                                            filters="queueLimit, customFilter">
+                                        </div>
+                                    </div>
+                                    <div class="well well-scrollable" ng-show="experiment.usageScenario==='pipelineFromSimulatedReads'">
                                     <ul class="pull-left list-inline">
                                         <li class=pull-left" ng-repeat="data in availableDatabase">
                                             <div class="checkbox">
@@ -45,7 +53,7 @@
                             </div>
 
                             <div class="form-group" ng-class="{ 'has-error has-feedback': !inputForm.form.taxonomyOptionSelect.$pristine
-                                            && experiment.readsSource==='custom' && !taxonomyUploader.atLeastSingleFileUploaded
+                                            && experiment.taxonomySource==='custom' && !taxonomyUploader.atLeastSingleFileUploaded
                                             && taxonomyUploaderPostValidation }">
                                 <div class="col-xs-11">
                                     <label><h4><strong>Use NCBI taxonomy database or upload custom one.</strong>
