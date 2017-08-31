@@ -2,6 +2,7 @@
 #define WEVOTECLASSIFIER_H
 
 #include "TaxonomyBuilder.h"
+#include "ReadInfo.h"
 #include "TaxLine.h"
 #include "helpers.hpp"
 #include "Logger.h"
@@ -31,7 +32,7 @@ public:
      * @param filename
      * @return
      */
-    static std::vector< ReadInfo >
+    static std::pair< std::vector< ReadInfo > ,  std::vector< std::string >>
     getUnclassifiedReads(const std::string &filename , std::string delim = ",");
 
     /**
@@ -39,8 +40,8 @@ public:
      * @param reads
      * @param fileName
      */
-    static void writeResults(const std::vector< ReadInfo > &reads ,
-            const std::string &fileName , bool csv = false );
+    static void writeResults(const std::vector< ReadInfo > &reads , const std::vector<std::string> &tools,
+                             const std::string &fileName , bool csv = false );
 
     /**
      * @brief readWevoteFile
@@ -48,7 +49,8 @@ public:
      * @param taxonomy
      * @return
      */
-    static std::vector<ReadInfo> getClassifiedReads( const std::string &filename , bool csv = false );
+    static std::pair< std::vector< ReadInfo > ,  std::vector< std::string >>
+    getClassifiedReads( const std::string &filename , bool csv = false );
 
     /**
      * @brief _preprocessReads

@@ -115,7 +115,8 @@ void WevoteClassifier::classify(
     LOG_INFO("WEVOTE classification executed in=%f" , total );
 }
 
-std::vector<ReadInfo> WevoteClassifier::getUnclassifiedReads(
+std::pair< std::vector< ReadInfo > ,  std::vector< std::string >>
+WevoteClassifier::getUnclassifiedReads(
         const std::string &filename , std::string delim )
 {
     const std::vector<std::string> lines = io::getFileLines( filename );
@@ -124,6 +125,7 @@ std::vector<ReadInfo> WevoteClassifier::getUnclassifiedReads(
 
 void WevoteClassifier::writeResults(
         const std::vector<ReadInfo> &reads,
+        const std::vector< std::string > &tools ,
         const std::string &fileName ,
         bool csv )
 {
@@ -132,11 +134,11 @@ void WevoteClassifier::writeResults(
     myfile.open (fileName.c_str());
     if (!myfile.is_open())
         LOG_ERROR("Error opening Output file:%s",fileName);
-    myfile << ReadInfo::toString( reads.cbegin() , reads.cend() , csv );
+    myfile << ReadInfo::toString( reads.cbegin() , reads.cend() , tools , csv );
     myfile.close();
 }
 
-std::vector< ReadInfo >
+std::pair<std::vector<ReadInfo>, std::vector<std::string> >
 WevoteClassifier::getClassifiedReads(
         const std::string &filename  ,
         bool csv )

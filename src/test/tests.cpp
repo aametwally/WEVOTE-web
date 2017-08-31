@@ -305,10 +305,11 @@ void lagacyClassification()
 }
 
 wevote::WevoteClassifier classifier( taxonomy );
-std::vector< wevote::ReadInfo > reads = wevote::WevoteClassifier::getUnclassifiedReads( TEST_ENSEMBLE_CSV_FILE );
+std::pair< std::vector< wevote::ReadInfo > ,  std::vector< std::string >>
+reads = wevote::WevoteClassifier::getUnclassifiedReads( TEST_ENSEMBLE_CSV_FILE );
 static void preprocessReads()
 {
-    classifier.preprocessReads( reads );
+    classifier.preprocessReads( reads.first );
 }
 
 
@@ -317,7 +318,7 @@ TEST_CASE("Reads Preprocessing and Wevote Classification")
 
     lagacyPreprocessReads();
     preprocessReads();
-    wevote::ReadInfo mismatch = reads.front();
+    wevote::ReadInfo mismatch = reads.first.front();
     readsInfo mismatchLagacy = Reads.front();
     int mismatchCounter = 0;
     auto comp =
@@ -341,11 +342,11 @@ TEST_CASE("Reads Preprocessing and Wevote Classification")
     SECTION("Preprocessing Reads")
     {
         mismatchCounter = 0;
-        CAPTURE( reads.size());
+        CAPTURE( reads.first.size());
         CAPTURE( Reads.size());
         CAPTURE( mismatch );
         CAPTURE( mismatchLagacy );
-        REQUIRE( std::equal( reads.cbegin() , reads.cend(),
+        REQUIRE( std::equal( reads.first.cbegin() , reads.first.cend(),
                              Reads.cbegin() , Reads.cend() , comp  ));
     }
 
@@ -353,14 +354,14 @@ TEST_CASE("Reads Preprocessing and Wevote Classification")
     {
         mismatchCounter = 0;
         lagacyClassification();
-        classifier.classify( reads, minNumAgreed , penalty );
-        CAPTURE( reads.size());
+        classifier.classify( reads.first , minNumAgreed , penalty );
+        CAPTURE( reads.first.size());
         CAPTURE( Reads.size());
         CAPTURE( mismatch );
         CAPTURE( mismatchLagacy );
         CAPTURE( mismatchCounter );
-        CAPTURE( reads.size());
-        REQUIRE( std::equal( reads.cbegin() , reads.cend(),
+        CAPTURE( reads.first.size());
+        REQUIRE( std::equal( reads.first.cbegin() , reads.first.cend(),
                              Reads.cbegin() , Reads.cend() , comp  ));
     }
 }

@@ -31,17 +31,20 @@ public:
           numToolsUsed(0) , score(0)
     {}
 
-    static std::string header( bool csv , const std::vector<std::string> &tools )
+    static std::string classifiedHeader( bool csv , const std::vector<std::string> &tools )
     {
         std::stringstream ss;
         const std::string delim = (csv)? "," : "\t";
-        ss << _meta( Meta::SeqId ) << delim
-           << _meta( Meta::NumToolsUsed ) << delim
-           << _meta( Meta::NumToolsReported ) << delim
-           << _meta( Meta::NumToolsAgreed ) << delim
-           << _meta( Meta::Score ) << delim
-           << io::join( tools , delim ) << delim
-           << _meta( Meta::ResolvedTaxon ) << "\n";
+        const auto &headerInOurder = _classifiedHeaderInOrder();
+        std::vector< std::string > headerLayout;
+        for( Meta m : headerInOurder )
+        {
+            if( m == Meta::Votes )
+                headerLayout.insert( headerLayout.cend() , tools.cbegin() , tools.cend());
+            else
+                headerLayout.push_back( _meta( m ));
+        }
+        ss << io::join( headerLayout , delim ) << "\n";
         return ss.str();
     }
 
@@ -62,15 +65,13 @@ public:
     }
 
     template< typename SeqIt >
-    static std::string toString( SeqIt first , SeqIt last , bool csv )
+    static std::string toString( SeqIt first , SeqIt last ,
+                                 const std::vector< std::string > &tools ,
+                                 bool csv )
     {
-        std::vector< std::string > tools;
-        for( auto i = 0 ; i < first->numToolsUsed ; i++ )
-            tools.push_back( std::string("tool#") + std::to_string(i));
-
         std::stringstream ss;
         if( csv )
-            ss << ReadInfo::header( csv , tools );
+            ss << ReadInfo::classifiedHeader( csv , tools );
         std::for_each( first , last , [csv,&ss]( const ReadInfo &read ){
             ss << read.toString( csv );
         });
@@ -78,11 +79,23 @@ public:
     }
 
     template< typename LineIt >
-    static std::vector< ReadInfo > parseUnclassifiedReads( LineIt firstIt , LineIt lastIt , std::string delim = "," )
+    static std::pair< std::vector< ReadInfo > ,  std::vector< std::string >>
+    parseUnclassifiedReads( LineIt firstIt , LineIt lastIt , std::string delim = "," )
     {
         std::vector< ReadInfo > reads;
+        std::vector< std::string > tools;
         if( isHeader(*firstIt , delim ))
+        {
+            tools = extractToolsFromUnclassifiedHeader( *firstIt , delim );
             std::advance( firstIt , 1 );
+        }
+        else
+        {
+            const auto tokens = io::split( *firstIt , delim );
+            const int toolsCount = tokens.size() - 1;
+            for( auto i = 0 ; i < toolsCount ; i++ )
+                tools.push_back("ALG" + std::to_string( i ));
+        }
 
         std::for_each( firstIt , lastIt , [&reads,delim]( const std::string &line){
             const std::vector< std::string > tokens = io::split( line , delim );
@@ -96,11 +109,13 @@ public:
             });
             reads.push_back( read );
         });
-        return reads;
+        return std::make_pair< std::vector< ReadInfo > , std::vector< std::string > >(
+                    std::move( reads ) , std::move( tools  ));
     }
 
     template< typename LineIt >
-    static std::vector< ReadInfo > parseClassifiedReads( LineIt firstIt , LineIt lastIt , std::string delim = ',' )
+    static std::pair< std::vector< ReadInfo > ,  std::vector< std::string >>
+    parseClassifiedReads( LineIt firstIt , LineIt lastIt , std::string delim = ',' )
     {
         const auto minFieldsCount = static_cast< size_t >( Meta::Offset );
         auto validateInput = [&]()
@@ -117,9 +132,22 @@ public:
         };
         WEVOTE_ASSERT( validateInput() , "Inconsistent input file!");
 
+        std::vector< std::string > tools;
+
         // Skip header.
-        if( isHeader( *firstIt , delim ))
+        if( isHeader(*firstIt , delim ))
+        {
+            tools = extractToolsFromClassifiedHeader( *firstIt , delim );
             std::advance( firstIt , 1 );
+        }
+        else
+        {
+            const auto tokens = io::split( *firstIt , delim );
+            const auto toolsCount = tokens.size() - static_cast< std::size_t >( Meta::Offset ) + 1;
+                        for( auto i = 0 ; i < toolsCount ; i++ )
+                tools.push_back("ALG" + std::to_string( i ));
+        }
+
         std::vector< ReadInfo > classifiedReads;
         std::for_each( firstIt , lastIt ,
                        [&classifiedReads,&delim]( const std::string &line )
@@ -142,13 +170,33 @@ public:
             classifiedRead.resolvedTaxon = atoi( tokens.back().c_str());
             classifiedReads.push_back( classifiedRead );
         });
-        return classifiedReads;
+        return std::make_pair< std::vector< ReadInfo > , std::vector< std::string > >(
+                    std::move( classifiedReads ) , std::move( tools  ));
     }
 
     static bool isHeader( const std::string &line , std::string delim )
     {
         const auto tokens = io::split( line , delim );
         return tokens.front() == _meta( Meta::SeqId );
+    }
+
+    static std::vector< std::string >
+    extractToolsFromUnclassifiedHeader( const std::string &header , std::string delim = ",")
+    {
+        const auto tokens = io::split( header , delim );
+        return std::vector< std::string >( tokens.cbegin() + 1 ,
+                                           tokens.cend());
+    }
+
+    static std::vector< std::string >
+    extractToolsFromClassifiedHeader( const std::string &header , std::string delim = ",")
+    {
+        const auto tokens = io::split( header , delim );
+        const auto headerSize = tokens.size();
+        const auto toolsOffset = static_cast< std::size_t >( Meta::Votes );
+        const auto toolsCount = headerSize - static_cast< std::size_t >( Meta::Offset ) + 1;
+        return std::vector< std::string >( tokens.cbegin() + toolsOffset ,
+                                           tokens.cbegin() + toolsOffset + toolsCount );
     }
 
 
@@ -201,6 +249,28 @@ protected:
         };
         return mmap;
     }
+
+    template< std::size_t size = static_cast< size_t >( Meta::Offset ) >
+    static constexpr std::array< Meta , size > _classifiedHeaderInOrder()
+    {
+        constexpr std::array< Meta , size > h
+        {
+            Meta::SeqId , Meta::NumToolsUsed , Meta::NumToolsReported , Meta::NumToolsAgreed ,
+                    Meta::Score , Meta::Votes , Meta::ResolvedTaxon
+        };
+        return h;
+    }
+
+    template< std::size_t size = 2 >
+    static constexpr std::array< Meta , size > _unClassifiedHeaderInOrder()
+    {
+        constexpr std::array< Meta , size > h
+        {
+            Meta::SeqId , Meta::Votes
+        };
+        return h;
+    }
+
 
 };
 

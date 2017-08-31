@@ -135,14 +135,14 @@ int main(int argc, char *argv[])
     const wevote::TaxonomyBuilder taxonomy( nodesFilename , namesFilename );
 
     /// Read WEVOTE output file
-    std::vector< wevote::ReadInfo > classifiedReads =
-            wevote::WevoteClassifier::getClassifiedReads( param.query ,  true );
+    std::pair< std::vector< wevote::ReadInfo > , std::vector< std::string >>
+            classifiedReads = wevote::WevoteClassifier::getClassifiedReads( param.query ,  true );
 
 
     wevote::TaxonomyLineAnnotator annotator( taxonomy );
 
     std::map< uint32_t , wevote::TaxLine > annotatedTaxa =
-            annotator.annotateTaxonomyLines( classifiedReads );
+            annotator.annotateTaxonomyLines( classifiedReads.first );
 
     /// Export taxonomy and relative abundance to txt file
     wevote::TaxonomyLineAnnotator::writeResults( annotatedTaxa , outputProfile );

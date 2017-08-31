@@ -175,8 +175,8 @@ int main(int argc, char *argv[])
 
     /// Read CSV formated input file
     LOG_INFO("Loading reads..");
-    std::vector< wevote::ReadInfo > reads =
-            wevote::WevoteClassifier::getUnclassifiedReads( param.query );
+    std::pair< std::vector< wevote::ReadInfo > ,  std::vector< std::string >>
+            reads = wevote::WevoteClassifier::getUnclassifiedReads( param.query );
     LOG_INFO("[DONE] Loading reads..");
 
     /// Build taxonomy trees
@@ -185,20 +185,20 @@ int main(int argc, char *argv[])
     LOG_INFO("[DONE] Building Taxonomy..");
 
     wevote::WevoteClassifier wevoteClassifier( taxonomy );
-    wevoteClassifier.classify( reads , param.minNumAgreed ,
+    wevoteClassifier.classify( reads.first , param.minNumAgreed ,
                                param.penalty , param.threads );
 
     uint32_t undefined =
-            std::count_if( reads.cbegin() , reads.cend() ,
+            std::count_if( reads.first.cbegin() , reads.first.cend() ,
                            []( const wevote::ReadInfo &read )
     {
         return read.resolvedTaxon == wevote::ReadInfo::noAnnotation;
     });
-    LOG_INFO("Unresolved taxan=%d/%d",undefined,reads.size());
+    LOG_INFO("Unresolved taxan=%d/%d",undefined,reads.first.size());
 
     /// Output.
-    wevote::WevoteClassifier::writeResults( reads , outputDetails );
-    wevote::WevoteClassifier::writeResults( reads , outputDetailsCSV , true );
+    wevote::WevoteClassifier::writeResults( reads.first , reads.second , outputDetails );
+    wevote::WevoteClassifier::writeResults( reads.first , reads.second , outputDetailsCSV , true );
 
     return EXIT_SUCCESS;
 }
