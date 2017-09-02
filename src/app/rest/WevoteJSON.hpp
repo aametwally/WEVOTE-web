@@ -197,8 +197,9 @@ public:
         }
         catch( ... )
         {
-            LOG_WARNING("Trying to get type: <%s>,<key:%s> from <%s>", typeid(T).name(),
-                        key.c_str() , _object.serialize().c_str());
+
+//            LOG_WARNING("Trying to get type: <%s>,<key:%s> from <%s>", typeid(T).name(),
+//                        key.c_str() , _object.serialize().c_str());
         }
     }
 
