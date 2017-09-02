@@ -1,14 +1,15 @@
-import {BaseRoute} from "./route";
-import {Request, Response, NextFunction} from 'express';
+import { BaseRoute } from "./route";
+import { Request, Response, NextFunction } from 'express';
 import * as fs from 'fs';
 import * as multer from 'multer';
+import { config } from '../config'
 
 export class UploadRouter extends BaseRoute {
-    private readonly _uploadsDir = __dirname + '/../uploads';
+    static readonly uploadsDir = config.uploadDir;
 
     private readonly _storage = multer.diskStorage({
         destination: (req: any, file: any, cb: any) => {
-            cb(null, this._uploadsDir)
+            cb(null, UploadRouter.uploadsDir)
         },
         filename: (req: any, file: any, cb: any) => {
             cb(null, file.fieldname + '-' + Date.now() + '-' + file.originalname)
@@ -23,12 +24,12 @@ export class UploadRouter extends BaseRoute {
         super();
 
 
-        if (!fs.existsSync(this._uploadsDir)) {
-            fs.mkdirSync(this._uploadsDir);
+        if (!fs.existsSync(UploadRouter.uploadsDir)) {
+            fs.mkdirSync(UploadRouter.uploadsDir);
         }
 
         // Will handle POST requests to /upload
-        this._router.post('/reads', this._upload.single('file'),  (req: Request, res: Response) => {
+        this._router.post('/reads', this._upload.single('file'), (req: Request, res: Response) => {
             console.log(req.file.filename);
 
             /**
@@ -36,21 +37,37 @@ export class UploadRouter extends BaseRoute {
              * It is a bad practice. For some unknown reasons the response
              * body is always received empty at client side.
              */
-            interface ReadsDummyType
-            {
+            interface ReadsDummyType {
                 count?: number;
             }
             let reads: ReadsDummyType = {};
-            let isFasta: boolean = UploadRouter.validateDNA(this._uploadsDir + '/' + req.file.filename, reads);
-            console.log("fastaValidation", isFasta, reads.count );
+            let isFasta: boolean = UploadRouter.validateDNA(UploadRouter.uploadsDir + '/' + req.file.filename, reads);
+            console.log("fastaValidation", isFasta, reads.count);
             res.setHeader("isFasta", `isFasta`);
-            res.setHeader("readsCount", `${reads.count}`);
+            res.setHeader("readscount", `${reads.count}`);
             res.setHeader("filename", req.file.filename);
             res.status(204).end();
             // console.log(res);
         });
 
-        this._router.post('/taxonomy', this._upload.single('file'),  (req: Request, res: Response) => {
+        // Will handle POST requests to /upload
+        this._router.post('/ensemble', this._upload.single('file'), (req: Request, res: Response) => {
+            console.log(req.file.filename);
+
+            let seq = fs.readFileSync( UploadRouter.uploadsDir + '/' + req.file.filename ).toString();
+            
+            // immediately remove trailing spaces
+            seq = seq.trim();
+
+            // split on newlines...
+            const lines = seq.split('\n');
+
+            res.setHeader("ensemblecount", `${lines.length}`);
+            res.setHeader("filename", req.file.filename);
+            res.status(204).end();
+        });
+
+        this._router.post('/taxonomy', this._upload.single('file'), (req: Request, res: Response) => {
             console.log(req.file.filename);
 
             /**

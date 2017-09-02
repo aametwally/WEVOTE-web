@@ -1,13 +1,13 @@
 import { BaseRoute } from "./route";
 import { Request, Response, NextFunction } from 'express';
-import { ReadsModel } from '../models/reads';
+import { ReadModel } from '../models/reads';
 
 export class ReadsRouter extends BaseRoute {
     constructor() {
         super();
         this._router.route('/')
             .get((req: Request, res: Response, next: NextFunction) => {
-                ReadsModel.repo.retrieve(function (err: any, reads: any) {
+                ReadModel.repo.retrieve(function (err: any, reads: any) {
                     if (err) return next(err);
                     res.json(reads);
                 });
@@ -23,7 +23,7 @@ export class ReadsRouter extends BaseRoute {
     }
 
     private createReads = (data: any, cb: any): any => {
-        ReadsModel.repo.create(data, function (err: any, reads: any) {
+        ReadModel.repo.create(data, function (err: any, reads: any) {
             if (err) return cb( err );
             cb( null );
         });

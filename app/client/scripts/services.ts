@@ -49,7 +49,7 @@ module wevote {
 
         static readonly $inject = ['$resource', '$http', 'LocalStorageService', '$rootScope', '$window', 'baseURL', 'ngDialog', AuthFactory.factory()];
         private static readonly TOKEN_KEY: string = 'Token';
-        private _isAuthenticated: Boolean = false;
+        private _isAuthenticated: boolean = false;
         private _credentials: ICredentials;
         private _resource: ng.resource.IResourceService;
         private _http: ng.IHttpService;

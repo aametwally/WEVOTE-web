@@ -5,9 +5,9 @@
 module wevote {
 
     interface MainControllerScope extends ng.IScope {
-        showInput: Boolean,
-        error: Boolean,
-        message: String,
+        showInput: boolean,
+        error: boolean,
+        message: string,
     }
     export class MainController {
         static readonly $inject: any = ['$scope', 'HelloService', MainController];
@@ -40,7 +40,7 @@ module wevote {
     {
         name: string ,
         description: string , 
-        onServer?: Boolean,
+        onServer?: boolean,
         uri: string , 
         data: string , 
         size: string , 
@@ -59,7 +59,7 @@ module wevote {
         user: string,
         email: string,
         description: string,
-        private: Boolean,
+        private: boolean,
         usageScenario: IUsageScenario,
         taxonomySource: ITaxonomySource,
         reads: IRemoteFile,
@@ -69,26 +69,26 @@ module wevote {
     }
 
     interface InputControllerScope extends ng.IScope {
-        availableDatabaseLoaded: Boolean,
-        supportedAlgorithmsLoaded: Boolean,
+        availableDatabaseLoaded: boolean,
+        supportedAlgorithmsLoaded: boolean,
         availableDatabase: any,
-        showInput: Boolean,
+        showInput: boolean,
         areDataLoaded: any,
-        error: Boolean,
-        message: String,
+        error: boolean,
+        message: string,
         supportedAlgorithms: any,
         experiment: IExperiment,
         inputForm: any,
         usageScenarios: IUsageScenario[],
         taxonomySources: ITaxonomySource[],
-        noAlgorithmChosen: Boolean,
+        noAlgorithmChosen: boolean,
         postExperiment: any,
         readsUploader: any,
-        readsUploaderPostValidation: Boolean,
+        readsUploaderPostValidation: boolean,
         ensembleUploader: any , 
-        ensembleUploaderPostValidation: Boolean,
+        ensembleUploaderPostValidation: boolean,
         taxonomyUploader: any,
-        taxonomyUploaderPostValidation: Boolean
+        taxonomyUploaderPostValidation: boolean
     }
     export class InputController {
 
@@ -203,10 +203,18 @@ module wevote {
             });
         }
 
+        private getUsageScenarioOrReturn = ( otherwise: IUsageScenario ):IUsageScenario =>{
+            for( const usage of this.usageScenarios )
+                if( usage.value === this._scope.experiment.usageScenario.value )
+                    return usage;
+            return otherwise;
+        }
+
         private postExperiment = (form: any) => {
             console.log('postExperiment() invoked.');
-            console.log(this._scope.experiment);
+            this._scope.experiment.usageScenario = this.getUsageScenarioOrReturn( this.usageScenarios[0] );
             this._scope.experiment.config.algorithms = this.getUsedAlgorithms();
+            console.log(this._scope.experiment);
             let noAlgorithmChosen: boolean = this.getUsedAlgorithms().length === 0;
 
             if (!noAlgorithmChosen) {
@@ -396,11 +404,11 @@ module wevote {
     }
 
     interface HeaderControllerScope extends ng.IScope {
-        loggedIn: Boolean,
+        loggedIn: boolean,
         username: string,
         loginDialog: ng.dialog.IDialogOpenResult,
         registerDialog: ng.dialog.IDialogOpenResult,
-        isState: (state: any) => Boolean;
+        isState: (state: any) => boolean;
         logOut: () => void;
         openLogin: () => void;
         openRegister: () => void;
@@ -474,11 +482,11 @@ module wevote {
     }
 
     interface ILoginData {
-        username: String;
-        password: String;
+        username: string;
+        password: string;
     }
     interface LoginControllerScope extends ng.IScope {
-        rememberMe: Boolean;
+        rememberMe: boolean;
         loginData: ILoginData;
         doLogin: () => void;
         openRegister: () => void;
@@ -520,12 +528,12 @@ module wevote {
     }
 
     interface IRegistration {
-        username: String,
-        password: String,
-        email: String,
-        firstname: String,
-        lastname: String,
-        rememberMr: Boolean
+        username: string,
+        password: string,
+        email: string,
+        firstname: string,
+        lastname: string,
+        rememberMr: boolean
     }
     interface RegisterControllerScope extends ng.IScope {
         registration: IRegistration;
@@ -556,9 +564,9 @@ module wevote {
 
     interface ExperimentsListControllerScope extends ng.IScope {
         experiments: any,
-        showExperiments: Boolean,
-        experimentsError: Boolean,
-        experimentsMessage: String
+        showExperiments: boolean,
+        experimentsError: boolean,
+        experimentsMessage: string
     }
 
     export class ExperimentsListController {
@@ -644,15 +652,15 @@ module wevote {
 
     interface IExperimentScope extends ng.IScope {
         user: string;
-        isPrivate: Boolean;
-        email: String;
-        description: String;
+        isPrivate: boolean;
+        email: string;
+        description: string;
         config: metaviz.IConfig;
         results: metaviz.IResults;
         createdAt: Date;
-        showExperiment: Boolean,
-        experimentError: Boolean,
-        experimentMessage: String
+        showExperiment: boolean,
+        experimentError: boolean,
+        experimentMessage: string
     }
 
     export class ExperimentController {

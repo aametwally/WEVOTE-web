@@ -19,9 +19,9 @@
                                 !ensembleUploader.atLeastSingleFileUploaded &&
                                 ensembleUploaderPostValidation ) }">
                                 <label><h4><strong>Select a usage scenario of WEVOTE pipeline.</strong></h4>
-                                    <select class="form-control" ng-model="experiment.readsSource"
+                                    <select class="form-control" ng-model="experiment.usageScenario.value"
                                             name="usageScenariosSelect" >
-                                            <option ng-repeat="usageScenario in usageScenarios" value="{{usageScenario.value}}"><b>{{usageSenario.usage}}</b>:{{usageSenario.hint}}</option>                                            
+                                            <option ng-repeat="usageScenario in usageScenarios" value="{{usageScenario.value}}">[{{usageScenario.usage | uppercase }}]:{{usageScenario.hint}}</option>                                            
                                         </select>
                                 </label>
                                 <div class="col-xs-8 col-sm-6 col-md-5">
@@ -31,11 +31,11 @@
                                         </div>
                                     </div>
                                     <div ng-controller="EnsembleUploaderController">
-                                        <div ng-include="'views/readsupload.html'" ng-show="experiment.usageScenario.value==='classification'" nv-file-drop="" uploader="uploader"
+                                        <div ng-include="'views/readsupload.html'" ng-show="experiment.usageScenario.value==='classificationFromEnsemble'" nv-file-drop="" uploader="uploader"
                                             filters="queueLimit, customFilter">
                                         </div>
                                     </div>
-                                    <div class="well well-scrollable" ng-show="experiment.usageScenario==='pipelineFromSimulatedReads'">
+                                    <div class="well well-scrollable" ng-show="experiment.usageScenario.value==='pipelineFromSimulatedReads'">
                                     <ul class="pull-left list-inline">
                                         <li class=pull-left" ng-repeat="data in availableDatabase">
                                             <div class="checkbox">
