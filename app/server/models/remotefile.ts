@@ -3,14 +3,14 @@ import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 
 export interface IRemoteFile extends mongoose.Document {
-    name: String,
-    description: String,
+    name: string,
+    description: string,
     onServer: Boolean,
-    uri: String,
-    data: String,
-    size: Number,
-    tag?:String,
-    count?: Number
+    uri: string,
+    data: string,
+    size: number,
+    tag?:string,
+    count?: number
 }
 
 export class RemoteFileModel {

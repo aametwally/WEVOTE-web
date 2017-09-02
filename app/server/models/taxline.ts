@@ -5,81 +5,81 @@
 // import * as mongoose from 'mongoose';
 
 // export interface ITaxon {
-//     id: Number,
+//     id: number,
 //     name: string
 // }
 
 // export const taxonSchema = new Defs.Schema({
 //     id: {
-//         type: Number,
+//         type: number,
 //         required: true,
 //         unique: true,
 //         dropDups: true,
 //         default: 0
 //     },
 //     name: {
-//         type: String,
+//         type: string,
 //         required: true,
 //         default: ""
 //     }
 // });
 
 // export interface ITaxLine extends mongoose.Document {
-//     taxon: Number;
-//     root: Number;
-//     superkingdom: Number;
-//     kingdom: Number;
-//     phylum: Number;
-//     class: Number;
-//     order: Number;
-//     family: Number;
-//     genus: Number;
-//     species: Number;
+//     taxon: number;
+//     root: number;
+//     superkingdom: number;
+//     kingdom: number;
+//     phylum: number;
+//     class: number;
+//     order: number;
+//     family: number;
+//     genus: number;
+//     species: number;
 // }
 
 
 // export class TaxLineModel {
 //     public static schema = new Defs.Schema({
 //         taxon: {
-//             type: Number,
+//             type: number,
 //             required: true,
 //             unique: true,
 //             dropDups: true
 //         },
 //         root: {
-//             type: Number,
+//             type: number,
 //             default: 0
 //         },
 //         superkingdom: {
-//             type: Number,
+//             type: number,
 //             default: 0
 //         },
 //         kingdom: {
-//             type: Number,
+//             type: number,
 //             default: 0
 //         },
 //         phylum: {
-//             type: Number,
+//             type: number,
 //             default: 0
 //         },
 //         class: {
-//             type: Number,
+//             type: number,
 //             default: 0
 //         },
 //         order: {
-//             type: Number,
+//             type: number,
 //             default: 0
 //         },
 //         family: {
-//             type: Number,
+//             type: number,
 //             default: 0
 //         },
 //         genus: {
-//             type: Number,
+//             type: number,
 //             default: 0
 //         },
 //         species: {
-//             type: Number,
+//             type: number,
 //             default: 0
 //         }
 //     });

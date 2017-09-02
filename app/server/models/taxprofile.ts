@@ -29,12 +29,12 @@ export const taxlineSchema = new mongoose.Schema({
     order: String,
     family: String,
     genus: String,
-    species: String,
+    species: String
 });
 
 export interface ITaxonomyAbundance extends mongoose.Document {
-    taxon: Number;
-    count: Number;
+    taxon: number;
+    count: number;
     taxline: ITaxLine;
 }
 

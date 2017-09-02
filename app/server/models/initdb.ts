@@ -1,5 +1,5 @@
 import { AlgorithmModel } from './algorithm';
-import { ReadsModel } from './reads';
+import { ReadModel } from './reads';
 import { ExperimentModel, IExperimentModel } from './experiment';
 import { TaxonomyAbundanceProfileModel } from './taxprofile';
 import { UserModel } from './user';
@@ -8,7 +8,7 @@ import * as mongoose from 'mongoose';
 export let init = function () {
 
     AlgorithmModel.reset();
-    ReadsModel.reset();
+    ReadModel.reset();
     // User -> Experiment -> {Wevote, taxProfile}.
     UserModel.reset(function (
         userId: string) {

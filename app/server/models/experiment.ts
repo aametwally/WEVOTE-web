@@ -13,15 +13,15 @@ import * as mongoose from 'mongoose';
 
 export interface IStatus extends mongoose.Document {
     started: Boolean;
-    progress: Number;
+    progress: number;
 }
 
 
 export interface IConfig extends mongoose.Document {
     algorithms: mongoose.Types.DocumentArray<IAlgorithmModel>;
-    minNumAgreed: Number;
-    minScore: Number;
-    penalty: Number;
+    minNumAgreed: number;
+    minScore: number;
+    penalty: number;
 }
 
 export interface IResults extends mongoose.Document {
@@ -29,17 +29,24 @@ export interface IResults extends mongoose.Document {
     taxonomyAbundanceProfile: mongoose.Schema.Types.ObjectId
 }
 
+export interface IUsageScenario extends mongoose.Document {
+    value: string , 
+    usage: string , 
+    hint: string
+}
+
 export interface IExperimentModel extends mongoose.Document {
     user: mongoose.Schema.Types.ObjectId;
     isPrivate: Boolean;
-    email: String;
-    description: String;
+    email: string;
+    description: string;
     reads: IRemoteFile;
     taxonomy: IRemoteFile;
     ensemble: IRemoteFile;
     config: IConfig;
     status: IStatus;
     results: IResults;
+    usageScenario: IUsageScenario;
     createdAt: Date;
     modifiedAt: Date;
 }
@@ -86,6 +93,12 @@ const resultsSchema = new mongoose.Schema({
     }
 });
 
+const usageScenarioSchema = new mongoose.Schema({
+    value: String , 
+    usage: String ,
+    hint: String 
+});
+
 export class ExperimentModel {
     public static schema = new mongoose.Schema({
         user: {
@@ -114,7 +127,8 @@ export class ExperimentModel {
         },
         config: configSchema,
         status: statusSchema,
-        results: resultsSchema
+        results: resultsSchema,
+        usageScenario: usageScenarioSchema
     }, {
             timestamps: true
         });

@@ -8,18 +8,17 @@ import { ITaxonomyAbundance } from './taxprofile';
 
 export interface IWevoteClassification extends mongoose.Document {
     seqId: string,
-    votes: mongoose.Types.Array<Number>,
-    resolvedTaxon: Number,
-    numToolsReported: Number,
-    numToolsAgreed: Number,
-    numToolsUsed: Number,
-    score: Number,
-    // resolvedTaxonline: mongoose.Schema.Types.ObjectId
+    votes: mongoose.Types.Array<number>,
+    resolvedTaxon?: number,
+    numToolsReported?: number,
+    numToolsAgreed?: number,
+    numToolsUsed?: number,
+    score?: number
 }
 
 export interface IWevoteClassificationPatch extends mongoose.Document {
     experiment: mongoose.Schema.Types.ObjectId,
-    numToolsUsed: Number,
+    numToolsUsed: number,
     patch: mongoose.Types.Array<IWevoteClassification>
 }
 
@@ -33,31 +32,20 @@ export const wevoteClassificationSchema = new mongoose.Schema({
         required: true
     },
     resolvedTaxon: {
-        type: Number,
-        required: true,
-        default: 0
+        type: Number
     },
     numToolsReported: {
-        type: Number,
-        required: true
+        type: Number
     },
     numToolsAgreed: {
-        type: Number,
-        required: true
+        type: Number
     },
     numToolsUsed: {
-        type: Number , 
-        required: true
+        type: Number 
     },
     score: {
-        type: Number,
-        required: true
-    },
-    // resolvedTaxonline: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'TaxLine',
-    //     required: true
-    // }
+        type: Number
+    }
 });
 
 

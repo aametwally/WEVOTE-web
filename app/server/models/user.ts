@@ -6,10 +6,10 @@ import * as passportLocal from 'passport-local';
 import * as passportLocalMongoose from 'passport-local-mongoose';
 
 export interface IUserModel extends mongoose.PassportLocalDocument {
-    username: String;
-    password: String;
-    email: String;
-    admin: Boolean;
+    username: string;
+    password: string;
+    email: string;
+    admin: boolean;
     createdAt: Date;
     modifiedAt: Date;
 }
