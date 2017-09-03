@@ -21,7 +21,7 @@ protected:
         GET,
         PUT,
         POST,
-        DELETE
+        DEL
     };
     using HandlerType = std::function<void(http_request)>;
 
@@ -34,14 +34,14 @@ public:
     pplx::task<void> close() { return _listener.close(); }
 protected:
     virtual void _addRoutes();
-    void _addRoute( Method method , const std::string path , HandlerType handler );
+    void _addRoute(Method method , const string_t path , HandlerType handler );
 private:
     RestHandler();
     void _route(Method method, http_request message) const;
     void _addRootRoutes();
-    static std::string _normalizedPath(const http_request &message);
-    static std::string _normalizedPath(const std::string &url);
-    static std::string _normalizedPath(const std::vector<std::string> &paths);
+    static utility::string_t _normalizedPath(const http_request &message);
+    static utility::string_t _normalizedPath(const string_t &url);
+    static utility::string_t _normalizedPath(const std::vector<string_t> &paths);
     void _handleError(pplx::task<void> &t) const;
     void _handleGet(http_request message) const;
     void _handlePost(http_request message) const;
@@ -49,7 +49,7 @@ private:
     void _handlePut(http_request message) const;
 
 
-    std::map< Method , std::map< std::string , HandlerType >> _routings;
+    std::map< Method , std::map< utility::string_t , HandlerType >> _routings;
     experimental::listener::http_listener _listener;
 };
 

@@ -52,9 +52,9 @@ private:
         properties.deObjectify( _meta( Meta::MinNumAgreed  ) , _d->minNumAgreed );
     }
 
-    static const std::map< Meta , std::string > &_metaMap()
+    static const std::map< Meta , defs::string_t > &_metaMap()
     {
-        static const std::map< Meta , std::string > m {
+        static const std::map< Meta , defs::string_t > m {
             { Meta::JobID , "jobID" } ,
             { Meta::Reads , "reads" } ,
             { Meta::Score , "score" } ,

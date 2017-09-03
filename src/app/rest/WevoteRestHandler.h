@@ -3,10 +3,11 @@
 
 #include "RestHandler.h"
 #include "WevoteRestMessages.hpp"
+#include "cpprest/json.h"
 
 namespace wevote
 {
-namespace web
+namespace rest
 {
 class WevoteRestHandler : public RestHandler
 {

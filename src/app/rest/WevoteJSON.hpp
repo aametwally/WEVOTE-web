@@ -2,7 +2,6 @@
 #define WEVOTEJSON_HPP
 
 #include <type_traits>
-#include <experimental/type_traits>
 #include "cpprest/json.h"
 #include "Logger.h"
 
@@ -12,9 +11,16 @@ namespace io
 {
 
 template<typename T >
+static constexpr bool isStringType()
+{
+    return std::is_same< T , utility::string_t >::value ||
+            std::is_same< T , std::string >::value;
+}
+
+template<typename T >
 static constexpr bool isAPISupportedType()
 {
-    return std::is_same< T , std::string >::value ||
+    return isStringType() ||
             std::is_same< T , bool >::value ||
             std::is_arithmetic< T >::value ;
 }
@@ -28,9 +34,10 @@ static constexpr bool isNumber()
 class Objectifier
 {
 private:
+
     template< typename T ,
-              typename std::enable_if<!isAPISupportedType< T >() , int >::type = 0 >
-    static web::json::value _toValue( const T & t)
+              typename std::enable_if<true , int >::type = 0 >
+    static web::json::value _toValue( const T &t )
     {
         return _nonPODToValue< T >( t );
     }
@@ -50,7 +57,7 @@ private:
     }
 
     template< typename T ,
-              typename std::enable_if< std::is_same< std::string , T >::value , int >::type =0>
+              typename std::enable_if< std::is_same< utility::string_t , T >::value , int >::type =0>
     static web::json::value _toValue( const T &str )
     {
         return web::json::value::string(U(str));
@@ -60,7 +67,7 @@ public:
     template< typename T >
     static web::json::value objectFrom( const T &object )
     {
-        return _toValue< T >( object );
+        return _toValue( object );
     }
 
     template< typename T >
@@ -100,7 +107,7 @@ private:
     }
 
     template< typename T >
-    static web::json::value _nonPODToValue( const T &object )
+    static web::json::value _nonPODToValue( T object )
     {
         Objectifier properties;
         object.objectify( properties );
@@ -120,7 +127,7 @@ class DeObjectifier
 {
 public:
     template< typename T >
-    static T fromObject( web::json::value object )
+    static typename T fromObject( web::json::value object )
     {
         DeObjectifier properties( object );
         return T::fromObject( properties );
@@ -148,7 +155,7 @@ private:
     }
 
     template< typename T ,
-              typename = typename std::enable_if<std::is_same< T, std::string>::value>::type>
+              typename = typename std::enable_if< isStringType<T>() >::type>
     static std::string _fromValue( const web::json::value &str )
     {
         return str.as_string();
@@ -189,11 +196,11 @@ public:
     }
 
     template< typename T >
-    void deObjectify( const std::string &key , T &value ) const
+    void deObjectify( const utility::string_t &key , T &value ) const
     {
         try
         {
-            value = _fromValue< T >( _object.at(U(key)));
+            value = _fromValue< T >( _object.at( key ));
         }
         catch( ... )
         {
@@ -204,7 +211,7 @@ public:
     }
 
     template< typename T >
-    void deObjectifyArray( const std::string &key , std::vector< T > &dest ) const
+    void deObjectifyArray( const utility::string_t &key , std::vector< T > &dest ) const
     {
         try
         {

@@ -26,17 +26,17 @@ public:
     };
 
     ReadInfo()
-        : seqID({""}),resolvedTaxon(0),
+        : seqID(U("")),resolvedTaxon(0),
           numToolsAgreed(0),numToolsReported(0),
           numToolsUsed(0) , score(0)
     {}
 
-    static std::string classifiedHeader( bool csv , const std::vector<std::string> &tools )
+    static defs::string_t classifiedHeader( bool csv , const std::vector< defs::string_t > &tools )
     {
-        std::stringstream ss;
-        const std::string delim = (csv)? "," : "\t";
+        defs::stringstream_t ss;
+        const defs::string_t delim = (csv)? U(",") : U("\t");
         const auto &headerInOurder = _classifiedHeaderInOrder();
-        std::vector< std::string > headerLayout;
+        std::vector< defs::string_t > headerLayout;
         for( Meta m : headerInOurder )
         {
             if( m == Meta::Votes )
@@ -44,14 +44,14 @@ public:
             else
                 headerLayout.push_back( _meta( m ));
         }
-        ss << io::join( headerLayout , delim ) << "\n";
+        ss << io::join( headerLayout , delim ) << std::endl;
         return ss.str();
     }
 
-    std::string toString( bool csv ) const
+    defs::string_t toString( bool csv ) const
     {
-        std::stringstream ss;
-        const std::string delim = (csv)? "," : "\t";
+        defs::stringstream_t ss;
+        const defs::string_t delim = (csv)? U(",") : U("\t");
         ss << seqID << delim
            << numToolsUsed << delim
            << numToolsReported << delim
@@ -65,11 +65,11 @@ public:
     }
 
     template< typename SeqIt >
-    static std::string toString( SeqIt first , SeqIt last ,
-                                 const std::vector< std::string > &tools ,
-                                 bool csv )
+    static defs::string_t toString( SeqIt first , SeqIt last ,
+                                    const std::vector< defs::string_t > &tools ,
+                                    bool csv )
     {
-        std::stringstream ss;
+        defs::stringstream_t ss;
         if( csv )
             ss << ReadInfo::classifiedHeader( csv , tools );
         std::for_each( first , last , [csv,&ss]( const ReadInfo &read ){
@@ -79,11 +79,11 @@ public:
     }
 
     template< typename LineIt >
-    static std::pair< std::vector< ReadInfo > ,  std::vector< std::string >>
-    parseUnclassifiedReads( LineIt firstIt , LineIt lastIt , std::string delim = "," )
+    static std::pair< std::vector< ReadInfo > ,  std::vector< defs::string_t >>
+    parseUnclassifiedReads( LineIt firstIt , LineIt lastIt , defs::string_t delim = U(",") )
     {
         std::vector< ReadInfo > reads;
-        std::vector< std::string > tools;
+        std::vector< defs::string_t > tools;
         if( isHeader(*firstIt , delim ))
         {
             tools = extractToolsFromUnclassifiedHeader( *firstIt , delim );
@@ -94,28 +94,28 @@ public:
             const auto tokens = io::split( *firstIt , delim );
             const int toolsCount = tokens.size() - 1;
             for( auto i = 0 ; i < toolsCount ; i++ )
-                tools.push_back("ALG" + std::to_string( i ));
+                tools.push_back(U("ALG") + io::toString( i ));
         }
 
-        std::for_each( firstIt , lastIt , [&reads,delim]( const std::string &line){
-            const std::vector< std::string > tokens = io::split( line , delim );
+        std::for_each( firstIt , lastIt , [&reads,delim]( const defs::string_t  &line){
+            const std::vector< defs::string_t  > tokens = io::split( line , delim );
             ReadInfo read;
             read.seqID = tokens.front();
             std::transform( tokens.begin()+1 , tokens.end() ,
                             std::inserter( read.annotation , read.annotation.end()) ,
-                            []( const std::string &t )
+                            []( const defs::string_t &t )
             {
-                return atoi( t.c_str());
+                return std::stoi( t );
             });
             reads.push_back( read );
         });
-        return std::make_pair< std::vector< ReadInfo > , std::vector< std::string > >(
+        return std::make_pair< std::vector< ReadInfo > , std::vector< defs::string_t > >(
                     std::move( reads ) , std::move( tools  ));
     }
 
     template< typename LineIt >
-    static std::pair< std::vector< ReadInfo > ,  std::vector< std::string >>
-    parseClassifiedReads( LineIt firstIt , LineIt lastIt , std::string delim = ',' )
+    static std::pair< std::vector< ReadInfo > ,  std::vector< defs::string_t >>
+    parseClassifiedReads( LineIt firstIt , LineIt lastIt , defs::string_t delim = U(",") )
     {
         const auto minFieldsCount = static_cast< size_t >( Meta::Offset );
         auto validateInput = [&]()
@@ -124,7 +124,7 @@ public:
             const size_t count = tokens.size();
             return count >= minFieldsCount &&
                     std::all_of( firstIt , lastIt ,
-                                 [count,&delim]( const std::string &line )
+                                 [count,&delim]( const defs::string_t &line )
             {
                 const auto _ = io::split( line , delim );
                 return _.size() == count;
@@ -132,7 +132,7 @@ public:
         };
         WEVOTE_ASSERT( validateInput() , "Inconsistent input file!");
 
-        std::vector< std::string > tools;
+        std::vector< defs::string_t > tools;
 
         // Skip header.
         if( isHeader(*firstIt , delim ))
@@ -144,59 +144,59 @@ public:
         {
             const auto tokens = io::split( *firstIt , delim );
             const auto toolsCount = tokens.size() - static_cast< std::size_t >( Meta::Offset ) + 1;
-                        for( auto i = 0 ; i < toolsCount ; i++ )
-                tools.push_back("ALG" + std::to_string( i ));
+            for( auto i = 0 ; i < toolsCount ; i++ )
+                tools.push_back(U("ALG") + io::toString< defs::string_t >( i ));
         }
 
         std::vector< ReadInfo > classifiedReads;
         std::for_each( firstIt , lastIt ,
-                       [&classifiedReads,&delim]( const std::string &line )
+                       [&classifiedReads,&delim]( const defs::string_t &line )
         {
-            const std::vector< std::string > tokens =  io::split( line , delim );
+            const std::vector< defs::string_t > tokens =  io::split( line , delim );
             auto tokensIt = tokens.begin();
             ReadInfo classifiedRead;
             classifiedRead.seqID = *tokensIt++;
-            classifiedRead.numToolsUsed = atoi( (tokensIt++)->c_str());
-            classifiedRead.numToolsReported = atoi( (tokensIt++)->c_str());
-            classifiedRead.numToolsAgreed = atoi( (tokensIt++)->c_str());
-            classifiedRead.score = atof( (tokensIt++)->c_str());
-            std::vector< std::string > annotations(tokensIt , std::prev( tokens.end()));
+            classifiedRead.numToolsUsed = std::stoi( *(tokensIt++));
+            classifiedRead.numToolsReported = std::stoi( *(tokensIt++));
+            classifiedRead.numToolsAgreed = std::stoi( *(tokensIt++));
+            classifiedRead.score = std::stod( *(tokensIt++));
+            std::vector< defs::string_t > annotations(tokensIt , std::prev( tokens.end()));
             std::transform( annotations.cbegin() , annotations.cend() ,
                             std::inserter( classifiedRead.annotation ,
                                            classifiedRead.annotation.end()),
-                            []( const std::string &annStr ){
-                return atoi( annStr.c_str());
+                            []( const defs::string_t &annStr ){
+                return std::stoi( annStr );
             });
-            classifiedRead.resolvedTaxon = atoi( tokens.back().c_str());
+            classifiedRead.resolvedTaxon = std::stoi( tokens.back());
             classifiedReads.push_back( classifiedRead );
         });
-        return std::make_pair< std::vector< ReadInfo > , std::vector< std::string > >(
+        return std::make_pair< std::vector< ReadInfo > , std::vector< defs::string_t > >(
                     std::move( classifiedReads ) , std::move( tools  ));
     }
 
-    static bool isHeader( const std::string &line , std::string delim )
+    static bool isHeader( const defs::string_t &line , defs::string_t delim )
     {
         const auto tokens = io::split( line , delim );
         return tokens.front() == _meta( Meta::SeqId );
     }
 
-    static std::vector< std::string >
-    extractToolsFromUnclassifiedHeader( const std::string &header , std::string delim = ",")
+    static std::vector< defs::string_t >
+    extractToolsFromUnclassifiedHeader( const defs::string_t &header , defs::string_t delim = U(","))
     {
         const auto tokens = io::split( header , delim );
-        return std::vector< std::string >( tokens.cbegin() + 1 ,
-                                           tokens.cend());
+        return std::vector< defs::string_t >( tokens.cbegin() + 1 ,
+                                              tokens.cend());
     }
 
-    static std::vector< std::string >
-    extractToolsFromClassifiedHeader( const std::string &header , std::string delim = ",")
+    static std::vector< defs::string_t >
+    extractToolsFromClassifiedHeader( const defs::string_t &header , defs::string_t delim = U(","))
     {
         const auto tokens = io::split( header , delim );
         const auto headerSize = tokens.size();
         const auto toolsOffset = static_cast< std::size_t >( Meta::Votes );
         const auto toolsCount = headerSize - static_cast< std::size_t >( Meta::Offset ) + 1;
-        return std::vector< std::string >( tokens.cbegin() + toolsOffset ,
-                                           tokens.cbegin() + toolsOffset + toolsCount );
+        return std::vector< defs::string_t >( tokens.cbegin() + toolsOffset ,
+                                              tokens.cbegin() + toolsOffset + toolsCount );
     }
 
 
@@ -212,7 +212,7 @@ public:
         properties.objectify( _meta( Meta::ResolvedTaxon  ) , resolvedTaxon );
     }
 
-    std::string seqID;
+    defs::string_t seqID;
     std::vector<uint32_t> annotation;
     uint32_t resolvedTaxon;
     uint32_t numToolsAgreed;
@@ -235,17 +235,17 @@ protected:
         properties.deObjectify( _meta( Meta::ResolvedTaxon  ) , resolvedTaxon );
     }
 
-    static const std::map< Meta , std::string > &_metaMap()
+    static const std::map< Meta , defs::string_t> &_metaMap()
     {
-        static const std::map< Meta , std::string > mmap
+        static const std::map< Meta , defs::string_t > mmap
         {
-            { Meta::NumToolsAgreed , "numToolsAgreed" } ,
-            { Meta::NumToolsReported , "numToolsReported" } ,
-            { Meta::NumToolsUsed , "numToolsUsed" } ,
-            { Meta::ResolvedTaxon , "resolvedTaxon" } ,
-            { Meta::Score , "score" } ,
-            { Meta::SeqId , "seqId" } ,
-            { Meta::Votes , "votes" }
+            { Meta::NumToolsAgreed , U("numToolsAgreed") } ,
+            { Meta::NumToolsReported , U("numToolsReported") } ,
+            { Meta::NumToolsUsed , U("numToolsUsed") } ,
+            { Meta::ResolvedTaxon , U("resolvedTaxon") } ,
+            { Meta::Score , U("score") } ,
+            { Meta::SeqId , U("seqId") } ,
+            { Meta::Votes , U("votes") }
         };
         return mmap;
     }
@@ -253,12 +253,11 @@ protected:
     template< std::size_t size = static_cast< size_t >( Meta::Offset ) >
     static constexpr std::array< Meta , size > _classifiedHeaderInOrder()
     {
-        constexpr std::array< Meta , size > h
+        return
         {
             Meta::SeqId , Meta::NumToolsUsed , Meta::NumToolsReported , Meta::NumToolsAgreed ,
                     Meta::Score , Meta::Votes , Meta::ResolvedTaxon
         };
-        return h;
     }
 
     template< std::size_t size = 2 >

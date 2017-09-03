@@ -22,13 +22,13 @@ protected:
 public:
     uint32_t taxon;
     uint32_t count;
-    std::array< std::string , RANKS_SIZE > line;
+    std::array< defs::string_t , RANKS_SIZE > line;
     double RA;
 
-    static std::string header( bool csv )
+    static defs::string_t header( bool csv )
     {
-        std::stringstream ss;
-        const std::string delim = (csv)? "," : "\t";
+        defs::stringstream_t ss;
+        const defs::string_t delim = (csv)? U(",") : U("\t");
         ss << _meta( Meta::Taxon ) << delim
            << _meta( Meta::Count ) << delim
            << io::join( Rank::rankLabels.cbegin() + 1 ,
@@ -36,9 +36,9 @@ public:
         return ss.str();
     }
 
-    static std::string toString(  const std::map<uint32_t, TaxLine> &abundance , bool csv )
+    static defs::string_t toString(  const std::map<uint32_t, TaxLine> &abundance , bool csv )
     {
-        std::stringstream ss;
+        defs::stringstream_t ss;
         if( csv )
             ss << TaxLine::header( csv );
         for( const std::pair< uint32_t , wevote::TaxLine > &p : abundance)
@@ -46,10 +46,10 @@ public:
         return ss.str();
     }
 
-    std::string toString( bool csv ) const
+    defs::string_t toString( bool csv ) const
     {
-        std::stringstream ss;
-        const std::string delim = (csv)? "," : "\t";
+        defs::stringstream_t ss;
+        const defs::string_t delim = (csv)? U(",") : U("\t");
         ss << taxon << delim
            << count << delim
            << io::join( line.cbegin() + 1 ,
@@ -74,12 +74,12 @@ protected:
         properties.deObjectifyArray( _meta( Meta::Line  ) , line );
     }
 
-    static const std::map< Meta , std::string > &_metaMap()
+    static const std::map< Meta , defs::string_t > &_metaMap()
     {
-        static const std::map< Meta , std::string > mmap{
-            { Meta::Count , "count"} ,
-            { Meta::Line , "line" } ,
-            { Meta::Taxon , "taxon" }
+        static const std::map< Meta , defs::string_t > mmap{
+            { Meta::Count , U("count")} ,
+            { Meta::Line , U("line") } ,
+            { Meta::Taxon , U("taxon") }
         };
         return mmap;
     }

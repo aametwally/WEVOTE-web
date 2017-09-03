@@ -3,13 +3,13 @@
 namespace wevote
 {
 
-const std::array< std::string , RANKS_SIZE > Rank::rankLabels
+const std::array< defs::string_t , RANKS_SIZE > Rank::rankLabels
 = {
     RANK_ROOT , RANK_SUPERKINGDOM , RANK_KINGDOM , RANK_PHYLUM ,
     RANK_CLASS , RANK_ORDER , RANK_FAMILY , RANK_GENUS , RANK_SPECIES
 };
 
-const std::unordered_map< std::string , RankID > Rank::rankID
+const std::unordered_map< defs::string_t , RankID > Rank::rankID
  {
     {RANK_ROOT         ,RankID::Root        } ,
     {RANK_SUPERKINGDOM ,RankID::Superkingdom} ,

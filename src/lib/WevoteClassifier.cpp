@@ -115,22 +115,23 @@ void WevoteClassifier::classify(
     LOG_INFO("WEVOTE classification executed in=%f" , total );
 }
 
-std::pair< std::vector< ReadInfo > ,  std::vector< std::string >>
+std::pair< std::vector< ReadInfo > ,  std::vector< defs::string_t >>
 WevoteClassifier::getUnclassifiedReads(
-        const std::string &filename , std::string delim )
+        const defs::string_t &filename , defs::string_t delim )
 {
-    const std::vector<std::string> lines = io::getFileLines( filename );
+    const std::vector< defs::string_t > lines =
+            io::getFileLines< defs::char_t >( filename );
     return ReadInfo::parseUnclassifiedReads( lines.cbegin() , lines.cend() , delim );
 }
 
 void WevoteClassifier::writeResults(
         const std::vector<ReadInfo> &reads,
-        const std::vector< std::string > &tools ,
-        const std::string &fileName ,
+        const std::vector< defs::string_t > &tools ,
+        const defs::string_t &fileName ,
         bool csv )
 {
     /// Export the detailed output in txt format
-    std::ofstream myfile;
+    defs::ofstream_t myfile;
     myfile.open (fileName.c_str());
     if (!myfile.is_open())
         LOG_ERROR("Error opening Output file:%s",fileName);
@@ -138,13 +139,13 @@ void WevoteClassifier::writeResults(
     myfile.close();
 }
 
-std::pair<std::vector<ReadInfo>, std::vector<std::string> >
-WevoteClassifier::getClassifiedReads(
-        const std::string &filename  ,
+std::pair<std::vector<ReadInfo>, std::vector<defs::string_t> >
+WevoteClassifier::getClassifiedReads( const defs::string_t &filename  ,
         bool csv )
 {
-    const std::string delim = (csv)? ",": "\t";
-    const std::vector< std::string > lines = io::getFileLines( filename );
+    const defs::string_t delim = (csv)? U(","): U("\t");
+    const std::vector< defs::string_t > lines =
+            io::getFileLines< defs::char_t >( filename );
     return ReadInfo::parseClassifiedReads( lines.cbegin() , lines.cend() , delim );
 }
 

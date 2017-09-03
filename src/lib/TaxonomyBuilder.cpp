@@ -5,23 +5,23 @@ namespace wevote
 
 struct TaxonomyPrivate
 {
-    TaxonomyPrivate( const std::string &nodesFilename  ,
-                 const std::string &namesFilename )
+    TaxonomyPrivate( const defs::string_t &nodesFilename  ,
+                     const defs::string_t &namesFilename )
         : parentMap( TaxonomyBuilder::buildFullTaxIdMap( nodesFilename )),
           rankMap( TaxonomyBuilder::buildFullRankMap( nodesFilename )),
           namesMap( TaxonomyBuilder::buildTaxnameMap( namesFilename )),
           standardMap( TaxonomyBuilder::buildStandardTaxidMap( nodesFilename, parentMap, rankMap)){}
 
     const std::map< uint32_t , uint32_t > parentMap;
-    const std::map< uint32_t , std::string > rankMap;
-    const std::map< uint32_t , std::string > namesMap;
+    const std::map< uint32_t , defs::string_t > rankMap;
+    const std::map< uint32_t , defs::string_t > namesMap;
     const std::map< uint32_t , uint32_t > standardMap;
     //    std::map<std::string, uint32_t> _namesTaxMap;
 
 };
 
-TaxonomyBuilder::TaxonomyBuilder( const std::string &nodesFilename  ,
-                                  const std::string &namesFilename )
+TaxonomyBuilder::TaxonomyBuilder( const defs::string_t &nodesFilename  ,
+                                  const defs::string_t &namesFilename )
     : _undefined( 0 ),
       _data( new TaxonomyPrivate( nodesFilename  , namesFilename ))
 {
@@ -33,23 +33,23 @@ TaxonomyBuilder::~TaxonomyBuilder()
 
 }
 
-std::string TaxonomyBuilder::getRank(uint32_t taxid) const
+defs::string_t TaxonomyBuilder::getRank(uint32_t taxid) const
 {
     try{
         return _data->rankMap.at( taxid );
     } catch( const std::out_of_range & )
     {
-        return {""};
+        return U("");
     }
 }
 
-std::string TaxonomyBuilder::getTaxName(uint32_t taxid) const
+defs::string_t TaxonomyBuilder::getTaxName(uint32_t taxid) const
 {
     try{
         return _data->namesMap.at( taxid );
     } catch( const std::out_of_range & )
     {
-        return {""};
+        return U("");
     }
 }
 
@@ -69,10 +69,10 @@ uint32_t TaxonomyBuilder::correctTaxan( uint32_t taxid ) const
         return ReadInfo::noAnnotation;
     try
     {
-        std::string rank;
+        defs::string_t rank;
         auto rankIt = _data->rankMap.find( taxid );
         if( rankIt == _data->rankMap.end())
-            rank = "";
+            rank = U("");
         else rank = rankIt->second;
 
         while (!isRank( rank ) )
@@ -84,7 +84,7 @@ uint32_t TaxonomyBuilder::correctTaxan( uint32_t taxid ) const
             {
                 rankIt = _data->rankMap.find( taxid );
                 if( rankIt == _data->rankMap.end())
-                    rank = "";
+                    rank = U("");
                 else rank = rankIt->second;
             }
         }
@@ -118,7 +118,7 @@ uint32_t TaxonomyBuilder::lca( uint32_t a, uint32_t b ) const
         }
     }catch( const std::out_of_range & )
     {
-//        LOG_DEBUG("A taxon is undefined in the database");
+        //        LOG_DEBUG("A taxon is undefined in the database");
     }
     return 1;
 }
@@ -135,7 +135,7 @@ std::set<uint32_t> TaxonomyBuilder::getAncestry( uint32_t taxon ) const
         }
     }catch( const std::out_of_range & )
     {
-//        LOG_DEBUG("The taxon = %d is undefined in the database", taxon );
+        //        LOG_DEBUG("The taxon = %d is undefined in the database", taxon );
     }
     return path;
 }
@@ -168,7 +168,7 @@ uint32_t TaxonomyBuilder::resolveTree(
                 node = _data->standardMap.at( node );
             }catch( const std::out_of_range &e )
             {
-//                LOG_DEBUG("Undefined taxid(%d): %s", node , e.what());
+                //                LOG_DEBUG("Undefined taxid(%d): %s", node , e.what());
                 break;
             }
         }
@@ -221,12 +221,12 @@ std::map<uint32_t, uint32_t> TaxonomyBuilder::getParentMapCopy() const
     return _data->parentMap;
 }
 
-std::map<uint32_t, std::string> TaxonomyBuilder::getRankMapCopy() const
+std::map<uint32_t, defs::string_t> TaxonomyBuilder::getRankMapCopy() const
 {
     return _data->rankMap;
 }
 
-std::map<uint32_t, std::string> TaxonomyBuilder::getNamesMapCopy() const
+std::map<uint32_t, defs::string_t> TaxonomyBuilder::getNamesMapCopy() const
 {
     return _data->namesMap;
 }
@@ -237,30 +237,32 @@ std::map<uint32_t, uint32_t> TaxonomyBuilder::getStandardMapCopy() const
 }
 
 std::map<uint32_t, uint32_t>
-TaxonomyBuilder::buildFullTaxIdMap( const std::string &filename )
+TaxonomyBuilder::buildFullTaxIdMap( const defs::string_t &filename )
 {
     std::map<uint32_t, uint32_t> pmap;
-    const std::vector< std::string > lines = io::getFileLines( filename );
-    for( const std::string &line : lines )
+    const std::vector< defs::string_t > lines =
+            io::getFileLines< defs::char_t >( filename );
+    for( const defs::string_t &line : lines )
     {
         uint32_t nodeId, parentId;
-        sscanf(line.c_str(), "%d\t|\t%d", &nodeId, &parentId);
+        io::getScanf( line.c_str())( "%d\t|\t%d", &nodeId, &parentId);
         pmap[nodeId] = parentId;
     }
     pmap[1] = 0;
     return pmap;
 }
 
-std::map<uint32_t, std::string>
-TaxonomyBuilder::buildFullRankMap(const std::string &filename)
+std::map<uint32_t, defs::string_t> TaxonomyBuilder::buildFullRankMap(const defs::string_t &filename)
 {
-    std::map<uint32_t, std::string> pmap;
-    const std::vector< std::string > lines = io::getFileLines( filename );
-    for( const std::string &line : lines )
+    std::map<uint32_t, defs::string_t> pmap;
+    const std::vector< defs::string_t > lines =
+            io::getFileLines< defs::char_t >( filename );
+    for( const defs::string_t &line : lines )
     {
         uint32_t nodeId, parentId;
-        char rank[100];
-        std::sscanf(line.c_str(), "%d\t|\t%d\t|\t%s", &nodeId, &parentId, rank);
+        defs::char_t rank[100];
+        io::getScanf( line.c_str())( "%d\t|\t%d\t|\t%s", &nodeId, &parentId, rank);
+//        std::sscanf(line.c_str(), );
         pmap[nodeId] = rank;
     }
 
@@ -269,23 +271,23 @@ TaxonomyBuilder::buildFullRankMap(const std::string &filename)
 }
 
 std::map<uint32_t, uint32_t>
-TaxonomyBuilder::buildStandardTaxidMap(
-        const std::string &filename,
-        const std::map<uint32_t, uint32_t> &parentMap,
-        const std::map<uint32_t, std::string> &rankMap )
+TaxonomyBuilder::buildStandardTaxidMap(const defs::string_t &filename,
+                                       const std::map<uint32_t, uint32_t> &parentMap,
+                                       const std::map<uint32_t, defs::string_t> &rankMap )
 {
     std::map<uint32_t, uint32_t> pmap;
-    const std::vector< std::string > lines = io::getFileLines( filename );
-    for( const std::string &line : lines )
+    const std::vector< defs::string_t > lines =
+            io::getFileLines< defs::char_t >( filename );
+    for( const defs::string_t &line : lines )
     {
         uint32_t nodeId, parentId;
-        char rank[100];
-        std::sscanf(line.c_str(), "%d\t|\t%d\t|\t%s", &nodeId, &parentId, rank);
-        std::string rankString = rank;
+        defs::char_t rank[100];
+        io::getScanf( line.c_str())( "%d\t|\t%d\t|\t%s", &nodeId, &parentId, rank);
+        defs::string_t rankString = rank;
         if(isRank( rankString ))
             while(1)
             {
-                std::string tempRank = rankMap.at( parentId );
+                defs::string_t tempRank = rankMap.at( parentId );
                 if(isRank( tempRank ))
                 {
                     pmap[nodeId] = parentId;
@@ -299,43 +301,45 @@ TaxonomyBuilder::buildStandardTaxidMap(
     return pmap;
 }
 
-std::map<uint32_t, std::string>
-TaxonomyBuilder::buildTaxnameMap( const std::string &filename )
+std::map<uint32_t, defs::string_t>
+TaxonomyBuilder::buildTaxnameMap( const defs::string_t &filename )
 {
-    std::map<uint32_t, std::string> pmap;
-    const std::vector< std::string > lines = io::getFileLines( filename );
-    for( const std::string &line : lines )
+    std::map<uint32_t, defs::string_t> pmap;
+    const std::vector< defs::string_t > lines =
+            io::getFileLines< defs::char_t >( filename );
+    for( const defs::string_t &line : lines )
     {
         if( line.empty())
             break;
         uint32_t node_id;
-        char name[1000];
-        sscanf(line.c_str(), "%d\t|\t%s", &node_id, name);
+        defs::char_t name[1000];
+        io::getScanf( line.c_str())( "%d\t|\t%s", &node_id, name);
         pmap[node_id] = name;
     }
     return pmap;
 }
 
-std::map<std::string, uint32_t>
-TaxonomyBuilder::buildNameMapTaxid( const std::string &filename )
+std::map<defs::string_t, uint32_t>
+TaxonomyBuilder::buildNameMapTaxid( const defs::string_t &filename )
 {
-    std::map<std::string, uint32_t> pmap;
-    const std::vector< std::string > lines = io::getFileLines( filename );
-    for( const std::string &line : lines )
+    std::map<defs::string_t, uint32_t> pmap;
+    const std::vector< defs::string_t > lines =
+            io::getFileLines< defs::char_t >( filename );
+    for( const defs::string_t &line : lines )
     {
         uint32_t node_id;
-        char name[1000];
-        sscanf(line.c_str(), "%d\t|\t%s", &node_id, name);
+        defs::char_t name[1000];
+        io::getScanf( line.c_str())( "%d\t|\t%s", &node_id, name);
         pmap[name] = node_id;
     }
     return pmap;
 }
 
-bool TaxonomyBuilder::isRank( const std::string &rank )
+bool TaxonomyBuilder::isRank( const defs::string_t &rank )
 {
     return std::any_of( Rank::rankLabels.cbegin() ,
                         Rank::rankLabels.cend() ,
-                        [&rank]( const std::string &r) {
+                        [&rank]( const defs::string_t &r) {
         return r == rank;
     });
 }

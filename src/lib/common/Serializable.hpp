@@ -1,6 +1,8 @@
 #ifndef SERIALIZABLE_HPP
 #define SERIALIZABLE_HPP
 
+#include "headers.hpp"
+
 template< typename T >
 class Serializable
 {
@@ -34,13 +36,13 @@ protected:
     }
 
     template< class MetaType >
-    static std::string _meta( MetaType m )
+    static defs::string_t _meta( MetaType m )
     {
         return T::_metaMap().at( m );
     }
 
     template< class MetaType >
-    static const std::map< MetaType , std::string > &_metaMap()
+    static const std::map< MetaType , defs::string_t > &_metaMap()
     {
         return T::_metaMap();
     }

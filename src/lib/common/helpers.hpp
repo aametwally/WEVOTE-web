@@ -4,89 +4,140 @@
 #include "headers.hpp"
 #include "Logger.h"
 
+#define S(x) wevote::io::toStringType( x )
 
 namespace wevote
 {
 namespace io
 {
 
-template< typename SeqIt >
-std::string join( SeqIt first , SeqIt last , const std::string &sep )
+
+template< typename StringType ,
+          typename std::enable_if< !std::is_same< defs::string_t , StringType >::value , int >::type = 0 >
+defs::string_t toStringType( const StringType &str )
 {
-    auto binaryJoinString = [sep]( const std::string &a , const std::string &b ) -> std::string
-    {
-        return  a + ((a.length() > 0) ? sep : "") +  b ;
-    };
-    return std::accumulate( first , last ,
-                            std::string() , binaryJoinString  );
+    defs::string_t temp(str.length(),U(' '));
+    std::copy(str.begin(), str.end(), temp.begin());
+    return temp;
 }
 
-template< typename Container = std::vector< std::string >>
-std::string join( const Container &container ,
-                  const std::string &sep )
+template< typename StringType ,
+          typename std::enable_if< std::is_same< defs::string_t , StringType >::value , int >::type = 0 >
+const defs::string_t &toStringType( const StringType &str )
+{
+    return str;
+}
+
+template< typename CharType ,
+          typename std::enable_if< std::is_same< CharType , wchar_t >::value , int >::type = 0 >
+auto getScanf( const CharType *str )
+{
+    return std::bind( std::wscanf , str , std::placeholders::_1);
+}
+
+template< typename CharType ,
+          typename std::enable_if< std::is_same< CharType , char >::value , int >::type = 0 >
+auto getScanf( const CharType *str )
+{
+    return std::bind( std::sscanf , str , std::placeholders::_1);
+}
+
+template< typename SeqIt, typename SeperatorType  >
+typename SeqIt::value_type join( SeqIt first , SeqIt last , const SeperatorType &sep )
+{
+    using StringType = SeqIt::value_type;
+    auto binaryJoinString = [sep]( const StringType &a , const StringType &b )->StringType
+    {
+        return a + sep + b;
+    };
+
+    if( first == last )
+        return StringType();
+    else if ( std::next( first , 1 ) == last )
+        return *first;
+    else return std::accumulate( std::next( first , 1 ) , last ,
+                                 *first , binaryJoinString  );
+}
+
+template< typename SeperatorType , typename Container >
+typename Container::value_type join( const Container &container ,
+                                     const SeperatorType &sep )
 {
     return join( container.cbegin() , container.cend() , sep );
 }
 
-template< typename T >
-std::string toString( T value )
+template< typename StringType = defs::string_t ,
+          typename T ,
+          typename std::enable_if< std::is_same< StringType , std::string >::value , int >::type = 0>
+typename StringType toString( typename T value )
 {
     return std::to_string( value );
 }
 
-template< typename SeqIt >
-std::vector< std::string > asStringsVector( SeqIt firstIt , SeqIt lastIt )
+template< typename StringType = defs::string_t  ,
+          typename T ,
+          typename std::enable_if< std::is_same< StringType , std::wstring >::value , int >::type = 0>
+typename StringType toString( T value )
 {
-    std::vector< std::string > stringified;
+    return std::to_wstring( value );
+}
+
+template< typename CharType = defs::char_t ,  typename SeqIt >
+std::vector< std::basic_string< CharType >> asStringsVector( SeqIt firstIt , SeqIt lastIt )
+{
+    using T = SeqIt::value_type;
+    using StringType = std::basic_string< CharType >;
+    std::vector< StringType > stringified;
     std::transform( firstIt , lastIt ,
                     std::inserter( stringified , std::end( stringified )) ,
-                    toString< typename SeqIt::value_type > );
+                    []( const T &element ) { return toString< StringType >( element ); } );
     return stringified;
 }
 
-template< typename Container = std::vector< std::string >>
-std::vector< std::string > asStringsVector( const Container &container )
+template< typename Container >
+std::vector< defs::string_t > asStringsVector( const Container &container )
 {
     return asStringsVector( container.cbegin() , container.cend());
 }
 
-template< typename Container = std::vector< std::string >>
-auto getFileLines( const std::string &filePath )
+template< typename CharType >
+auto getFileLines( const defs::string_t &filePath )
 {
-    std::ifstream f( filePath );
-    Container lines;
-    std::string line;
+    std::basic_ifstream< CharType > f( filePath );
+    std::vector< std::basic_string< CharType > > lines;
+    std::basic_string< CharType > line;
     if( f )
         while( std::getline( f , line ))
             lines.push_back( line );
-    else std::cout << "Failed to open file:" << filePath ;
+    else LOG_WARNING("Failed to open file:%s",filePath.c_str());
     return lines;
 }
 
-template< typename Container = std::vector< std::string >>
-auto split( const std::string &s , char delim  )
+template< class CharType >
+auto split( const std::basic_string< CharType > &s , CharType delim  )
 {
-    std::stringstream ss( s );
-    Container tokens;
-    std::string token;
+    using StringType = std::basic_string< CharType >;
+    std::basic_stringstream< CharType > ss( s );
+    std::vector< StringType > tokens;
+    StringType token;
     while( std::getline( ss , token , delim ))
         tokens.push_back( token );
     return tokens;
 }
 
-template< typename Container = std::vector< std::string >>
-auto split( const std::string &s , std::string delim  )
+template< typename StringType , typename SeperatorType >
+auto split( const StringType &s , SeperatorType delim  )
 {
-    Container tokens;
+    std::vector< StringType > tokens;
     size_t last = 0; size_t next = 0;
-    while ((next = s.find(delim, last )) != std::string::npos)
+    while ((next = s.find(delim, last )) != StringType::npos)
     {
         tokens.push_back( s.substr(last , next - last));
         last = next + 1;
     }
     last += delim.length() - 1;
     if( last < s.length() )
-        tokens.push_back( s.substr( last , std::string::npos ));
+        tokens.push_back( s.substr( last , StringType::npos ));
     return tokens;
 }
 

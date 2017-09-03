@@ -32,7 +32,7 @@ void RestHandler::_addRoutes()
 
 void RestHandler::_addRoute(
         RestHandler::Method method,
-        const std::string path,
+        const utility::string_t path,
         RestHandler::HandlerType handler)
 {
     _routings[ method ][ _normalizedPath(path) ] = handler;
@@ -57,34 +57,34 @@ void RestHandler::_route(
 
 void RestHandler::_addRootRoutes()
 {
-    const std::string root = _normalizedPath( std::vector< std::string >());
+    const utility::string_t root = _normalizedPath( std::vector< utility::string_t >());
     HandlerType rootHandler = []( http_request )
     {
         LOG_DEBUG("Default Handler.");
         return;
     };
 
-    _routings[ Method::GET    ][ root ] = rootHandler;
-    _routings[ Method::PUT    ][ root ] = rootHandler;
-    _routings[ Method::POST   ][ root ] = rootHandler;
-    _routings[ Method::DELETE ][ root ] = rootHandler;
+    _routings[ Method::GET  ][ root ] = rootHandler;
+    _routings[ Method::PUT  ][ root ] = rootHandler;
+    _routings[ Method::POST ][ root ] = rootHandler;
+    _routings[ Method::DEL  ][ root ] = rootHandler;
 }
 
-std::string RestHandler::_normalizedPath(const http_request &message)
+utility::string_t RestHandler::_normalizedPath(const http_request &message)
 {
     auto paths = http::uri::split_path(http::uri::decode(message.relative_uri().path()));
     return _normalizedPath( paths );
 }
 
-std::string RestHandler::_normalizedPath(const std::string &url)
+utility::string_t RestHandler::_normalizedPath(const utility::string_t &url)
 {
     auto paths = http::uri::split_path(url);
     return _normalizedPath( paths );
 }
 
-std::string RestHandler::_normalizedPath(const std::vector<std::string> &paths)
+utility::string_t RestHandler::_normalizedPath(const std::vector<utility::string_t> &paths)
 {
-    return wevote::io::join( paths , "|" );
+    return wevote::io::join( paths , utility::string_t{'|'} );
 }
 
 void RestHandler::_handleError(pplx::task<void>& t) const
@@ -109,7 +109,7 @@ void RestHandler::_handleGet(http_request message) const
 
     _route( Method::GET , message );
 
-    std::cout <<  message.to_string() << std::endl;
+    LOG_INFO("%s",message.to_string().c_str());
 
     auto paths = http::uri::split_path(http::uri::decode(message.relative_uri().path()));
 
@@ -157,9 +157,9 @@ void RestHandler::_handlePost(http_request message) const
 
     auto paths = uri::split_path(uri::decode(message.relative_uri().path()));
 
-    LOG_DEBUG("Normalized Path:%s",wevote::io::join( paths , "|").c_str());
+    LOG_DEBUG("Normalized Path:%s",wevote::io::join( paths , utility::string_t{'|'}).c_str());
 
-    std::cout <<  message.to_string() << std::endl;
+    LOG_INFO("%s",message.to_string().c_str());
 
     message.reply(status_codes::OK,message.to_string());
 
@@ -175,10 +175,9 @@ void RestHandler::_handleDelete(http_request message) const
 {
     LOG_DEBUG("Handling DELETE Request..");
 
-    _route( Method::DELETE , message );
-    std::cout <<  message.to_string() << std::endl;
-
-    std::string rep = U("WRITE YOUR OWN DELETE OPERATION");
+    _route( Method::DEL , message );
+    LOG_INFO("%s",message.to_string().c_str());
+    utility::string_t rep = U("WRITE YOUR OWN DELETE OPERATION");
     message.reply(status_codes::OK,rep);
 
     LOG_DEBUG("[DONE] Handling DELETE Request..");
@@ -195,8 +194,8 @@ void RestHandler::_handlePut(http_request message) const
     LOG_DEBUG("Handling PUT Request..");
 
     _route( Method::PUT , message );
-    std::cout <<  message.to_string() << std::endl;
-    std::string rep = U("WRITE YOUR OWN PUT OPERATION");
+    LOG_INFO("%s",message.to_string().c_str());
+    auto rep = U("WRITE YOUR OWN PUT OPERATION");
     message.reply(status_codes::OK,rep);
 
     LOG_DEBUG("[DONE] Handling PUT Request..");
