@@ -1,7 +1,6 @@
 ## Dependencies
 include( Qt )
 include( CppREST )
-message( ${CPPREST_LIBRARIES})
 find_package(OpenSSL REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
 
@@ -9,7 +8,7 @@ include_directories(${OPENSSL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${CPPREST_INCLUDEDIR})
 include_directories( ${WEVOTE_LIB_INCLUDE_DIRS} )
-
+include_directories( ../common )
 set( WEVOTE_REST "wevoteREST")
 
 

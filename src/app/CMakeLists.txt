@@ -1,14 +1,14 @@
 ## Dependencies
 include( Qt )
 include_directories( ${WEVOTE_LIB_INCLUDE_DIRS} )
-
+include_directories( common )
 
 set( WEVOTE_APP "wevoteClassifier")
 set( ABUNDANCE_APP "abundanceAnnotator")
 ### Generate the executable
 
 set( COMMAND_LINE_PARSER
-    CommandLineParser.hpp )
+    common/CommandLineParser.hpp )
 
 add_executable( ${WEVOTE_APP} ${COMMAND_LINE_PARSER} wevoteClassifier.cpp )
 add_executable( ${ABUNDANCE_APP} ${COMMAND_LINE_PARSER} abundanceAnnotator.cpp )

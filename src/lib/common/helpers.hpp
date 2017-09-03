@@ -28,20 +28,6 @@ std::string toStringType( const StringType &str )
     return temp;
 }
 
-template< typename CharType ,
-          typename std::enable_if< std::is_same< CharType , wchar_t >::value , int >::type = 0 >
-auto getScanf( const CharType *str )
-{
-    return std::bind( std::wscanf , str , std::placeholders::_1);
-}
-
-template< typename CharType ,
-          typename std::enable_if< std::is_same< CharType , char >::value , int >::type = 0 >
-auto getScanf( const CharType *str )
-{
-    return std::bind( std::sscanf , str , std::placeholders::_1);
-}
-
 template< typename SeqIt, typename SeperatorType  >
 typename SeqIt::value_type join( SeqIt first , SeqIt last , const SeperatorType &sep )
 {

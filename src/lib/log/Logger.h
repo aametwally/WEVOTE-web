@@ -41,6 +41,20 @@ public:
               const std::string& filePath,
               const int &lineNumber,
               const std::string& functionName,
+              const wchar_t *string, ... );
+
+    /**
+     * @brief log
+     * @param logLevel
+     * @param filePath
+     * @param lineNumber
+     * @param functionName
+     * @param string
+     */
+    void log( const LOG_LEVEL logLevel,
+              const std::string& filePath,
+              const int &lineNumber,
+              const std::string& functionName,
               const char *string, ... );
 
 private:

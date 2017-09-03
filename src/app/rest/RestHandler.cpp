@@ -22,8 +22,14 @@ RestHandler::~RestHandler()
 
 void RestHandler::start()
 {
-    _addRoutes();
-    open().wait();
+    try
+    {
+        _addRoutes();
+        open().wait();
+    }catch( const std::exception &e )
+    {
+        LOG_DEBUG("Exception!:%s", e.what() );
+    }
 }
 
 void RestHandler::_addRoutes()

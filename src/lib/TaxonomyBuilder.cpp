@@ -245,7 +245,7 @@ TaxonomyBuilder::buildFullTaxIdMap( const std::string &filename )
     for( const std::string &line : lines )
     {
         uint32_t nodeId, parentId;
-        io::getScanf( line.c_str())( "%d\t|\t%d", &nodeId, &parentId);
+        sscanf( line.c_str() , "%d\t|\t%d", &nodeId, &parentId);
         pmap[nodeId] = parentId;
     }
     pmap[1] = 0;
@@ -261,7 +261,7 @@ std::map<uint32_t, std::string> TaxonomyBuilder::buildFullRankMap(const std::str
     {
         uint32_t nodeId, parentId;
         char rank[100];
-        io::getScanf( line.c_str())( "%d\t|\t%d\t|\t%s", &nodeId, &parentId, rank);
+        sscanf( line.c_str() , "%d\t|\t%d\t|\t%s", &nodeId, &parentId, rank);
 //        std::sscanf(line.c_str(), );
         pmap[nodeId] = rank;
     }
@@ -282,7 +282,7 @@ TaxonomyBuilder::buildStandardTaxidMap(const std::string &filename,
     {
         uint32_t nodeId, parentId;
         char rank[100];
-        io::getScanf( line.c_str())( "%d\t|\t%d\t|\t%s", &nodeId, &parentId, rank);
+        sscanf( line.c_str() , "%d\t|\t%d\t|\t%s", &nodeId, &parentId, rank);
         std::string rankString = rank;
         if(isRank( rankString ))
             while(1)
@@ -313,7 +313,7 @@ TaxonomyBuilder::buildTaxnameMap( const std::string &filename )
             break;
         uint32_t node_id;
         char name[1000];
-        io::getScanf( line.c_str())( "%d\t|\t%s", &node_id, name);
+        sscanf( line.c_str() , "%d\t|\t%s", &node_id, name);
         pmap[node_id] = name;
     }
     return pmap;
@@ -329,7 +329,7 @@ TaxonomyBuilder::buildNameMapTaxid( const std::string &filename )
     {
         uint32_t node_id;
         char name[1000];
-        io::getScanf( line.c_str())( "%d\t|\t%s", &node_id, name);
+        sscanf( line.c_str() , "%d\t|\t%s", &node_id, name);
         pmap[name] = node_id;
     }
     return pmap;

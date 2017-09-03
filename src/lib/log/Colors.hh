@@ -8,7 +8,7 @@
 #define COLORS_HH
 
 
-#ifndef PRINT_LOG_DATA_TO_FILE
+#if !defined( PRINT_LOG_DATA_TO_FILE  ) && !defined( WIN32 )
 #define STD_RESET           "\033[0m"
 #define STD_BLACK           "\033[30m"
 #define STD_RED             "\033[31m"

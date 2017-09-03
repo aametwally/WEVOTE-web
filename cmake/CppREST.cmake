@@ -9,19 +9,21 @@
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
 
-FIND_LIBRARY(CPPREST_LIBRARY NAMES cpprest PATHS
+FIND_LIBRARY(CPPREST_LIBRARY NAMES cpprest libcpprest.so cpprest140d_2_9.lib cpprest140_2_9.lib
+    PATHS
+    $ENV{CPPREST_DIR}
     /usr/lib
     /usr/local/lib
 )
 
 # Include dir
-find_path(CPPREST_INCLUDEDIR
+find_path( CPPREST_INCLUDEDIR
   NAMES
     cpprest/http_client.h
   PATHS
+    $ENV{CPPREST_DIR}
     ${CASABLANCA_PKGCONF_INCLUDE_DIRS}
     ${CASABLANCA_DIR}
-    $ENV{CPPREST_INCLUDEDIR}
     /usr/local/include
     /usr/include
     ../../casablanca
@@ -29,12 +31,13 @@ find_path(CPPREST_INCLUDEDIR
     Release/include
     include
 )
+message("lib:${CPPREST_LIBRARY}")
+message("inc:${CPPREST_INCLUDEDIR}")
 
 # Check CPPREST's version
 IF (CPPREST_LIBRARY)
-       FIND_FILE(CPPREST_version_FILE version.h
-                 /usr/include/cpprest/
-                 /usr/local/include/cpprest/
+       FIND_FILE(CPPREST_version_FILE cpprest/version.h
+                 ${CPPREST_INCLUDEDIR}
                 )
 
         IF ( CPPREST_version_FILE)
@@ -64,6 +67,12 @@ ELSE (CPPREST_LIBRARY)
         SET(CPPREST_FOUND 0)
         SET(CPPREST_LIBRARIES)
 ENDIF (CPPREST_LIBRARY)
+
+#if(WIN32)
+#    set( CPPREST_LIBRARIES  $ENV{GDCM_DIR}/lib/gdcmDict.lib
+#        $ENV{GDCM_DIR}/lib/gdcmMSFF.lib
+#        CACHE INTERNAL "NON_REDERENCED_DEPENDENCIES")
+#endif()
 
 MARK_AS_ADVANCED(
     CPPREST_LIBRARIES
