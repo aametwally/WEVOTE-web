@@ -26,9 +26,9 @@ void WevoteRestHandler::_submitWevoteEnsemble(http_request message)
     {
         WevoteSubmitEnsemble data = io::DeObjectifier::fromObject< WevoteSubmitEnsemble >( value );
         json::value jsonData = io::Objectifier::objectFrom( data );
-        LOG_INFO("%s", jsonData.serialize().c_str());
+        ucout << jsonData.serialize();
     })
-            .wait();
+    .wait();
     LOG_DEBUG("[DONE] Submiting..");
 }
 
