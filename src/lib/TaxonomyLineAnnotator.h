@@ -33,7 +33,7 @@ public:
      * @param filename
      */
     static void writeResults(const std::map< uint32_t , TaxLine > &abundance ,
-                             const defs::string_t &filename , bool csv = true );
+                             const std::string &filename , bool csv = true );
 private:
     const TaxonomyBuilder &_taxonomy;
 };

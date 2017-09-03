@@ -21,8 +21,8 @@ public:
      * @param nodesFilename
      * @param namesFilename
      */
-    WEVOTE_DLL TaxonomyBuilder( const defs::string_t &nodesFilename ,
-                     const defs::string_t &namesFilename );
+    WEVOTE_DLL TaxonomyBuilder( const std::string &nodesFilename ,
+                     const std::string &namesFilename );
 
 
     WEVOTE_DLL ~TaxonomyBuilder();
@@ -33,14 +33,14 @@ public:
      * @param taxid
      * @return
      */
-    WEVOTE_DLL defs::string_t getRank( uint32_t taxid ) const;
+    WEVOTE_DLL std::string getRank( uint32_t taxid ) const;
 
     /**
      * @brief getTaxName
      * @param taxid
      * @return
      */
-    WEVOTE_DLL defs::string_t getTaxName( uint32_t taxid ) const;
+    WEVOTE_DLL std::string getTaxName( uint32_t taxid ) const;
 
     /**
      * @brief getStandardParent
@@ -114,14 +114,14 @@ public:
      * @brief getRankMapCopy
      * @return
      */
-    WEVOTE_DLL std::map< uint32_t , defs::string_t >
+    WEVOTE_DLL std::map< uint32_t , std::string >
     getRankMapCopy() const;
 
     /**
      * @brief getNamesMapCopy
      * @return
      */
-    WEVOTE_DLL std::map< uint32_t , defs::string_t >
+    WEVOTE_DLL std::map< uint32_t , std::string >
     getNamesMapCopy() const;
 
 
@@ -138,7 +138,7 @@ public:
      * @param filename
      * @return
      */
-    static std::map<uint32_t, uint32_t> buildFullTaxIdMap(const defs::string_t &filename );
+    static std::map<uint32_t, uint32_t> buildFullTaxIdMap(const std::string &filename );
 
     /**
      * @brief buildFullRankMap
@@ -146,8 +146,8 @@ public:
      * @param filename
      * @return
      */
-    static std::map<uint32_t, defs::string_t>
-    buildFullRankMap( const defs::string_t &filename );
+    static std::map<uint32_t, std::string>
+    buildFullRankMap( const std::string &filename );
 
     /**
      * @brief buildStandardTaxidMap
@@ -158,9 +158,9 @@ public:
      * @return
      */
     static std::map<uint32_t, uint32_t> buildStandardTaxidMap(
-            const defs::string_t &filename,
+            const std::string &filename,
             const std::map<uint32_t, uint32_t> &parentMap,
-            const std::map<uint32_t, defs::string_t> &rankMap );
+            const std::map<uint32_t, std::string> &rankMap );
 
     /**
      * @brief buildTaxnameMap
@@ -168,8 +168,8 @@ public:
      * @param filename
      * @return
      */
-    static std::map<uint32_t, defs::string_t> buildTaxnameMap(
-            const defs::string_t &filename );
+    static std::map<uint32_t, std::string> buildTaxnameMap(
+            const std::string &filename );
 
     /**
      * @brief buildNameMapTaxid
@@ -177,15 +177,15 @@ public:
      * @param filename
      * @return
      */
-    static std::map< defs::string_t, uint32_t> buildNameMapTaxid(
-            const defs::string_t &filename );
+    static std::map< std::string, uint32_t> buildNameMapTaxid(
+            const std::string &filename );
 
     /**
      * @brief isRank
      * @param rank
      * @return
      */
-    static bool isRank( const defs::string_t &rank );
+    static bool isRank( const std::string &rank );
 private:
     mutable uint32_t _undefined;
     std::unique_ptr< TaxonomyPrivate > _data;

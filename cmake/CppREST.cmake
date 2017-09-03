@@ -8,14 +8,10 @@
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
-# CPPREST preferred ENV VARIABLES:
-# 1. CPPREST_LIBRARYDIR
-# 2. CPPREST_INCLUDEDIR
 
-FIND_LIBRARY(CPPREST_LIBRARY NAMES CPPREST PATHS
+FIND_LIBRARY(CPPREST_LIBRARY NAMES cpprest PATHS
     /usr/lib
     /usr/local/lib
-    $ENV{CPPREST_LIBRARYDIR}
 )
 
 # Include dir
@@ -41,7 +37,7 @@ IF (CPPREST_LIBRARY)
                  /usr/local/include/cpprest/
                 )
 
-        IF (DEFINED CPPREST_version_FILE)
+        IF ( CPPREST_version_FILE)
             FILE(READ "${CPPREST_version_FILE}" _CPPREST_VERSION_H_CONTENTS)
             STRING(REGEX MATCH "#define CPPREST_VERSION_MAJOR ([0-9])" _MATCH "${_CPPREST_VERSION_H_CONTENTS}")
             SET(CPPREST_VERSION_MAJOR ${CMAKE_MATCH_1})
@@ -64,6 +60,7 @@ IF (CPPREST_LIBRARY)
             MESSAGE(STATUS "Unkown CPPREST version: unable to find version.h in cpprest/include/")
         ENDIF ()
 ELSE (CPPREST_LIBRARY)
+        MESSAGE(STATUS "Not found: libcpprest library.")
         SET(CPPREST_FOUND 0)
         SET(CPPREST_LIBRARIES)
 ENDIF (CPPREST_LIBRARY)

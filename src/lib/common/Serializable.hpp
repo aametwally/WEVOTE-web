@@ -2,6 +2,7 @@
 #define SERIALIZABLE_HPP
 
 #include "headers.hpp"
+#include "helpers.hpp"
 
 template< typename T >
 class Serializable
@@ -35,14 +36,24 @@ protected:
         _instance()._populateFromObject( properties );
     }
 
-    template< class MetaType >
-    static defs::string_t _meta( MetaType m )
+    template< typename CharType = char ,
+              typename MetaType ,
+              typename std::enable_if< std::is_same< char , CharType >::value , int >::type = 0 >
+    static auto _meta( MetaType m )
     {
         return T::_metaMap().at( m );
     }
 
+    template< typename CharType = char ,
+              typename MetaType ,
+              typename std::enable_if< std::is_same< wchar_t , CharType >::value , int >::type = 0 >
+    static auto _meta( MetaType m )
+    {
+        return wevote::io::toStringType( T::_metaMap().at( m ));
+    }
+
     template< class MetaType >
-    static const std::map< MetaType , defs::string_t > &_metaMap()
+    static const std::map< MetaType , std::string > &_metaMap()
     {
         return T::_metaMap();
     }

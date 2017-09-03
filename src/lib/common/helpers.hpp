@@ -4,8 +4,6 @@
 #include "headers.hpp"
 #include "Logger.h"
 
-#define S(x) wevote::io::toStringType( x )
-
 namespace wevote
 {
 namespace io
@@ -13,19 +11,21 @@ namespace io
 
 
 template< typename StringType ,
-          typename std::enable_if< !std::is_same< defs::string_t , StringType >::value , int >::type = 0 >
+          typename std::enable_if< std::is_same< std::string , StringType >::value , int >::type = 0 >
 defs::string_t toStringType( const StringType &str )
 {
-    defs::string_t temp(str.length(),U(' '));
+    std::wstring temp(str.length(),U(' '));
     std::copy(str.begin(), str.end(), temp.begin());
     return temp;
 }
 
 template< typename StringType ,
           typename std::enable_if< std::is_same< defs::string_t , StringType >::value , int >::type = 0 >
-const defs::string_t &toStringType( const StringType &str )
+std::string toStringType( const StringType &str )
 {
-    return str;
+    std::string temp(str.length(), ' ');
+    std::copy(str.begin(), str.end(), temp.begin());
+    return temp;
 }
 
 template< typename CharType ,
@@ -66,7 +66,7 @@ typename Container::value_type join( const Container &container ,
     return join( container.cbegin() , container.cend() , sep );
 }
 
-template< typename StringType = defs::string_t ,
+template< typename StringType = std::string ,
           typename T ,
           typename std::enable_if< std::is_same< StringType , std::string >::value , int >::type = 0>
 typename StringType toString( typename T value )
@@ -74,7 +74,7 @@ typename StringType toString( typename T value )
     return std::to_string( value );
 }
 
-template< typename StringType = defs::string_t  ,
+template< typename StringType = std::string  ,
           typename T ,
           typename std::enable_if< std::is_same< StringType , std::wstring >::value , int >::type = 0>
 typename StringType toString( T value )
@@ -82,7 +82,7 @@ typename StringType toString( T value )
     return std::to_wstring( value );
 }
 
-template< typename CharType = defs::char_t ,  typename SeqIt >
+template< typename CharType = char ,  typename SeqIt >
 std::vector< std::basic_string< CharType >> asStringsVector( SeqIt firstIt , SeqIt lastIt )
 {
     using T = SeqIt::value_type;
@@ -95,13 +95,13 @@ std::vector< std::basic_string< CharType >> asStringsVector( SeqIt firstIt , Seq
 }
 
 template< typename Container >
-std::vector< defs::string_t > asStringsVector( const Container &container )
+std::vector< std::string > asStringsVector( const Container &container )
 {
     return asStringsVector( container.cbegin() , container.cend());
 }
 
-template< typename CharType >
-auto getFileLines( const defs::string_t &filePath )
+template< typename CharType = char >
+auto getFileLines( const std::string &filePath )
 {
     std::basic_ifstream< CharType > f( filePath );
     std::vector< std::basic_string< CharType > > lines;

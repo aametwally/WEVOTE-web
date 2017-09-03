@@ -27,14 +27,14 @@ protected:
 
 
 public:
-    RestHandler(utility::string_t url);
-    ~RestHandler();
-    void start();
+    WEVOTE_DLL RestHandler(utility::string_t url);
+    WEVOTE_DLL ~RestHandler();
+    WEVOTE_DLL void start();
     pplx::task<void> open() { return _listener.open(); }
     pplx::task<void> close() { return _listener.close(); }
 protected:
-    virtual void _addRoutes();
-    void _addRoute(Method method , const string_t path , HandlerType handler );
+    WEVOTE_DLL virtual void _addRoutes();
+    WEVOTE_DLL void _addRoute(Method method , const string_t path , HandlerType handler );
 private:
     RestHandler();
     void _route(Method method, http_request message) const;

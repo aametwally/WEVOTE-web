@@ -46,8 +46,8 @@ TaxonomyLineAnnotator::annotateTaxonomyLines(
 
         while( taxon != wevote::ReadInfo::noAnnotation )
         {
-            const defs::string_t rank = _taxonomy.getRank( taxon );
-            const defs::string_t name = _taxonomy.getTaxName( taxon );
+            const std::string rank = _taxonomy.getRank( taxon );
+            const std::string name = _taxonomy.getTaxName( taxon );
             const wevote::RankID id = wevote::Rank::rankID.at( rank );
             const size_t idx = static_cast< size_t >( id );
             taxLine.line[ idx ] = name;
@@ -61,10 +61,10 @@ TaxonomyLineAnnotator::annotateTaxonomyLines(
 
 void TaxonomyLineAnnotator::writeResults(
         const std::map<uint32_t, TaxLine> &abundance,
-        const defs::string_t &filename ,
+        const std::string &filename ,
         bool csv  )
 {
-    defs::ofstream_t myfile;
+    std::ofstream myfile;
     myfile.open (filename.c_str());
     if (!myfile.is_open())
         LOG_ERROR("Error opening Output file: %s", filename.c_str());

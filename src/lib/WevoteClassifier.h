@@ -32,16 +32,16 @@ public:
      * @param filename
      * @return
      */
-    static std::pair< std::vector< ReadInfo > ,  std::vector< defs::string_t >>
-    getUnclassifiedReads(const defs::string_t &filename , defs::string_t delim = U(","));
+    static std::pair< std::vector< ReadInfo > ,  std::vector< std::string >>
+    getUnclassifiedReads(const std::string &filename , std::string delim = ",");
 
     /**
      * @brief writeResults
      * @param reads
      * @param fileName
      */
-    static void writeResults( const std::vector< ReadInfo > &reads , const std::vector<defs::string_t> &tools,
-                              const defs::string_t &fileName , bool csv = false );
+    static void writeResults( const std::vector< ReadInfo > &reads , const std::vector<std::string> &tools,
+                              const std::string &fileName , bool csv = false );
 
     /**
      * @brief readWevoteFile
@@ -49,8 +49,8 @@ public:
      * @param taxonomy
      * @return
      */
-    static std::pair< std::vector< ReadInfo > ,  std::vector< defs::string_t >>
-    getClassifiedReads( const defs::string_t &filename , bool csv = false );
+    static std::pair< std::vector< ReadInfo > ,  std::vector< std::string >>
+    getClassifiedReads( const std::string &filename , bool csv = false );
 
     /**
      * @brief _preprocessReads

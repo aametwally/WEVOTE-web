@@ -12,7 +12,7 @@ namespace rest
 class WevoteRestHandler : public RestHandler
 {
 public:
-    explicit WevoteRestHandler( utility::string_t url );
+    WEVOTE_DLL explicit WevoteRestHandler( utility::string_t url );
 protected:
     void _addRoutes() override;
 private:

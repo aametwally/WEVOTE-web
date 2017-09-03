@@ -16,11 +16,12 @@ public:
     template< typename Objectifier >
     void objectify( Objectifier &properties ) const
     {
-        properties.objectify( _meta( Meta::JobID ) , _d->jobID );
-        properties.objectify( _meta( Meta::Reads ) , _d->reads.cbegin() , _d->reads.cend() );
-        properties.objectify( _meta( Meta::Score  ) , _d->score );
-        properties.objectify( _meta( Meta::Penalty  ) , _d->penalty );
-        properties.objectify( _meta( Meta::MinNumAgreed  ) , _d->minNumAgreed );
+        auto meta = _meta< wchar_t , Meta >;
+        properties.objectify( meta( Meta::JobID ) , _d->jobID );
+        properties.objectify( meta( Meta::Reads ) , _d->reads.cbegin() , _d->reads.cend() );
+        properties.objectify( meta( Meta::Score  ) , _d->score );
+        properties.objectify( meta( Meta::Penalty  ) , _d->penalty );
+        properties.objectify( meta( Meta::MinNumAgreed  ) , _d->minNumAgreed );
     }
 
 private:
@@ -45,16 +46,17 @@ private:
     template< typename DeObjectifier >
     void _populateFromObject( const DeObjectifier &properties )
     {
-        properties.deObjectify( _meta( Meta::JobID ) , _d->jobID );
-        properties.deObjectifyArray( _meta( Meta::Reads ) , _d->reads );
-        properties.deObjectify( _meta( Meta::Score  ) , _d->score );
-        properties.deObjectify( _meta( Meta::Penalty  ) , _d->penalty );
-        properties.deObjectify( _meta( Meta::MinNumAgreed  ) , _d->minNumAgreed );
+        auto meta = _meta< defs::char_t , Meta >;
+        properties.deObjectify( meta( Meta::JobID ) , _d->jobID );
+        properties.deObjectifyArray( meta( Meta::Reads ) , _d->reads );
+        properties.deObjectify( meta( Meta::Score  ) , _d->score );
+        properties.deObjectify( meta( Meta::Penalty  ) , _d->penalty );
+        properties.deObjectify( meta( Meta::MinNumAgreed  ) , _d->minNumAgreed );
     }
 
-    static const std::map< Meta , defs::string_t > &_metaMap()
+    static const std::map< Meta , std::string > &_metaMap()
     {
-        static const std::map< Meta , defs::string_t > m {
+        static const std::map< Meta , std::string > m {
             { Meta::JobID , "jobID" } ,
             { Meta::Reads , "reads" } ,
             { Meta::Score , "score" } ,

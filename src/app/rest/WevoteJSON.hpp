@@ -2,6 +2,7 @@
 #define WEVOTEJSON_HPP
 
 #include <type_traits>
+#include "helpers.hpp"
 #include "cpprest/json.h"
 #include "Logger.h"
 
@@ -10,57 +11,60 @@ namespace wevote
 namespace io
 {
 
-template<typename T >
-static constexpr bool isStringType()
-{
-    return std::is_same< T , utility::string_t >::value ||
-            std::is_same< T , std::string >::value;
-}
-
-template<typename T >
-static constexpr bool isAPISupportedType()
-{
-    return isStringType() ||
-            std::is_same< T , bool >::value ||
-            std::is_arithmetic< T >::value ;
-}
-
-template<typename T >
-static constexpr bool isNumber()
-{
-    return std::is_arithmetic< T >::value && !std::is_same< bool , T >::value;
-}
+template< typename T >
+using isWStringType = std::is_same< T , utility::string_t >;
+template< typename T >
+using isStringType = std::is_same< T , std::string >;
+template< typename T >
+using isBoolType = std::is_same< T , bool >;
+template< typename T>
+using isArithmeticType = std::is_arithmetic< T >;
+template< typename T >
+using enableIfNumber = std::enable_if< std::is_arithmetic< T >::value && !std::is_same< T , bool >::value , int >;
+template< typename T >
+using enableIfAPISupported = std::enable_if< isWStringType< T >::value ||
+isStringType< T >::value || isArithmeticType< T >::value , int >;
+template< typename T >
+using disableIfAPISupported = std::enable_if< !isWStringType< T >::value &&
+!isStringType< T >::value && !isArithmeticType< T >::value , int >;
 
 class Objectifier
 {
 private:
 
     template< typename T ,
-              typename std::enable_if<true , int >::type = 0 >
+              typename disableIfAPISupported< T >::type = 0 >
     static web::json::value _toValue( const T &t )
     {
         return _nonPODToValue< T >( t );
     }
 
     template< typename T ,
-              typename std::enable_if< isNumber<T>(), int >::type = 0 >
+              typename enableIfNumber< T >::type = 0 >
     static web::json::value _toValue( T number )
     {
         return web::json::value::number( number );
     }
 
     template< typename T ,
-              typename std::enable_if< std::is_same< bool , T >::value , int >::type = 0>
+              typename std::enable_if< isBoolType< T >::value , int >::type = 0>
     static web::json::value _toValue( T arg )
     {
         return web::json::value::boolean( arg );
     }
 
     template< typename T ,
-              typename std::enable_if< std::is_same< utility::string_t , T >::value , int >::type =0>
+              typename std::enable_if< isWStringType< T >::value  , int >::type =0>
     static web::json::value _toValue( const T &str )
     {
-        return web::json::value::string(U(str));
+        return web::json::value::string( str );
+    }
+
+    template< typename T ,
+              typename std::enable_if< isStringType< T >::value , int >::type =0>
+    static web::json::value _toValue( const T &str )
+    {
+        return web::json::value::string(io::toStringType( str ));
     }
 
 public:
@@ -86,19 +90,19 @@ public:
     }
 
     template< typename T >
-    void objectify( const std::string &key , const T &value )
+    void objectify( const utility::string_t &key , const T &value )
     {
         web::json::value val = _toValue< T >( value );
-        _object[U(key)] = val;
+        _object[ key ] = val;
     }
 
     template< typename SeqIt >
-    void objectify( const std::string &key , SeqIt firstIt , SeqIt lastIt )
+    void objectify( const utility::string_t &key , SeqIt firstIt , SeqIt lastIt )
     {
         std::vector< web::json::value > array;
         using T = typename SeqIt::value_type;
         std::transform( firstIt , lastIt , std::inserter( array , std::end( array )) , _toValue< T > );
-        _object[U(key)] = web::json::value::array( array );
+        _object[ key ] = web::json::value::array( array );
     }
 private:
     Objectifier()
@@ -141,33 +145,35 @@ private:
     }
 
     template< typename T ,
-              typename = typename std::enable_if< std::is_arithmetic< T >::value , T >::type >
+              typename std::enable_if< std::is_arithmetic< typename T >::value , int  >::type = 0 >
     static double _fromValue( const web::json::value &number )
     {
         return number.as_double();
     }
 
     template< typename T ,
-              typename = typename std::enable_if<std::is_same< T, bool>::value>::type>
+              typename std::enable_if<std::is_same< typename T, bool>::value , int >::type = 0 >
     static bool _fromValue( const web::json::value &boolArg )
     {
         return boolArg.as_bool();
     }
 
     template< typename T ,
-              typename = typename std::enable_if< isStringType<T>() >::type>
-    static std::string _fromValue( const web::json::value &str )
+              typename std::enable_if< isWStringType< T >::value , int >::type = 0 >
+    static std::wstring _fromValue( const web::json::value &str )
     {
         return str.as_string();
     }
 
-
-    // 2- detecting if fromObject is valid on T
-    template<typename T>
-    using nonPODFromValue = std::function<T( const web::json::value &)>;
+    template< typename T ,
+              typename std::enable_if< isStringType< T >::value , int >::type = 0 >
+    static std::string _fromValue( const web::json::value &str )
+    {
+        return wevote::io::toStringType( str.as_string());
+    }
 
     template< typename T,
-              typename std::enable_if<!isAPISupportedType< T >(), int>::type = 0>
+              typename disableIfAPISupported< T >::type = 0>
     static T _fromValue( const web::json::value &value )
     {
         return DeObjectifier::fromObject< T >( value );
@@ -196,11 +202,11 @@ public:
     }
 
     template< typename T >
-    void deObjectify( const utility::string_t &key , T &value ) const
+    void deObjectify( const utility::string_t &key , typename T &value ) const
     {
         try
         {
-            value = _fromValue< T >( _object.at( key ));
+            value = _fromValue< typename T >( _object.at( key ));
         }
         catch( ... )
         {
@@ -215,11 +221,12 @@ public:
     {
         try
         {
-            const web::json::value value = _object.at(U(key));
+            std::function<T(const web::json::value&)> fromval = _fromValue< T >;
+            const web::json::value value = _object.at( key );
             const web::json::array array = value.as_array();
             std::transform( array.cbegin() , array.cend() ,
                             std::inserter( dest , std::end( dest )) ,
-                            []( const web::json::value &val )->T { return _fromValue< T >( val ); });
+                            fromval );
         }
         catch( ... )
         {

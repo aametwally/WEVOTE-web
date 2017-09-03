@@ -1,6 +1,7 @@
 ## Dependencies
 include( Qt )
 include( CppREST )
+message( ${CPPREST_LIBRARIES})
 find_package(OpenSSL REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
 
@@ -29,6 +30,7 @@ add_executable( ${WEVOTE_REST} ${WEVOTE_REST_SRC} ${WEVOTE_REST_HDR} ${WEVOTE_RE
 
 ### Make sure to use the required Qt modules
 qt5_use_modules( ${WEVOTE_REST} Core )
+
 
 target_link_libraries( ${WEVOTE_REST} ${WEVOTE_LIB_LIBRARIES} ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${CPPREST_LIBRARIES})
 

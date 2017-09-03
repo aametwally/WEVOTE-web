@@ -175,12 +175,12 @@ int main(int argc, char *argv[])
 
     /// Read CSV formated input file
     LOG_INFO("Loading reads..");
-    auto reads = wevote::WevoteClassifier::getUnclassifiedReads( S( param.query ));
+    auto reads = wevote::WevoteClassifier::getUnclassifiedReads( param.query );
     LOG_INFO("[DONE] Loading reads..");
 
     /// Build taxonomy trees
     LOG_INFO("Building Taxonomy..");
-    wevote::TaxonomyBuilder taxonomy( S( nodesFilename ), S( namesFilename ));
+    wevote::TaxonomyBuilder taxonomy( nodesFilename , namesFilename );
     LOG_INFO("[DONE] Building Taxonomy..");
 
     wevote::WevoteClassifier wevoteClassifier( taxonomy );
@@ -196,8 +196,8 @@ int main(int argc, char *argv[])
     LOG_INFO("Unresolved taxan=%d/%d",undefined,reads.first.size());
 
     /// Output.
-    wevote::WevoteClassifier::writeResults( reads.first , reads.second , S( outputDetails ));
-    wevote::WevoteClassifier::writeResults( reads.first , reads.second , S( outputDetailsCSV ) , true );
+    wevote::WevoteClassifier::writeResults( reads.first , reads.second , outputDetails );
+    wevote::WevoteClassifier::writeResults( reads.first , reads.second , outputDetailsCSV , true );
 
     return EXIT_SUCCESS;
 }

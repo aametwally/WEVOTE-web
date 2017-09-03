@@ -132,10 +132,10 @@ int main(int argc, char *argv[])
 
     using namespace wevote::io;
     /// Build taxonomy trees
-    const wevote::TaxonomyBuilder taxonomy( S(nodesFilename) , S(namesFilename) );
+    const wevote::TaxonomyBuilder taxonomy( nodesFilename , namesFilename );
 
     /// Read WEVOTE output file
-    auto classifiedReads = wevote::WevoteClassifier::getClassifiedReads( S( param.query ) ,  true );
+    auto classifiedReads = wevote::WevoteClassifier::getClassifiedReads( param.query ,  true );
 
 
     wevote::TaxonomyLineAnnotator annotator( taxonomy );
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
             annotator.annotateTaxonomyLines( classifiedReads.first );
 
     /// Export taxonomy and relative abundance to txt file
-    wevote::TaxonomyLineAnnotator::writeResults( annotatedTaxa , S( outputProfile ));
+    wevote::TaxonomyLineAnnotator::writeResults( annotatedTaxa , outputProfile );
 
     return EXIT_SUCCESS;
 }
