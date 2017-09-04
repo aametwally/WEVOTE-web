@@ -9,22 +9,30 @@
 
 #define DEFAULT_HOST "http://127.0.0.1"
 #define DEFAULT_PORT "34568"
-
+#define DEFAULT_CENTRAL_WEVOTE_HOST "http://127.0.0.1"
+#define DEFAULT_CENTRAL_WEVOTE_PORT "3000"
 struct WevoteRestParameters
 {
     bool verbose;
     std::string host;
     std::string port;
+    std::string wevoteCentralHost;
+    std::string wevoteCentralPort;
     std::string toString() const
     {
         std::stringstream stream;
         stream << "[host:" << host << "]"
-               << "[input:" << port << "]"
+               << "[port:" << port << "]"
+               << "[whost:" << wevoteCentralHost << "]"
+               << "[wport:" << wevoteCentralPort << "]"
                << "[verbose:" << verbose << "]";
         return stream.str();
     }
     WevoteRestParameters()
-        : host{ DEFAULT_HOST } , port{ DEFAULT_PORT } , verbose{false}
+        : host{ DEFAULT_HOST } , port{ DEFAULT_PORT } ,
+          wevoteCentralHost{ DEFAULT_CENTRAL_WEVOTE_HOST } ,
+          wevoteCentralPort{ DEFAULT_CENTRAL_WEVOTE_PORT } ,
+          verbose{false}
     {}
 };
 
@@ -39,6 +47,18 @@ const std::list< QCommandLineOption > commandLineOptions =
     {
         QStringList() << "P" <<  "port",
         "The port (i.e socket number) selected for the application." ,
+        "port" ,
+        QString( DEFAULT_PORT )
+    },
+    {
+        QStringList() << "W" << "wevote-host",
+        "host where central wevote server served."  ,
+        "wevote-host" ,
+        QString( DEFAULT_CENTRAL_WEVOTE_HOST )
+    },
+    {
+        QStringList() << "R" <<  "wevote-port",
+        "The port (i.e socket number) selected for the central wevote server." ,
         "port" ,
         QString( DEFAULT_PORT )
     },
@@ -59,6 +79,10 @@ auto extractFunction = []( const QCommandLineParser &parser ,
             parser.value("host").toStdString();
     results.parameters.port =
             parser.value("port").toStdString();
+    results.parameters.wevoteCentralHost =
+            parser.value("wevote-host").toStdString();
+    results.parameters.wevoteCentralPort =
+            parser.value("wevote-port");
 };
 
 int main(int argc, char *argv[])
