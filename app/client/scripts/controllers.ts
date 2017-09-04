@@ -54,11 +54,18 @@ module wevote {
         algorithms: any
     }
 
+    interface IStatus 
+    {
+        code: number,
+        message:string,
+        progress?: number
+    }
     interface IExperiment 
     {
         user: string,
         email: string,
         description: string,
+        status?: string ,
         private: boolean,
         usageScenario: IUsageScenario,
         taxonomySource: ITaxonomySource,

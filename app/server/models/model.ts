@@ -4,21 +4,21 @@
 import * as mongoose from 'mongoose';
 
 export let Schema = mongoose.Schema;
-export let ObjectId = mongoose.Schema.Types.ObjectId;
+export let ObjectId = mongoose.Types.ObjectId;
 export let Mixed = mongoose.Schema.Types.Mixed;
 
 export interface IRead<T> {
     retrieve: (callback: (error: any, result: any) => void) => void;
-    findById: (id: string, callback: (error: any, result: T) => void) => void;
+    findById: (id: string|mongoose.Types.ObjectId, callback: (error: any, result: T) => void) => void;
     findOne(cond?: Object, callback?: (err: any, res: T) => void): mongoose.Query<T>;
     find(cond: Object, fields: Object, options: Object, callback?: (err: any, res: T[]) => void): mongoose.Query<T[]>;
 }
 
 export interface IWrite<T> {
     create: (item: T, callback: (error: any, result: any) => void) => void;
-    update: (_id: mongoose.Types.ObjectId, item: T, callback: (error: any, result: any) => void) => void;
-    findByIdAndUpdate: (_id: mongoose.Types.ObjectId, update: Object, callback: (error: any, result: any) => void) => void;
-    delete: (_id: string, callback: (error: any, result: any) => void) => void;
+    update: (id: string|mongoose.Types.ObjectId, item: T, callback: (error: any, result: any) => void) => void;
+    findByIdAndUpdate: (id: string|mongoose.Types.ObjectId, update: Object, callback: (error: any, result: any) => void) => void;
+    delete: (id: string|mongoose.Types.ObjectId, callback: (error: any, result: any) => void) => void;
     drop: (callback: (error: any) => void) => void;
 }
 
@@ -75,23 +75,23 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
             return this._model.find({}, callback);
     }
 
-    update(_id: mongoose.Types.ObjectId, item: T, callback: (error: any, result: any) => void) {
+    update(_id: string|mongoose.Types.ObjectId, item: T, callback: (error: any, result: any) => void) {
         this._model.findByIdAndUpdate({ _id: _id }, item, callback);
     }
 
-    findByIdAndUpdate(_id: mongoose.Types.ObjectId, update: Object, callback: (error: any, result: any) => void) {
+    findByIdAndUpdate(_id: string|mongoose.Types.ObjectId, update: Object, callback: (error: any, result: any) => void) {
         this._model.findByIdAndUpdate( _id, update , callback);
     }
 
-    delete(_id: string, callback: (error: any, result: any) => void) {
-        this._model.remove({ _id: this.toObjectId(_id) }, (err) => callback(err, null));
+    delete(_id: string|mongoose.Types.ObjectId, callback: (error: any, result: any) => void) {
+        this._model.remove({ _id: _id }, (err) => callback(err, null));
     }
 
     drop(callback: (error: any) => void) {
         this._model.remove({}, callback);
     }
 
-    findById(_id: string, callback: (error: any, result: T) => void,
+    findById(_id: string|mongoose.Types.ObjectId, callback: (error: any, result: T) => void,
         populateElements?: mongoose.ModelPopulateOptions | mongoose.ModelPopulateOptions[]) {
         if (populateElements)
             return this._model.findById(_id)

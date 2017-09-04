@@ -3,20 +3,13 @@ import { ExperimentModel, IExperimentModel, IConfig, IStatus, IUsageScenario } f
 import { Request, Response, NextFunction } from 'express';
 import { IRemoteFile } from "../models/remotefile";
 import { UserModel, IUserModel } from '../models/user';
-import { IWevoteClassification, IWevoteClassificationPatch } from '../models/wevote';
+import { IWevoteClassification, IWevoteClassificationPatch , IWevoteSubmitEnsemble } from '../models/wevote';
 import { verifyOrdinaryUser } from './verify';
 import { UploadRouter } from './upload';
 import * as fs from 'fs';
 import * as http from 'http';
 import { config } from '../config'
 
-export interface IWevoteSubmitEnsemble {
-    jobID: string,
-    reads: IWevoteClassification[],
-    score: number,
-    penalty: number,
-    minNumAgreed: number
-}
 
 export class ExperimentRouter extends BaseRoute {
 
@@ -153,7 +146,7 @@ export class ExperimentRouter extends BaseRoute {
             ;
     }
 
-    public static router() {
+    public static router() : any  {
         let _ = new ExperimentRouter();
         return _._router;
     }

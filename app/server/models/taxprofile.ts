@@ -39,7 +39,7 @@ export interface ITaxonomyAbundance extends mongoose.Document {
 }
 
 export interface ITaxonomyAbundanceProfileModel extends mongoose.Document {
-    experiment: mongoose.Schema.Types.ObjectId,
+    experiment: mongoose.Types.ObjectId,
     taxa_abundance: mongoose.Types.DocumentArray<ITaxonomyAbundance>;
 }
 

@@ -5,6 +5,16 @@ import { RepositoryBase, csvJSON } from './model';
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 import { ITaxonomyAbundance } from './taxprofile';
+import { IExperimentModel } from './experiment';
+
+
+export interface IWevoteSubmitEnsemble {
+    jobID: string,
+    reads: IWevoteClassification[],
+    score: number,
+    penalty: number,
+    minNumAgreed: number
+}
 
 export interface IWevoteClassification extends mongoose.Document {
     seqId: string,
@@ -17,7 +27,7 @@ export interface IWevoteClassification extends mongoose.Document {
 }
 
 export interface IWevoteClassificationPatch extends mongoose.Document {
-    experiment: mongoose.Schema.Types.ObjectId,
+    experiment: mongoose.Types.ObjectId,
     numToolsUsed: number,
     patch: mongoose.Types.Array<IWevoteClassification>
 }
@@ -41,7 +51,7 @@ export const wevoteClassificationSchema = new mongoose.Schema({
         type: Number
     },
     numToolsUsed: {
-        type: Number 
+        type: Number
     },
     score: {
         type: Number
@@ -51,18 +61,18 @@ export const wevoteClassificationSchema = new mongoose.Schema({
 
 export class WevoteClassificationPatchModel {
     public static schema = new mongoose.Schema({
-        experiment: { 
+        experiment: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Experiment',
-            required: true 
+            required: true
         },
-        numToolsUsed: { 
-            type : Number,
-            required: true 
+        numToolsUsed: {
+            type: Number,
+            required: true
         },
-        patch: { 
+        patch: {
             type: [wevoteClassificationSchema],
-            required: true 
+            required: true
 
         }
     });
@@ -71,36 +81,39 @@ export class WevoteClassificationPatchModel {
     mongoose.model<IWevoteClassificationPatch>('WevoteClassificationPatch', WevoteClassificationPatchModel.schema);
     public static repo = new RepositoryBase<IWevoteClassificationPatch>(WevoteClassificationPatchModel._model);
 
-    public static reset = ( experimentId : string , cb?: any ) => 
-    {
-        WevoteClassificationPatchModel.repo.drop(function (err: any) {
-            if (err) throw err;
-            console.log("WevoteClassificationPatch cleared");
-            WevoteClassificationPatchModel.repo.findOne({}, function (err: any, doc: any) {
-                if (!doc) {
-                    //Collection is empty
-                    //build fomr file
-                    fs.readFile(__dirname + "/wevote.csv", 'utf8', function (err, data) {
-                        if (err) throw err;
-                        let wevoteOutputData = csvJSON( data );
-                        wevoteOutputData.forEach( function(readInfo:any){
-                            readInfo.votes = [ readInfo.tool0 , readInfo.tool1 , readInfo.tool2 ];
-                        });
-                        let numToolsUsed = wevoteOutputData[0].numToolsUsed;
+    public static parseUnclassifiedEnsemble = (file: string): Array<IWevoteClassification> => {
+        let array = new Array<IWevoteClassification>();
+        const lines = file.split('\n');
+        lines.forEach((line: string) => {
+            const tokens: string[] = line.trim().split(",");
+            const seqId = tokens[0];
+            const votes = tokens.slice(1).map((val: string) => { return parseInt(val, 10); });
+            array.push(<IWevoteClassification>{ seqId: seqId, votes: votes });
+        });
+        return array;
+    }
 
-                        const wevotePatch: IWevoteClassificationPatch = <any>{ 
-                            experiment: experimentId ,
-                            numToolsUsed: numToolsUsed ,
-                            patch: <any> wevoteOutputData 
-                         };
-                        WevoteClassificationPatchModel.repo.create(wevotePatch, function (err, doc) {
-                            if (err) throw err;
-                            if( cb ) cb( doc._id );
-                            // console.log("Wevote Classification Added: " + doc);
-                        });
-                    })
-                }
-            });
+    public static makeWevoteSubmission =
+    (experiment: IExperimentModel, cb: (wevoteSubmission: IWevoteSubmitEnsemble) => void) => {
+        fs.readFile(__dirname + '/ensemble_unclassified.csv', 'utf8', (err: any, data: string) => {
+            if (err) throw err;
+            let unclassifiedReads = WevoteClassificationPatchModel.parseUnclassifiedEnsemble(data);
+
+            let numToolsUsed = unclassifiedReads[0].votes.length;
+
+            const wevotePatch = <IWevoteClassificationPatch>{
+                experiment: experiment._id,
+                numToolsUsed: numToolsUsed,
+                patch: <any>unclassifiedReads
+            };
+            const submission: IWevoteSubmitEnsemble = {
+                jobID: experiment._id,
+                reads: unclassifiedReads,
+                score: experiment.config.minScore,
+                penalty: experiment.config.penalty,
+                minNumAgreed: experiment.config.minNumAgreed
+            };
+            cb( submission );
         });
     }
 }

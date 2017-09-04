@@ -81,7 +81,7 @@ export class UploadRouter extends BaseRoute {
         })
     }
 
-    public static router() {
+    public static router() :any {
         let _ = new UploadRouter();
         return _._router;
     }

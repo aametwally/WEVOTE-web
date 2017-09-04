@@ -85,7 +85,7 @@ export class UserRouter extends BaseRoute {
                 });
             });
     }
-    public static router() {
+    public static router():any {
         let _ = new UserRouter();
         return _._router;
     }

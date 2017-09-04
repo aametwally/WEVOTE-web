@@ -21,7 +21,7 @@ export class TaxonomyRouter extends BaseRoute {
             });
     }
 
-    static router() {
+    static router() :any {
         let _ = new TaxonomyRouter();
         return _._router;
     }

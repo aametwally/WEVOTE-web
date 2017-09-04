@@ -25,7 +25,7 @@ export class AlgorithmRouter extends BaseRoute {
             });
     }
 
-    public static router() {
+    public static router() : any {
         let _ = new AlgorithmRouter();
         return _._router;
     }

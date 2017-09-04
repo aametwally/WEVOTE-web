@@ -2,6 +2,7 @@ import * as Express from 'express';
 import * as path from 'path';
 import * as logger from 'morgan';
 import * as ExpressSession from 'express-session';
+import * as http from 'http';
 // let FileStore = require('session-file-store')(ExpressSession);
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
@@ -18,6 +19,8 @@ import { ExperimentRouter } from './routes/experiment';
 import { TaxonomyAbundanceProfileRouter } from './routes/taxprofile';
 import { init } from './models/initdb';
 import { UserModel } from './models/user';
+import { WevoteClassificationPatchModel, IWevoteSubmitEnsemble } from './models/wevote';
+import { IExperimentModel , Status } from './models/experiment';
 import { config } from './config'
 
 export class Server {
@@ -36,6 +39,43 @@ export class Server {
         this.passport();
         this.routes();
         this.api();
+        init((experiment: IExperimentModel) => {
+            WevoteClassificationPatchModel.makeWevoteSubmission(experiment,
+                (submission: IWevoteSubmitEnsemble) => {
+                    const options: http.RequestOptions = {
+                        host: config.cppWevoteUrl,
+                        port: config.cppWevotePort,
+                        path: '/wevote/submit/ensemble',
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    };
+
+                    const httpreq = http.request(options, function (response) {
+                        response.setEncoding('utf8');
+                        response.on('data', function (chunk) {
+                            console.log("body: " + chunk);
+                        });
+
+                        response.on('end', function () {
+                            console.log('ensemble file posted to wevote core server');
+                            experiment.status.code = Status.IN_PROGRESS;
+                            experiment.status.message = Status[ Status.IN_PROGRESS ];
+                            experiment.save((err: any, doc: IExperimentModel) => {
+                                if (err)
+                                    throw err;
+                                console.log("updated Experiment status" + doc.status );
+                            });
+                            response.on('error', function (err: Error) {
+                                console.log('Error:' + err);
+                            });
+                        })
+                    });
+                    httpreq.write(JSON.stringify(submission));
+                    httpreq.end();
+                });
+        });
     }
 
     private api() {
@@ -43,13 +83,12 @@ export class Server {
     }
 
     private db() {
-        mongoose.connect(config.mongoUrl , {useMongoClient:true});
+        mongoose.connect(config.mongoUrl, { useMongoClient: true });
         let db = mongoose.connection;
         db.on('error', console.error.bind(console, 'connection error:'));
         db.once('open', function () {
             console.log("Connected correctly to the server.");
         });
-        init();
     }
 
     private middleware() {

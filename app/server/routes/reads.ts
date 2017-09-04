@@ -29,7 +29,7 @@ export class ReadsRouter extends BaseRoute {
         });
     };
 
-    static router() {
+    static router() :any {
         let _ = new ReadsRouter();
         return _._router;
     }

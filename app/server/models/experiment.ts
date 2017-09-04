@@ -11,9 +11,17 @@ import { IUserModel } from './user';
 import * as mongoose from 'mongoose';
 
 
+export enum Status {
+    NOT_STARTED , 
+    IN_PROGRESS ,
+    SUCCSESS ,
+    FAILURE
+}
+
 export interface IStatus extends mongoose.Document {
-    started: Boolean;
-    progress: number;
+    code: Status,
+    message: string,
+    progress?: number
 }
 
 
@@ -25,18 +33,18 @@ export interface IConfig extends mongoose.Document {
 }
 
 export interface IResults extends mongoose.Document {
-    wevoteClassification: mongoose.Schema.Types.ObjectId,
-    taxonomyAbundanceProfile: mongoose.Schema.Types.ObjectId
+    wevoteClassification: mongoose.Types.ObjectId,
+    taxonomyAbundanceProfile: mongoose.Types.ObjectId
 }
 
 export interface IUsageScenario extends mongoose.Document {
     value: string , 
     usage: string , 
-    hint: string
+    hint?: string
 }
 
 export interface IExperimentModel extends mongoose.Document {
-    user: mongoose.Schema.Types.ObjectId;
+    user: mongoose.Types.ObjectId;
     isPrivate: Boolean;
     email: string;
     description: string;
@@ -45,10 +53,10 @@ export interface IExperimentModel extends mongoose.Document {
     ensemble: IRemoteFile;
     config: IConfig;
     status: IStatus;
-    results: IResults;
+    results?: IResults;
     usageScenario: IUsageScenario;
-    createdAt: Date;
-    modifiedAt: Date;
+    createdAt?: Date;
+    modifiedAt?: Date;
 }
 
 const configSchema = new mongoose.Schema({
@@ -73,7 +81,8 @@ const configSchema = new mongoose.Schema({
 });
 
 const statusSchema = new mongoose.Schema({
-    started: Boolean,
+    code: Number,
+    message: String,
     progress: {
         type: Number,
         min: 0,
@@ -135,7 +144,7 @@ export class ExperimentModel {
     private static _model = mongoose.model<IExperimentModel>('Experiment', ExperimentModel.schema);
     public static repo = new RepositoryBase<IExperimentModel>(ExperimentModel._model);
 
-    public static reset = (userId: string, cb?: any) => {
+    public static reset = (userId: mongoose.Types.ObjectId, cb: (exp:IExperimentModel) => void ) => {
         ExperimentModel.repo.drop((err: any) => {
             if (err) throw err;
             console.log("ExperimentModel cleared");
@@ -184,19 +193,19 @@ export class ExperimentModel {
                         isPrivate: true,
                         email: "asem_alla@msn.com",
                         description: "todo",
+                        usageScenario: <IUsageScenario>{ value: "classificationFromEnsemble" ,  usage: "Classification" },
                         reads: _reads,
                         ensemble: _ensemble,
                         taxonomy: _taxonomy,
-                        config: _config,
-                        results: {}
+                        status: <IStatus> { code: Status.NOT_STARTED , message: Status[Status.NOT_STARTED] },
+                        config: _config
                     }, (err: any, exp: any) => {
                         if (err) {
                             console.log("Error:" + err);
                             throw err;
                         }
                         console.log("experiment posted!:" + exp);
-                        const id = exp._id;
-                        if (cb) cb(id);
+                        cb( exp );
                     });
 
                 }

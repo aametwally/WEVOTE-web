@@ -46,7 +46,7 @@ export class UserModel {
         passport.deserializeUser(UserModel._model.deserializeUser());
     }
 
-    public static reset = (cb?: ( id: string ) => void ) => {
+    public static reset = (cb?: ( id: mongoose.Types.ObjectId ) => void ) => {
         UserModel.repo.drop(function (err: any) {
             if (err) throw err;
             console.log("Users cleared");
