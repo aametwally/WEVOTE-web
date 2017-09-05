@@ -7,6 +7,12 @@ import * as mongoose from 'mongoose';
 import { ITaxonomyAbundance } from './taxprofile';
 import { IExperimentModel } from './experiment';
 
+export interface IRemoteAddress 
+{
+    host: string , 
+    port: string , 
+    relativePath: string
+}
 
 export interface IWevoteSubmitEnsemble {
     jobID: string,

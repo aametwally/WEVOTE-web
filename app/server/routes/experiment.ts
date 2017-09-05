@@ -3,7 +3,7 @@ import { ExperimentModel, IExperimentModel, IConfig, IStatus, IUsageScenario } f
 import { Request, Response, NextFunction } from 'express';
 import { IRemoteFile } from "../models/remotefile";
 import { UserModel, IUserModel } from '../models/user';
-import { IWevoteClassification, IWevoteClassificationPatch , IWevoteSubmitEnsemble } from '../models/wevote';
+import { IWevoteClassification, IWevoteClassificationPatch , IWevoteSubmitEnsemble , IRemoteAddress } from '../models/wevote';
 import { verifyOrdinaryUser } from './verify';
 import { UploadRouter } from './upload';
 import * as fs from 'fs';
@@ -12,6 +12,10 @@ import { config } from '../config'
 
 
 export class ExperimentRouter extends BaseRoute {
+
+    // static private readonly clientAddress: IRemoteAddress = {
+    //     host: config.
+    // }
 
     constructor() {
         super();
