@@ -115,7 +115,7 @@ void RestHandler::_handleGet(http_request message) const
 
     _route( Method::GET , message );
 
-    LOG_INFO("%s",message.to_string().c_str());
+    LOG_INFO("%ws",message.to_string().c_str());
 
     auto paths = http::uri::split_path(http::uri::decode(message.relative_uri().path()));
 
@@ -163,9 +163,7 @@ void RestHandler::_handlePost(http_request message) const
 
     auto paths = uri::split_path(uri::decode(message.relative_uri().path()));
 
-    LOG_DEBUG("Normalized Path:%s",wevote::io::join( paths , utility::string_t{'|'}).c_str());
-
-    LOG_INFO("%s",message.to_string().c_str());
+    LOG_DEBUG("Normalized Path:%ws",wevote::io::join( paths , utility::string_t{'|'}).c_str());
 
     message.reply(status_codes::OK,message.to_string());
 
@@ -182,7 +180,7 @@ void RestHandler::_handleDelete(http_request message) const
     LOG_DEBUG("Handling DELETE Request..");
 
     _route( Method::DEL , message );
-    LOG_INFO("%s",message.to_string().c_str());
+    LOG_INFO("%ws",message.to_string().c_str());
     utility::string_t rep = U("WRITE YOUR OWN DELETE OPERATION");
     message.reply(status_codes::OK,rep);
 
@@ -200,7 +198,7 @@ void RestHandler::_handlePut(http_request message) const
     LOG_DEBUG("Handling PUT Request..");
 
     _route( Method::PUT , message );
-    LOG_INFO("%s",message.to_string().c_str());
+    LOG_INFO("%ws",message.to_string().c_str());
     auto rep = U("WRITE YOUR OWN PUT OPERATION");
     message.reply(status_codes::OK,rep);
 

@@ -9,6 +9,17 @@ namespace rest
 WevoteRestHandler::WevoteRestHandler(utility::string_t url)
     : RestHandler( url )
 {
+    static auto _ = qRegisterMetaType<WevoteSubmitEnsemble>("WevoteSubmitEnsemble");
+    connect( this , SIGNAL(doneClassification_SIGNAL(WevoteSubmitEnsemble)) ,
+             this , SLOT(doneClassification_SLOT(WevoteSubmitEnsemble)));
+}
+
+void WevoteRestHandler::doneClassification_SLOT(WevoteSubmitEnsemble classified)
+{
+    LOG_DEBUG("serializing classified reads..");
+    json::value data = io::Objectifier::objectFrom( classified );
+//    ucout << data.serialize();
+    LOG_DEBUG("[DONE] serializing classified reads..");
 }
 
 void WevoteRestHandler::_addRoutes()
@@ -20,15 +31,20 @@ void WevoteRestHandler::_addRoutes()
 
 void WevoteRestHandler::_submitWevoteEnsemble(http_request message)
 {
-    LOG_DEBUG("Submiting..");
+    const std::string s = "Submitting..";
+    LOG_DEBUG("%ws",s.c_str());
     message.extract_json()
-            .then([]( web::json::value value )
+            .then([this,message]( web::json::value value )
     {
         WevoteSubmitEnsemble data = io::DeObjectifier::fromObject< WevoteSubmitEnsemble >( value );
-        json::value jsonData = io::Objectifier::objectFrom( data );
-        ucout << jsonData.serialize();
-    })
-    .wait();
+        LOG_DEBUG("%ws",message.request_uri().to_string().c_str());
+        LOG_DEBUG("%ws",message.get_remote_address().c_str());
+
+        for( const std::pair< utility::string_t , utility::string_t > &p : message.headers())
+            LOG_DEBUG("[%ws:%ws]",p.first.c_str(),p.second.c_str());
+
+        Q_EMIT doneClassification_SIGNAL( data );
+    });
     LOG_DEBUG("[DONE] Submiting..");
 }
 

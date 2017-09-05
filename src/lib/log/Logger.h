@@ -101,10 +101,26 @@ private: // Private Member Variables
 
 #define LOG_EXIT( ... )                                                      \
     Logger::instance()->log( LOG_LEVEL::LEVEL_EXIT , __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__ )
-#endif // LOGGER_H
 
 
 #define WEVOTE_ASSERT( assertation , msg ) do { \
     if(!(assertation)) \
     LOG_ERROR("Assertation failed:%s",msg);\
     }while(0)
+
+
+
+template< typename CharType ,
+          typename std::enable_if< std::is_same< CharType , char >::value , int >::type = 0 >
+constexpr auto strFormat()
+{
+    return "%s";
+}
+
+template< typename CharType ,
+          typename std::enable_if< std::is_same< CharType , wchar_t >::value , int >::type = 0 >
+constexpr auto strFormat()
+{
+    return "%ws";
+}
+#endif // LOGGER_H

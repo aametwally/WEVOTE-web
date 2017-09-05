@@ -1,6 +1,8 @@
 #ifndef RESTHANDLER_H
 #define RESTHANDLER_H
 
+#include <QObject>
+
 #include "cpprest/http_listener.h"
 #include "cpprest/http_msg.h"
 
@@ -14,8 +16,9 @@ using namespace http;
 using namespace utility;
 using namespace http::experimental::listener;
 
-class RestHandler
+class RestHandler : public QObject
 {
+    Q_OBJECT
 protected:
     enum class Method {
         GET,

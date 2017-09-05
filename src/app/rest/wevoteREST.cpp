@@ -82,7 +82,7 @@ auto extractFunction = []( const QCommandLineParser &parser ,
     results.parameters.wevoteCentralHost =
             parser.value("wevote-host").toStdString();
     results.parameters.wevoteCentralPort =
-            parser.value("wevote-port");
+            parser.value("wevote-port").toStdString();
 };
 
 int main(int argc, char *argv[])

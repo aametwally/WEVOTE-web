@@ -9,7 +9,6 @@ namespace wevote
 namespace io
 {
 
-
 template< typename StringType ,
           typename std::enable_if< std::is_same< std::string , StringType >::value , int >::type = 0 >
 defs::string_t toStringType( const StringType &str )
