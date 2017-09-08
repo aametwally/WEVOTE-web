@@ -3,12 +3,15 @@
 
 #include <atomic>
 
+#include <QMetaEnum>
 #include "WevoteJSON.hpp"
 #include "ReadInfo.h"
 #include "Serializable.hpp"
 
 class WevoteSubmitEnsembleStatus : public Serializable< WevoteSubmitEnsembleStatus >
 {
+protected:
+    friend class Serializable< WevoteSubmitEnsembleStatus >;
 public:
     enum class Status
     {
@@ -17,6 +20,21 @@ public:
         SUCCESS ,
         FAILURE
     };
+
+    WevoteSubmitEnsembleStatus( const WevoteSubmitEnsembleStatus &other )
+    {
+        setPercentage( other.getPercentage());
+        setStatus( other.getStatus());
+    }
+    WevoteSubmitEnsembleStatus()
+        : _status( Status::NOT_STARTED ), _percentage( 0 ) {}
+
+    WevoteSubmitEnsembleStatus &operator=( const WevoteSubmitEnsembleStatus &other )
+    {
+        setPercentage( other.getPercentage());
+        setStatus( other.getStatus());
+        return *this;
+    }
 
     void setStatus( Status status )
     {
@@ -39,10 +57,10 @@ public:
     void objectify( Objectifier &properties ) const
     {
         auto meta = _meta< defs::char_t , Meta >;
-        properties.objectify( meta( Meta::Status ) , getStatus() );
-        properties.objectify( meta( Meta::Percentage  ) , getPercentage() );
+        properties.objectify( meta( Meta::Status ) , static_cast< int >( getStatus()) );
+        properties.objectify( meta( Meta::Percentage  ) , static_cast< float >( getPercentage()) );
     }
-private:
+protected:
     enum class Meta
     {
         Status ,
@@ -53,11 +71,11 @@ private:
     void _populateFromObject( const DeObjectifier &properties )
     {
         auto meta = _meta< defs::char_t , Meta >;
-        Status s;
+        int s;
         float p;
         properties.deObjectify( meta( Meta::Status  ) , s );
         properties.deObjectify( meta( Meta::Percentage  ) , p );
-        _status.store( s );
+        _status.store( static_cast< Status >( s ));
         _percentage.store( p );
     }
 

@@ -94,7 +94,7 @@ public:
             const auto tokens = io::split( *firstIt , delim );
             const int toolsCount = tokens.size() - 1;
             for( auto i = 0 ; i < toolsCount ; i++ )
-                tools.push_back( "ALG" + io::toString( i ));
+                tools.push_back( "ALG" + io::toString<std::string>( i ));
         }
 
         std::for_each( firstIt , lastIt , [&reads,delim]( const std::string  &line){
@@ -203,7 +203,7 @@ public:
     template< typename Objectifier >
     void objectify( Objectifier &properties ) const
     {
-        auto meta = _meta< wchar_t , Meta >;
+        auto meta = _meta< defs::char_t , Meta >;
         properties.objectify( meta( Meta::SeqId ) , seqID );
         properties.objectify( meta( Meta::NumToolsUsed ) , numToolsUsed );
         properties.objectify( meta( Meta::NumToolsReported  ) , numToolsReported );
@@ -227,7 +227,7 @@ protected:
     template< typename DeObjectifier >
     void _populateFromObject( const DeObjectifier &properties )
     {
-        auto meta = _meta< wchar_t , Meta >;
+        auto meta = _meta< defs::char_t , Meta >;
         properties.deObjectify( meta( Meta::SeqId ) , seqID );
         properties.deObjectify( meta( Meta::NumToolsUsed ) , numToolsUsed );
         properties.deObjectify( meta( Meta::NumToolsReported  ) , numToolsReported );

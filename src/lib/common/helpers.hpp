@@ -11,7 +11,7 @@ namespace io
 
 template< typename StringType ,
           typename std::enable_if< std::is_same< std::string , StringType >::value , int >::type = 0 >
-defs::string_t toStringType( const StringType &str )
+std::wstring toStringType( const StringType &str )
 {
     std::wstring temp(str.length(),U(' '));
     std::copy(str.begin(), str.end(), temp.begin());
@@ -19,7 +19,7 @@ defs::string_t toStringType( const StringType &str )
 }
 
 template< typename StringType ,
-          typename std::enable_if< std::is_same< defs::string_t , StringType >::value , int >::type = 0 >
+          typename std::enable_if< std::is_same< std::wstring , StringType >::value , int >::type = 0 >
 std::string toStringType( const StringType &str )
 {
     std::string temp(str.length(), ' ');
@@ -28,9 +28,9 @@ std::string toStringType( const StringType &str )
 }
 
 template< typename SeqIt, typename SeperatorType  >
-typename SeqIt::value_type join( SeqIt first , SeqIt last , const SeperatorType &sep )
+auto join( SeqIt first , SeqIt last , const SeperatorType &sep )
 {
-    using StringType = SeqIt::value_type;
+    using StringType = typename std::iterator_traits< SeqIt >::value_type;
     auto binaryJoinString = [sep]( const StringType &a , const StringType &b )->StringType
     {
         return a + sep + b;
@@ -51,18 +51,18 @@ typename Container::value_type join( const Container &container ,
     return join( container.cbegin() , container.cend() , sep );
 }
 
-template< typename StringType = std::string ,
+template< typename StringType ,
           typename T ,
           typename std::enable_if< std::is_same< StringType , std::string >::value , int >::type = 0>
-typename StringType toString( typename T value )
+std::string toString( T value )
 {
     return std::to_string( value );
 }
 
-template< typename StringType = std::string  ,
+template< typename StringType ,
           typename T ,
           typename std::enable_if< std::is_same< StringType , std::wstring >::value , int >::type = 0>
-typename StringType toString( T value )
+std::wstring toString( T value )
 {
     return std::to_wstring( value );
 }
@@ -70,7 +70,8 @@ typename StringType toString( T value )
 template< typename CharType = char ,  typename SeqIt >
 std::vector< std::basic_string< CharType >> asStringsVector( SeqIt firstIt , SeqIt lastIt )
 {
-    using T = SeqIt::value_type;
+
+    using T = typename std::iterator_traits< SeqIt >::value_type;
     using StringType = std::basic_string< CharType >;
     std::vector< StringType > stringified;
     std::transform( firstIt , lastIt ,

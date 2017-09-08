@@ -12,9 +12,11 @@ namespace io
 {
 
 template< typename T >
-using isWStringType = std::is_same< T , utility::string_t >;
+using isWStringType = std::is_same< T , std::wstring >;
 template< typename T >
 using isStringType = std::is_same< T , std::string >;
+template< typename T >
+using isSuppotedString = std::is_same< T , defs::string_t >;
 template< typename T >
 using isBoolType = std::is_same< T , bool >;
 template< typename T>
@@ -24,6 +26,12 @@ using enableIfNumber = std::enable_if< std::is_arithmetic< T >::value && !std::i
 template< typename T >
 using enableIfAPISupported = std::enable_if< isWStringType< T >::value ||
 isStringType< T >::value || isArithmeticType< T >::value , int >;
+template< typename T >
+using enableIfSupportedString = std::enable_if< ( isWStringType< T >::value ||
+isStringType< T >::value ) && isSuppotedString< T >::value , int >;
+template< typename T >
+using disableIfSupportedString = std::enable_if< ( isWStringType< T >::value ||
+isStringType< T >::value ) && !isSuppotedString< T >::value , int >;
 template< typename T >
 using disableIfAPISupported = std::enable_if< !isWStringType< T >::value &&
 !isStringType< T >::value && !isArithmeticType< T >::value , int >;
@@ -54,14 +62,14 @@ private:
     }
 
     template< typename T ,
-              typename std::enable_if< isWStringType< T >::value  , int >::type =0>
+              typename enableIfSupportedString< T >::type =0>
     static web::json::value _toValue( const T &str )
     {
         return web::json::value::string( str );
     }
 
     template< typename T ,
-              typename std::enable_if< isStringType< T >::value , int >::type =0>
+              typename disableIfSupportedString< T >::type =0>
     static web::json::value _toValue( const T &str )
     {
         return web::json::value::string(io::toStringType( str ));
@@ -131,7 +139,7 @@ class DeObjectifier
 {
 public:
     template< typename T >
-    static typename T fromObject( web::json::value object )
+    static T fromObject( web::json::value object )
     {
         DeObjectifier properties( object );
         return T::fromObject( properties );
@@ -145,28 +153,28 @@ private:
     }
 
     template< typename T ,
-              typename std::enable_if< std::is_arithmetic< typename T >::value , int  >::type = 0 >
+              typename std::enable_if< std::is_arithmetic< T >::value , int  >::type = 0 >
     static double _fromValue( const web::json::value &number )
     {
         return number.as_double();
     }
 
     template< typename T ,
-              typename std::enable_if<std::is_same< typename T, bool>::value , int >::type = 0 >
+              typename std::enable_if<std::is_same< T, bool>::value , int >::type = 0 >
     static bool _fromValue( const web::json::value &boolArg )
     {
         return boolArg.as_bool();
     }
 
     template< typename T ,
-              typename std::enable_if< isWStringType< T >::value , int >::type = 0 >
-    static std::wstring _fromValue( const web::json::value &str )
+              typename enableIfSupportedString< T >::type = 0 >
+    static defs::string_t _fromValue( const web::json::value &str )
     {
         return str.as_string();
     }
 
     template< typename T ,
-              typename std::enable_if< isStringType< T >::value , int >::type = 0 >
+              typename disableIfSupportedString< T >::type = 0 >
     static std::string _fromValue( const web::json::value &str )
     {
         return wevote::io::toStringType( str.as_string());
@@ -202,11 +210,11 @@ public:
     }
 
     template< typename T >
-    void deObjectify( const utility::string_t &key , typename T &value ) const
+    void deObjectify( const utility::string_t &key , T &value ) const
     {
         try
         {
-            value = _fromValue< typename T >( _object.at( key ));
+            value = _fromValue< T >( _object.at( key ));
         }
         catch( ... )
         {
