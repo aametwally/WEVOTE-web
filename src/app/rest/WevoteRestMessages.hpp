@@ -93,6 +93,64 @@ private:
     std::atomic< float > _percentage;
 };
 
+class RemoteAddress : public Serializable<RemoteAddress>
+{
+private:
+    friend class Serializable< RemoteAddress > ;
+public:
+    template< typename Objectifier >
+    void objectify( Objectifier &properties ) const
+    {
+        auto meta = _meta< defs::char_t , Meta >;
+        properties.objectify( meta( Meta::HostAddress ) , _hostAddress );
+        properties.objectify( meta( Meta::PortNumber ) , _portNumber );
+        properties.objectify( meta( Meta::RelativePath ) , _relativePath );
+    }
+
+    const std::string &getHost() const
+    {
+        return _hostAddress;
+    }
+    const std::string &getPort() const
+    {
+        return _portNumber;
+    }
+    const std::string &getRelativePath() const
+    {
+        return _relativePath;
+    }
+private:
+    enum class Meta
+    {
+        HostAddress,
+        PortNumber,
+        RelativePath
+    };
+
+    template< typename DeObjectifier >
+    void _populateFromObject( const DeObjectifier &properties )
+    {
+        auto meta = _meta< defs::char_t , Meta >;
+        properties.deObjectify( meta( Meta::HostAddress ) , _hostAddress );
+        properties.deObjectify( meta( Meta::PortNumber ) , _portNumber );
+        properties.deObjectify( meta( Meta::RelativePath ) , _relativePath );
+    }
+
+    static const std::map< Meta , std::string > &_metaMap()
+    {
+        static const std::map< Meta , std::string > m {
+            { Meta::HostAddress , "host" } ,
+            { Meta::PortNumber , "port" } ,
+            { Meta::RelativePath , "relativePath" }
+        };
+        return m;
+    }
+private:
+    std::string _hostAddress;
+    std::string _portNumber;
+    std::string _relativePath;
+};
+
 class WevoteSubmitEnsemble : public Serializable< WevoteSubmitEnsemble >
 {
 protected:
@@ -106,6 +164,7 @@ public:
     {
         auto meta = _meta< defs::char_t , Meta >;
         properties.objectify( meta( Meta::JobID ) , _d->jobID );
+        properties.objectify( meta( Meta::ResultsRoute) , _d->resultsRoute );
         properties.objectify( meta( Meta::Status ) , _d->status );
         properties.objectify( meta( Meta::Reads ) , _d->reads.cbegin() , _d->reads.cend() );
         properties.objectify( meta( Meta::Score  ) , _d->score );
@@ -113,10 +172,15 @@ public:
         properties.objectify( meta( Meta::MinNumAgreed  ) , _d->minNumAgreed );
     }
 
+    const RemoteAddress &getResultsRoute() const
+    {
+        return _d->resultsRoute;
+    }
 private:
     enum class Meta
     {
         JobID ,
+        ResultsRoute,
         Status ,
         Reads ,
         Score ,
@@ -127,6 +191,7 @@ private:
     struct Data
     {
         std::string jobID;
+        RemoteAddress resultsRoute;
         WevoteSubmitEnsembleStatus status;
         std::vector< wevote::ReadInfo > reads;
         double score;
@@ -139,6 +204,7 @@ private:
     {
         auto meta = _meta< defs::char_t , Meta >;
         properties.deObjectify( meta( Meta::JobID ) , _d->jobID );
+        properties.deObjectify( meta( Meta::ResultsRoute) , _d->resultsRoute );
         properties.deObjectify( meta( Meta::Status ) , _d->status );
         properties.deObjectifyArray( meta( Meta::Reads ) , _d->reads );
         properties.deObjectify( meta( Meta::Score  ) , _d->score );
@@ -150,6 +216,7 @@ private:
     {
         static const std::map< Meta , std::string > m {
             { Meta::JobID , "jobID" } ,
+            { Meta::ResultsRoute , "resultsRoute"},
             { Meta::Status , "status" } ,
             { Meta::Reads , "reads" } ,
             { Meta::Score , "score" } ,

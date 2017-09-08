@@ -27,6 +27,22 @@ std::string toStringType( const StringType &str )
     return temp;
 }
 
+template< typename ConvertedType ,
+          typename StringType ,
+          typename std::enable_if< std::is_same< ConvertedType , StringType >::value , int >::type = 0 >
+StringType &convertOrReturn( const StringType &str )
+{
+    return str;
+}
+
+template< typename ConvertedType ,
+          typename StringType ,
+          typename std::enable_if< !std::is_same< ConvertedType , StringType >::value , int >::type = 0 >
+StringType convertOrReturn( const StringType &str )
+{
+    return toStringType( str );
+}
+
 template< typename SeqIt, typename SeperatorType  >
 auto join( SeqIt first , SeqIt last , const SeperatorType &sep )
 {

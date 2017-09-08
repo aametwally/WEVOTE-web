@@ -4,6 +4,7 @@
 #include "RestHandler.h"
 #include "WevoteRestMessages.hpp"
 #include "cpprest/json.h"
+#include "cpprest/http_client.h"
 
 namespace wevote
 {
@@ -27,7 +28,6 @@ protected:
     void _addRoutes() override;
 private:
     void _submitWevoteEnsemble(http_request message);
-private:
 };
 
 }

@@ -18,7 +18,22 @@ void WevoteRestHandler::doneClassification_SLOT(WevoteSubmitEnsemble classified)
 {
     LOG_DEBUG("serializing classified reads..");
     json::value data = io::Objectifier::objectFrom( classified );
-//    ucout << data.serialize();
+    const defs::string_t address =
+            io::convertOrReturn<defs::string_t>(
+                classified.getResultsRoute().getHost() +
+            classified.getResultsRoute().getPort()) ;
+
+    const defs::string_t relativePath =
+            io::convertOrReturn<defs::string_t>(
+                classified.getResultsRoute().getRelativePath());
+
+    auto _client = http::client::http_client(
+                http::uri_builder(address).append_path(relativePath).to_uri());
+
+    utility::istream_t s;
+    s << data;
+    _client.request( methods::GET , "" ,  s ).wait();
+
     LOG_DEBUG("[DONE] serializing classified reads..");
 }
 
