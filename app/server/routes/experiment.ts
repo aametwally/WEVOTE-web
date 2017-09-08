@@ -1,15 +1,19 @@
 import { BaseRoute } from "./route";
-import { ExperimentModel, IExperimentModel, IConfig, IStatus, IUsageScenario } from '../models/experiment';
+import { ExperimentModel, IExperimentModel, IConfig, IStatus, IUsageScenario, IResults } from '../models/experiment';
 import { Request, Response, NextFunction } from 'express';
 import { IRemoteFile } from "../models/remotefile";
 import { UserModel, IUserModel } from '../models/user';
-import { IWevoteClassification, IWevoteClassificationPatch , IWevoteSubmitEnsemble , IRemoteAddress } from '../models/wevote';
+import {
+    IWevoteClassification, IWevoteClassificationPatch,
+    IWevoteSubmitEnsemble, IRemoteAddress,
+    WevoteClassificationPatchModel
+} from '../models/wevote';
 import { verifyOrdinaryUser } from './verify';
 import { UploadRouter } from './upload';
 import * as fs from 'fs';
 import * as http from 'http';
 import { config } from '../config'
-
+import * as mongoose from 'mongoose';
 
 export class ExperimentRouter extends BaseRoute {
 
@@ -148,9 +152,34 @@ export class ExperimentRouter extends BaseRoute {
                     ]);
             })
             ;
+
+        this._router.route('/classification')
+            .post(verifyOrdinaryUser, function (req: Request, res: Response, next: NextFunction) {
+                const submission = <IWevoteSubmitEnsemble>req.body;
+                const expId = mongoose.Types.ObjectId.createFromHexString(submission.jobID);
+
+                const classificationResults: IWevoteClassificationPatch =
+                    <any>{
+                        experiment: expId,
+                        patch: submission.reads
+                    }
+
+                WevoteClassificationPatchModel.repo.create(classificationResults, (err: any, resutls: IWevoteClassificationPatch) => {
+                    if (err) return next(err);
+                    ExperimentModel.repo.findById(expId, (err: any, experiment: IExperimentModel) => {
+                        if (err) return next(err);
+                        if (experiment.results)
+                            experiment.results.wevoteClassification = classificationResults._id;
+                        else throw Error('experiment.results must not be null');
+                        experiment.save();
+                    });
+                })
+            });
+
+
     }
 
-    public static router() : any  {
+    public static router(): any {
         let _ = new ExperimentRouter();
         return _._router;
     }
@@ -159,13 +188,13 @@ export class ExperimentRouter extends BaseRoute {
         const usageScenario = exp.usageScenario;
         switch (usageScenario.value) {
             case 'pipelineFromReads':
-                {}break;
+                { } break;
             case 'pipelineFromSimulatedReads':
-                {}break;
+                { } break;
             case 'classificationFromEnsemble':
                 {
 
-                    const ensemble = fs.readFileSync(UploadRouter.uploadsDir + '/' + exp.ensemble.uri ).toString().trim();
+                    const ensemble = fs.readFileSync(UploadRouter.uploadsDir + '/' + exp.ensemble.uri).toString().trim();
 
                     // split on newlines...
                     const lines = ensemble.split('\n');
@@ -183,6 +212,12 @@ export class ExperimentRouter extends BaseRoute {
                     });
                     const submission: IWevoteSubmitEnsemble =
                         {
+                            resultsRoute: 
+                            {
+                                host: config.host , 
+                                port: config.port , 
+                                relativePath: '/experiment/classification'
+                            },
                             jobID: exp._id,
                             reads: unclassifiedReads,
                             score: exp.config.minScore,
@@ -190,7 +225,7 @@ export class ExperimentRouter extends BaseRoute {
                             penalty: exp.config.penalty
                         }
 
-                    const options : http.RequestOptions = {
+                    const options: http.RequestOptions = {
                         host: config.cppWevoteUrl,
                         port: config.cppWevotePort,
                         path: '/wevote/submit/ensemble',
@@ -209,9 +244,9 @@ export class ExperimentRouter extends BaseRoute {
                         response.on('end', function () {
                             console.log('ensemble file posted to wevote core server');
 
-                        response.on('error', function( err: Error ){
-                            console.log('Error:'+err);
-                        });
+                            response.on('error', function (err: Error) {
+                                console.log('Error:' + err);
+                            });
                         })
                     });
                     httpreq.write(JSON.stringify(submission));

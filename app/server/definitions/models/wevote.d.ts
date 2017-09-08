@@ -2,8 +2,14 @@
 import { RepositoryBase } from './model';
 import * as mongoose from 'mongoose';
 import { IExperimentModel } from './experiment';
+export interface IRemoteAddress {
+    host: string;
+    port: number;
+    relativePath: string;
+}
 export interface IWevoteSubmitEnsemble {
     jobID: string;
+    resultsRoute: IRemoteAddress;
     reads: IWevoteClassification[];
     score: number;
     penalty: number;
@@ -20,7 +26,6 @@ export interface IWevoteClassification extends mongoose.Document {
 }
 export interface IWevoteClassificationPatch extends mongoose.Document {
     experiment: mongoose.Types.ObjectId;
-    numToolsUsed: number;
     patch: mongoose.Types.Array<IWevoteClassification>;
 }
 export declare const wevoteClassificationSchema: mongoose.Schema;

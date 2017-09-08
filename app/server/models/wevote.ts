@@ -6,16 +6,17 @@ import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 import { ITaxonomyAbundance } from './taxprofile';
 import { IExperimentModel } from './experiment';
-
+import {config} from '../config';
 export interface IRemoteAddress 
 {
     host: string , 
-    port: string , 
+    port: number , 
     relativePath: string
 }
 
 export interface IWevoteSubmitEnsemble {
     jobID: string,
+    resultsRoute: IRemoteAddress,
     reads: IWevoteClassification[],
     score: number,
     penalty: number,
@@ -34,7 +35,6 @@ export interface IWevoteClassification extends mongoose.Document {
 
 export interface IWevoteClassificationPatch extends mongoose.Document {
     experiment: mongoose.Types.ObjectId,
-    numToolsUsed: number,
     patch: mongoose.Types.Array<IWevoteClassification>
 }
 
@@ -105,15 +105,24 @@ export class WevoteClassificationPatchModel {
             if (err) throw err;
             let unclassifiedReads = WevoteClassificationPatchModel.parseUnclassifiedEnsemble(data);
 
-            let numToolsUsed = unclassifiedReads[0].votes.length;
-
             const wevotePatch = <IWevoteClassificationPatch>{
                 experiment: experiment._id,
-                numToolsUsed: numToolsUsed,
                 patch: <any>unclassifiedReads
             };
+
+            const resultsRoute = 
+            {
+                host: config.host ,
+                port: config.port , 
+            }
+
             const submission: IWevoteSubmitEnsemble = {
                 jobID: experiment._id,
+                resultsRoute: {
+                    host: config.host , 
+                    port: config.port , 
+                    relativePath: '/experiment/classification'
+                },
                 reads: unclassifiedReads,
                 score: experiment.config.minScore,
                 penalty: experiment.config.penalty,
