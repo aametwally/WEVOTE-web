@@ -106,7 +106,7 @@ export class Server {
         //     resave: true
         // }));
         this._app.use(logger('dev'));
-        this._app.use(bodyParser.json());
+        this._app.use(bodyParser.json({limit: '50mb'}));
         this._app.use(bodyParser.urlencoded({ extended: false }));
         this._app.use(cookieParser());
     }

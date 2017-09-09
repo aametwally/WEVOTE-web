@@ -24,6 +24,40 @@ export class ExperimentRouter extends BaseRoute {
     constructor() {
         super();
 
+        this._router.route('/classification')
+            .post(function (req: Request, res: Response, next: NextFunction) {
+                console.log('receiving results..');
+                const submission = <IWevoteSubmitEnsemble>req.body;
+                const expId = mongoose.Types.ObjectId.createFromHexString(submission.jobID);
+
+                const classificationResults: IWevoteClassificationPatch =
+                    <any>{
+                        experiment: expId,
+                        patch: submission.reads
+                    }
+
+                WevoteClassificationPatchModel.repo.create(classificationResults, (err: any, resutls: IWevoteClassificationPatch) => {
+                    if (err) {
+                        console.log(err);
+                        return next(err);
+                    }
+                    ExperimentModel.repo.findById(expId, (err: any, experiment: IExperimentModel) => {
+                        if (err) {
+                            console.log(err);
+                            return next(err);
+                        }
+                        experiment.results = <any>
+                        { 
+                            wevoteClassification : classificationResults._id 
+                        }
+                        experiment.save();
+                        res.writeHead(200, { 'Content-Type': 'text/plain' });
+                        res.end();
+                    });
+                })
+            })
+            ;
+
         this._router.route('/')
             .post(verifyOrdinaryUser,
             (req: any, res: any, next: any) => {
@@ -153,29 +187,6 @@ export class ExperimentRouter extends BaseRoute {
             })
             ;
 
-        this._router.route('/classification')
-            .post(verifyOrdinaryUser, function (req: Request, res: Response, next: NextFunction) {
-                const submission = <IWevoteSubmitEnsemble>req.body;
-                const expId = mongoose.Types.ObjectId.createFromHexString(submission.jobID);
-
-                const classificationResults: IWevoteClassificationPatch =
-                    <any>{
-                        experiment: expId,
-                        patch: submission.reads
-                    }
-
-                WevoteClassificationPatchModel.repo.create(classificationResults, (err: any, resutls: IWevoteClassificationPatch) => {
-                    if (err) return next(err);
-                    ExperimentModel.repo.findById(expId, (err: any, experiment: IExperimentModel) => {
-                        if (err) return next(err);
-                        if (experiment.results)
-                            experiment.results.wevoteClassification = classificationResults._id;
-                        else throw Error('experiment.results must not be null');
-                        experiment.save();
-                    });
-                })
-            });
-
 
     }
 
@@ -212,10 +223,10 @@ export class ExperimentRouter extends BaseRoute {
                     });
                     const submission: IWevoteSubmitEnsemble =
                         {
-                            resultsRoute: 
+                            resultsRoute:
                             {
-                                host: config.host , 
-                                port: config.port , 
+                                host: config.host,
+                                port: config.port,
                                 relativePath: '/experiment/classification'
                             },
                             jobID: exp._id,

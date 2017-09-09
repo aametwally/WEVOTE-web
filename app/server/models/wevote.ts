@@ -72,10 +72,6 @@ export class WevoteClassificationPatchModel {
             ref: 'Experiment',
             required: true
         },
-        numToolsUsed: {
-            type: Number,
-            required: true
-        },
         patch: {
             type: [wevoteClassificationSchema],
             required: true
@@ -92,6 +88,7 @@ export class WevoteClassificationPatchModel {
         const lines = file.split('\n');
         lines.forEach((line: string) => {
             const tokens: string[] = line.trim().split(",");
+            if ( tokens.length <= 1 ) return;
             const seqId = tokens[0];
             const votes = tokens.slice(1).map((val: string) => { return parseInt(val, 10); });
             array.push(<IWevoteClassification>{ seqId: seqId, votes: votes });
