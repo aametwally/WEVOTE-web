@@ -7,12 +7,10 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <iostream>
-#include <string>
-
-#include "headers.hpp"
+#include "helpers.hpp"
 #include "LogLevel.hh"
 
+#define USTR(x) wevote::io::convertOrReturn< std::string >( x ).c_str()
 
 /**
  * @brief The Logger class
@@ -108,19 +106,4 @@ private: // Private Member Variables
     LOG_ERROR("Assertation failed:%s",msg);\
     }while(0)
 
-
-
-template< typename CharType ,
-          typename std::enable_if< std::is_same< CharType , char >::value , int >::type = 0 >
-constexpr auto strFormat()
-{
-    return "%s";
-}
-
-template< typename CharType ,
-          typename std::enable_if< std::is_same< CharType , wchar_t >::value , int >::type = 0 >
-constexpr auto strFormat()
-{
-    return "%ws";
-}
 #endif // LOGGER_H

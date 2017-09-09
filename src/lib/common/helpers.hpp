@@ -2,7 +2,6 @@
 #define HELPERS_HPP
 
 #include "headers.hpp"
-#include "Logger.h"
 
 namespace wevote
 {
@@ -30,7 +29,7 @@ std::string toStringType( const StringType &str )
 template< typename ConvertedType ,
           typename StringType ,
           typename std::enable_if< std::is_same< ConvertedType , StringType >::value , int >::type = 0 >
-StringType &convertOrReturn( const StringType &str )
+const StringType &convertOrReturn( const StringType &str )
 {
     return str;
 }
@@ -38,7 +37,7 @@ StringType &convertOrReturn( const StringType &str )
 template< typename ConvertedType ,
           typename StringType ,
           typename std::enable_if< !std::is_same< ConvertedType , StringType >::value , int >::type = 0 >
-StringType convertOrReturn( const StringType &str )
+ConvertedType convertOrReturn( const StringType &str )
 {
     return toStringType( str );
 }
@@ -111,7 +110,7 @@ auto getFileLines( const std::string &filePath )
     if( f )
         while( std::getline( f , line ))
             lines.push_back( line );
-    else LOG_WARNING("Failed to open file:%s",filePath.c_str());
+    else std::cout << "Failed to open file:" << filePath << std::endl;
     return lines;
 }
 

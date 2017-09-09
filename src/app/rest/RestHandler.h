@@ -5,11 +5,13 @@
 
 #include "cpprest/http_listener.h"
 #include "cpprest/http_msg.h"
+#include "cpprest/http_client.h"
 
 #include "stdafx.h"
 
 #include "Logger.h"
 #include "helpers.hpp"
+#include "WevoteRestMessages.hpp"
 
 using namespace web;
 using namespace http;
@@ -30,14 +32,21 @@ protected:
 
 
 public:
-    WEVOTE_DLL RestHandler(utility::string_t url);
+    WEVOTE_DLL RestHandler( const http::uri &uri);
     WEVOTE_DLL ~RestHandler();
     WEVOTE_DLL void start();
     pplx::task<void> open() { return _listener.open(); }
     pplx::task<void> close() { return _listener.close(); }
+    WEVOTE_DLL static http::uri asURI( const RemoteAddress &address );
+    WEVOTE_DLL static http::uri asURI( const std::string hostname ,
+                                       int port ,
+                                       const std::string relativePath );
+    WEVOTE_DLL void addClient(const http::uri &uri);
+    WEVOTE_DLL void addClient(const RemoteAddress &address);
 protected:
-    WEVOTE_DLL virtual void _addRoutes();
-    WEVOTE_DLL void _addRoute(Method method , const string_t path , HandlerType handler );
+    virtual void _addRoutes();
+    void _addRoute(Method method , const string_t path , HandlerType handler );
+    http::client::http_client &_getClient( const RemoteAddress &address );
 private:
     RestHandler();
     void _route(Method method, http_request message) const;
@@ -53,6 +62,7 @@ private:
 
 
     std::map< Method , std::map< utility::string_t , HandlerType >> _routings;
+    std::map< http::uri , http::client::http_client > _clients;
     experimental::listener::http_listener _listener;
 };
 

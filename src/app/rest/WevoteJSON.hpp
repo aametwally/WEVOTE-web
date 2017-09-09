@@ -204,7 +204,7 @@ public:
         {
             if( !objects.is_array())
                 LOG_WARNING("Trying to get array from non-array object. object:%s",
-                            objects.serialize());
+                            USTR(objects.serialize()));
 
         }
     }
@@ -239,7 +239,7 @@ public:
         catch( ... )
         {
             LOG_WARNING("Trying to get type: <%s> from <%s>", typeid(T).name(),
-                        _object.serialize().c_str());
+                        USTR(_object.serialize()));
         }
     }
 private:

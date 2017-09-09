@@ -14,7 +14,8 @@ class WevoteRestHandler : public RestHandler
 {
     Q_OBJECT
 public:
-    WEVOTE_DLL explicit WevoteRestHandler( utility::string_t url );
+    WEVOTE_DLL explicit WevoteRestHandler( const http::uri &uri );
+
 private:
     WevoteRestHandler();
 
@@ -27,7 +28,10 @@ Q_SLOT void doneClassification_SLOT( WevoteSubmitEnsemble classified );
 protected:
     void _addRoutes() override;
 private:
-    void _submitWevoteEnsemble(http_request message);
+    void _receiveWevoteEnsemble(http_request message);
+    void _transmitJSON( const RemoteAddress &address,
+                        const json::value &data );
+
 };
 
 }

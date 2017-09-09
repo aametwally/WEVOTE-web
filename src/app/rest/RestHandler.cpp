@@ -4,7 +4,7 @@ RestHandler::RestHandler()
 {
     //ctor
 }
-RestHandler::RestHandler(utility::string_t url):_listener(url)
+RestHandler::RestHandler(const uri &uri):_listener( uri )
 {
     LOG_DEBUG("Constructing ..");
     _listener.support(methods::GET, std::bind(&RestHandler::_handleGet, this, std::placeholders::_1));
@@ -32,6 +32,39 @@ void RestHandler::start()
     }
 }
 
+uri RestHandler::asURI(const RemoteAddress &address)
+{
+    return asURI( address.getHost() ,
+                  address.getPort() ,
+                  address.getRelativePath());
+}
+
+uri RestHandler::asURI(const std::string hostname, int port, const std::string relativePath)
+{
+    using namespace wevote;
+    http::uri_builder uriBuilder;
+    uriBuilder.set_scheme(U("http"));
+    uriBuilder.set_host( io::convertOrReturn<defs::string_t>( hostname ));
+    uriBuilder.set_port( port );
+    uriBuilder.set_path( io::convertOrReturn<defs::string_t>( relativePath ));
+    return uriBuilder.to_uri();
+}
+
+void RestHandler::addClient(const http::uri &uri)
+{
+    _clients.emplace( uri , uri );
+}
+
+void RestHandler::addClient(const RemoteAddress &address)
+{
+    addClient( asURI( address ));
+}
+
+client::http_client &RestHandler::_getClient( const RemoteAddress &address )
+{
+    return _clients.at( asURI( address ));
+}
+
 void RestHandler::_addRoutes()
 {
 }
@@ -51,13 +84,13 @@ void RestHandler::_route(
 {
     try
     {
-        LOG_DEBUG("Routing:%s", _normalizedPath( message ).c_str());
+        LOG_DEBUG("Routing:%s", USTR(_normalizedPath( message )));
         _routings.at( method ).at( _normalizedPath( message ))( message );
     }
     catch(...)
     {
         const auto url = http::uri::decode(message.relative_uri().path());
-        LOG_WARNING("Path not supported yet:[%s]!",url.c_str());
+        LOG_WARNING("Path not supported yet:[%s]!", USTR( url ));
     }
 }
 
@@ -115,7 +148,7 @@ void RestHandler::_handleGet(http_request message) const
 
     _route( Method::GET , message );
 
-    LOG_INFO("%ws",message.to_string().c_str());
+    LOG_INFO("%s",USTR(message.to_string()));
 
     auto paths = http::uri::split_path(http::uri::decode(message.relative_uri().path()));
 
@@ -163,7 +196,7 @@ void RestHandler::_handlePost(http_request message) const
 
     auto paths = uri::split_path(uri::decode(message.relative_uri().path()));
 
-    LOG_DEBUG("Normalized Path:%ws",wevote::io::join( paths , utility::string_t{'|'}).c_str());
+    LOG_DEBUG("Normalized Path:%s",USTR(wevote::io::join( paths , utility::string_t{'|'})));
 
     message.reply(status_codes::OK,message.to_string());
 
@@ -180,7 +213,7 @@ void RestHandler::_handleDelete(http_request message) const
     LOG_DEBUG("Handling DELETE Request..");
 
     _route( Method::DEL , message );
-    LOG_INFO("%ws",message.to_string().c_str());
+    LOG_INFO("%s",message.to_string().c_str());
     utility::string_t rep = U("WRITE YOUR OWN DELETE OPERATION");
     message.reply(status_codes::OK,rep);
 
@@ -198,7 +231,7 @@ void RestHandler::_handlePut(http_request message) const
     LOG_DEBUG("Handling PUT Request..");
 
     _route( Method::PUT , message );
-    LOG_INFO("%ws",message.to_string().c_str());
+    LOG_INFO("%s",message.to_string().c_str());
     auto rep = U("WRITE YOUR OWN PUT OPERATION");
     message.reply(status_codes::OK,rep);
 

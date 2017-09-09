@@ -111,7 +111,7 @@ public:
     {
         return _hostAddress;
     }
-    const std::string &getPort() const
+    int getPort() const
     {
         return _portNumber;
     }
@@ -147,7 +147,7 @@ private:
     }
 private:
     std::string _hostAddress;
-    std::string _portNumber;
+    int _portNumber;
     std::string _relativePath;
 };
 
