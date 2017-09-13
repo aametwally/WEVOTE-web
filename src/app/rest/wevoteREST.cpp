@@ -2,6 +2,7 @@
 #include <QCoreApplication>
 #include <QObject>
 #include <QFile>
+#include <QDir>
 
 #include "stdafx.h"
 #include "WevoteRestHandler.h"
@@ -20,6 +21,7 @@ struct WevoteRestParameters
     std::string wevoteCentralHost;
     int wevoteCentralPort;
     std::string wevoteRelativePath;
+    std::string taxonomyDB;
     std::string toString() const
     {
         std::stringstream stream;
@@ -28,6 +30,7 @@ struct WevoteRestParameters
                << "[whost:" << wevoteCentralHost << "]"
                << "[wport:" << wevoteCentralPort << "]"
                << "[wrelpath:" << wevoteRelativePath << "]"
+               << "[taxonomy-db:" << taxonomyDB << "]"
                << "[verbose:" << verbose << "]";
         return stream.str();
     }
@@ -73,6 +76,11 @@ const std::list< QCommandLineOption > commandLineOptions =
         QString( DEFAULT_CENTRAL_WEVOTE_RPATH )
     },
     {
+        QStringList() << "d" <<  "taxonomy-db-path",
+        "The path of the taxonomy database file." ,
+        "taxonomy-db-path"
+    },
+    {
         QStringList() << "v" <<  "verbose",
         "Enable verbose mode." ,
         "verbose",
@@ -83,6 +91,13 @@ const std::list< QCommandLineOption > commandLineOptions =
 auto extractFunction = []( const QCommandLineParser &parser ,
         ParsingResults<WevoteRestParameters> &results)
 {
+    QDir taxonomyDBPath( parser.value("taxonomy-db-path"));
+    if( !taxonomyDBPath.exists())
+    {
+        results.success = CommandLineResult::CommandLineError;
+        results.errorMessage = "Taxonomy provided dir does not exist.";
+        return;
+    }
     results.parameters.verbose =
             static_cast< bool >(parser.value("verbose").toShort());
     results.parameters.host =
@@ -95,6 +110,8 @@ auto extractFunction = []( const QCommandLineParser &parser ,
             parser.value("wevote-port").toInt();
     results.parameters.wevoteRelativePath =
             parser.value("wevote-path").toStdString();
+    results.parameters.taxonomyDB =
+            parser.value("taxonomy-db-path").toStdString();
 };
 
 int main(int argc, char *argv[])
@@ -105,19 +122,30 @@ int main(int argc, char *argv[])
     ParsingResults<WevoteRestParameters> parsingResults;
     cmdLineParser.process();
     cmdLineParser.tokenize( extractFunction , parsingResults );
+    const WevoteRestParameters &param = parsingResults.parameters;
 
     using namespace wevote;
+    const std::string nodesFilename=
+            QDir( QString::fromStdString( param.taxonomyDB ))
+            .filePath("nodes.dmp").toStdString();
+
+    const std::string namesFilename=
+            QDir( QString::fromStdString( param.taxonomyDB ))
+            .filePath("names.dmp").toStdString();
+
+    LOG_INFO("Loading Taxonomy..");
+    const TaxonomyBuilder taxonomy( nodesFilename , namesFilename );
+    LOG_INFO("[DONE] Loading Taxonomy..");
+
     http::uri_builder uriBuilder;
     uriBuilder.set_scheme( U("http"));
-    uriBuilder.set_host( io::convertOrReturn< defs::string_t >(
-                             parsingResults.parameters.host ));
-    uriBuilder.set_port( parsingResults.parameters.port );
-    rest::WevoteRestHandler httpHandler( uriBuilder.to_uri());
+    uriBuilder.set_host( io::convertOrReturn< defs::string_t >( param.host ));
+    uriBuilder.set_port( param.port );
+    rest::WevoteRestHandler httpHandler( uriBuilder.to_uri() , taxonomy );
 
     const http::uri wevoteURI = wevote::rest::WevoteRestHandler::asURI(
-                parsingResults.parameters.wevoteCentralHost ,
-                parsingResults.parameters.wevoteCentralPort ,
-                parsingResults.parameters.wevoteRelativePath );
+                param.wevoteCentralHost , param.wevoteCentralPort ,
+                param.wevoteRelativePath );
     httpHandler.addClient( wevoteURI );
     httpHandler.start();
 

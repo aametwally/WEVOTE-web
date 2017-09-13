@@ -50,7 +50,7 @@ void Logger::log( const LOG_LEVEL logLevel,
     va_list argumentList;
 
     // Lof message
-    char logMessage[1024];
+    char logMessage[2048];
 
     // Get the arguments and add them to the buffer
     va_start( argumentList, string );

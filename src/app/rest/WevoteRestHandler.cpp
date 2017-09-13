@@ -6,8 +6,10 @@ namespace rest
 {
 
 
-WevoteRestHandler::WevoteRestHandler( const uri &uri )
-    : RestHandler( uri )
+WevoteRestHandler::WevoteRestHandler( const uri &uri ,
+                                      const TaxonomyBuilder &taxonomy )
+    : RestHandler( uri ), _taxonomy( taxonomy ) , _classifier( _taxonomy ) ,
+      _jobCounter( 0 )
 {
     static auto _ = qRegisterMetaType<WevoteSubmitEnsemble>("WevoteSubmitEnsemble");
     connect( this , SIGNAL(doneClassification_SIGNAL(WevoteSubmitEnsemble)) ,
@@ -16,13 +18,8 @@ WevoteRestHandler::WevoteRestHandler( const uri &uri )
 
 
 
-void WevoteRestHandler::doneClassification_SLOT(WevoteSubmitEnsemble classified)
+void WevoteRestHandler::doneClassification_SLOT( WevoteSubmitEnsemble classified )
 {
-    LOG_DEBUG("serializing classified reads..");
-    json::value data = io::Objectifier::objectFrom( classified );
-    const RemoteAddress address = classified.getResultsRoute();
-    _transmitJSON( address , data );
-    LOG_DEBUG("[DONE] serializing classified reads..");
 }
 
 void WevoteRestHandler::_addRoutes()
@@ -34,21 +31,45 @@ void WevoteRestHandler::_addRoutes()
 
 void WevoteRestHandler::_receiveWevoteEnsemble(http_request message)
 {
-    const std::string s = "Submitting..";
-    LOG_DEBUG("%s", USTR(s));
-    message.extract_json()
-            .then([this,message]( web::json::value value )
-    {
-        WevoteSubmitEnsemble data = io::DeObjectifier::fromObject< WevoteSubmitEnsemble >( value );
-        LOG_DEBUG("%s",USTR(message.request_uri().to_string()));
-        LOG_DEBUG("%s",USTR(message.get_remote_address()));
+    auto task =
+            message.reply(status_codes::OK)
+            .then( [this,message](){
+        message.extract_json()
+                .then([this,message]( web::json::value value )
+        {
+            WevoteSubmitEnsemble data =
+                    io::DeObjectifier::fromObject< WevoteSubmitEnsemble >( value );
 
-        for( const std::pair< utility::string_t , utility::string_t > &p : message.headers())
-            LOG_DEBUG("[%s:%s]",USTR(p.first),USTR(p.second));
+            _classifier.classify( data.getReads() , data.getMinNumAgreed() ,
+                                  data.getPenalty());
 
-        Q_EMIT doneClassification_SIGNAL( data );
+            uint32_t undefined =
+                    std::count_if( data.getReads().cbegin() , data.getReads().cend() ,
+                                   []( const wevote::ReadInfo &read )
+            {
+                return read.resolvedTaxon == wevote::ReadInfo::noAnnotation;
+            });
+            //        LOG_INFO("Unresolved taxan=%d/%d",undefined,data.getReads().size());
+
+            data.getStatus().setPercentage( 100.0 );
+            data.getStatus().setStatus( WevoteSubmitEnsembleStatus::Status::SUCCESS );
+
+            LOG_DEBUG("Submitting..");
+            LOG_DEBUG("serializing classified reads..");
+            json::value classified = io::Objectifier::objectFrom( data );
+            const RemoteAddress address = data.getResultsRoute();
+            _transmitJSON( address , classified );
+            LOG_DEBUG("[DONE] serializing classified reads [job:%d] .." , _jobCounter.load());
+            _jobCounter++;
+            LOG_DEBUG("[DONE] Submiting job:%d..",_jobCounter.load());
+        });
     });
-    LOG_DEBUG("[DONE] Submiting..");
+
+    try{
+        task.wait();
+    } catch(std::exception &e){
+        LOG_DEBUG("%s",e.what());
+    }
 }
 
 void WevoteRestHandler::_transmitJSON( const RemoteAddress &address,
@@ -60,20 +81,20 @@ void WevoteRestHandler::_transmitJSON( const RemoteAddress &address,
 
     pplx::task<void> task = _getClient( address ).request(request)
             .then([](http_response response)-> pplx::task<json::value>{
-                    return response.extract_json();
-                ;})
+            return response.extract_json();
+            ;})
             .then([](pplx::task<json::value> previousTask){
-                try{
-                    const json::value & v = previousTask.get();
-                    ucout << v.serialize() << std::endl;
-                } catch(const http_exception &e){
-                    std::cout<<e.what()<<std::endl;
-                }
-            });
+        try{
+            const json::value & v = previousTask.get();
+            LOG_DEBUG("%s" , USTR( v.serialize()));
+        } catch(const http_exception &e){
+            LOG_DEBUG("%s", e.what());
+        }
+    });
     try{
         task.wait();
     } catch(std::exception &e){
-        std::cout<<e.what()<<std::endl;
+        LOG_DEBUG("%s",e.what());
     }
 }
 

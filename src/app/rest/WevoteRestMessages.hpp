@@ -176,6 +176,31 @@ public:
     {
         return _d->resultsRoute;
     }
+
+    std::vector< wevote::ReadInfo > &getReads()
+    {
+        return _d->reads;
+    }
+
+    WevoteSubmitEnsembleStatus &getStatus()
+    {
+        return _d->status;
+    }
+
+    double getScore() const
+    {
+        return _d->score;
+    }
+
+    double getPenalty() const
+    {
+        return _d->penalty;
+    }
+
+    double getMinNumAgreed() const
+    {
+        return _d->minNumAgreed;
+    }
 private:
     enum class Meta
     {

@@ -84,7 +84,7 @@ void RestHandler::_route(
 {
     try
     {
-        LOG_DEBUG("Routing:%s", USTR(_normalizedPath( message )));
+//        LOG_DEBUG("Routing:%s", USTR(_normalizedPath( message )));
         _routings.at( method ).at( _normalizedPath( message ))( message );
     }
     catch(...)
@@ -190,7 +190,7 @@ void RestHandler::_handleGet(http_request message) const
 //
 void RestHandler::_handlePost(http_request message) const
 {
-    LOG_DEBUG("Handling POST Request..");
+//    LOG_DEBUG("Handling POST Request..");
 
     _route( Method::POST , message );
 

@@ -6,6 +6,9 @@
 #include "cpprest/json.h"
 #include "cpprest/http_client.h"
 
+#include "TaxonomyBuilder.h"
+#include "WevoteClassifier.h"
+
 namespace wevote
 {
 namespace rest
@@ -14,7 +17,8 @@ class WevoteRestHandler : public RestHandler
 {
     Q_OBJECT
 public:
-    WEVOTE_DLL explicit WevoteRestHandler( const http::uri &uri );
+    WEVOTE_DLL explicit WevoteRestHandler( const http::uri &uri ,
+                                           const TaxonomyBuilder &taxonomy );
 
 private:
     WevoteRestHandler();
@@ -31,7 +35,10 @@ private:
     void _receiveWevoteEnsemble(http_request message);
     void _transmitJSON( const RemoteAddress &address,
                         const json::value &data );
-
+private:
+    const TaxonomyBuilder &_taxonomy;
+    const WevoteClassifier _classifier;
+    std::atomic_int64_t _jobCounter;
 };
 
 }

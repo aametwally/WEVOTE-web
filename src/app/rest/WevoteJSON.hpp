@@ -154,9 +154,9 @@ private:
 
     template< typename T ,
               typename std::enable_if< std::is_arithmetic< T >::value , int  >::type = 0 >
-    static double _fromValue( const web::json::value &number )
+    static T _fromValue( const web::json::value &number )
     {
-        return number.as_double();
+        return static_cast< T >( number.as_double());
     }
 
     template< typename T ,
