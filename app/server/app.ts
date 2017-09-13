@@ -20,7 +20,7 @@ import { TaxonomyAbundanceProfileRouter } from './routes/taxprofile';
 import { init } from './models/initdb';
 import { UserModel } from './models/user';
 import { WevoteClassificationPatchModel, IWevoteSubmitEnsemble } from './models/wevote';
-import { IExperimentModel , Status } from './models/experiment';
+import { IExperimentModel, Status } from './models/experiment';
 import { config } from './config'
 
 export class Server {
@@ -54,18 +54,18 @@ export class Server {
 
                     const httpreq = http.request(options, function (response) {
                         response.setEncoding('utf8');
-                        response.on('data', function (chunk) {
-                            console.log("body: " + chunk);
-                        });
+                        // response.on('data', function (chunk) {
+                        //     console.log("data received");
+                        // });
 
                         response.on('end', function () {
                             console.log('ensemble file posted to wevote core server');
                             experiment.status.code = Status.IN_PROGRESS;
-                            experiment.status.message = Status[ Status.IN_PROGRESS ];
+                            experiment.status.message = Status[Status.IN_PROGRESS];
                             experiment.save((err: any, doc: IExperimentModel) => {
                                 if (err)
                                     throw err;
-                                console.log("updated Experiment status" + doc.status );
+                                console.log("updated Experiment status" + doc.status);
                             });
                             response.on('error', function (err: Error) {
                                 console.log('Error:' + err);
@@ -106,7 +106,7 @@ export class Server {
         //     resave: true
         // }));
         this._app.use(logger('dev'));
-        this._app.use(bodyParser.json({limit: '50mb'}));
+        this._app.use(bodyParser.json({ limit: '50mb', strict: false }));
         this._app.use(bodyParser.urlencoded({ extended: false }));
         this._app.use(cookieParser());
     }
@@ -141,7 +141,10 @@ export class Server {
                     message: err.message,
                     error: err
                 });
+                console.log('message:' + err.message);
+                console.log('error:' + err);
             });
+
 
         // error handler
         this._app.use(errorHandler());

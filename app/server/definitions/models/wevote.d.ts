@@ -7,10 +7,21 @@ export interface IRemoteAddress {
     port: number;
     relativePath: string;
 }
+export declare enum EWevoteClassificationStatus {
+    NOT_STARTED = 0,
+    IN_PROGRESS = 1,
+    SUCCESS = 2,
+    FAILURE = 3,
+}
+export interface IWevoteClassificationStatus extends mongoose.Document {
+    status: string;
+    percentage: number;
+}
 export interface IWevoteSubmitEnsemble {
     jobID: string;
     resultsRoute: IRemoteAddress;
     reads: IWevoteClassification[];
+    status: IWevoteClassificationStatus;
     score: number;
     penalty: number;
     minNumAgreed: number;
@@ -27,7 +38,9 @@ export interface IWevoteClassification extends mongoose.Document {
 export interface IWevoteClassificationPatch extends mongoose.Document {
     experiment: mongoose.Types.ObjectId;
     patch: mongoose.Types.Array<IWevoteClassification>;
+    status: IWevoteClassificationStatus;
 }
+export declare const wevoteClassificationStatusSchema: mongoose.Schema;
 export declare const wevoteClassificationSchema: mongoose.Schema;
 export declare class WevoteClassificationPatchModel {
     static schema: mongoose.Schema;

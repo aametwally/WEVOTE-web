@@ -185,7 +185,7 @@ export class ExperimentModel {
                         ],
                         minScore: 0,
                         minNumAgreed: 0,
-                        penalty: 0
+                        penalty: 2
                     };
 
                     ExperimentModel.repo.create(<any>{

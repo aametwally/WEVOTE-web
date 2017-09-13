@@ -6,7 +6,8 @@ import { UserModel, IUserModel } from '../models/user';
 import {
     IWevoteClassification, IWevoteClassificationPatch,
     IWevoteSubmitEnsemble, IRemoteAddress,
-    WevoteClassificationPatchModel
+    WevoteClassificationPatchModel , 
+    EWevoteClassificationStatus
 } from '../models/wevote';
 import { verifyOrdinaryUser } from './verify';
 import { UploadRouter } from './upload';
@@ -33,8 +34,14 @@ export class ExperimentRouter extends BaseRoute {
                 const classificationResults: IWevoteClassificationPatch =
                     <any>{
                         experiment: expId,
-                        patch: submission.reads
-                    }
+                        patch: submission.reads,
+                        status: {
+                            status: EWevoteClassificationStatus[ parseInt( submission.status.status ) ] ,
+                            percentage: submission.status.percentage
+                        }
+                    };
+                console.log( submission.status );
+                    
 
                 WevoteClassificationPatchModel.repo.create(classificationResults, (err: any, resutls: IWevoteClassificationPatch) => {
                     if (err) {
@@ -47,12 +54,12 @@ export class ExperimentRouter extends BaseRoute {
                             return next(err);
                         }
                         experiment.results = <any>
-                        { 
-                            wevoteClassification : classificationResults._id 
-                        }
+                            {
+                                wevoteClassification: resutls._id
+                            }
                         experiment.save();
                         res.writeHead(200, { 'Content-Type': 'text/plain' });
-                        res.end();
+                        return res.end();
                     });
                 })
             })
@@ -61,7 +68,7 @@ export class ExperimentRouter extends BaseRoute {
         this._router.route('/')
             .post(verifyOrdinaryUser,
             (req: any, res: any, next: any) => {
-                console.log(req.body);
+                // console.log(req.body);
 
                 let exp = <IExperimentModel>req.body;
 
@@ -109,7 +116,7 @@ export class ExperimentRouter extends BaseRoute {
                     penalty: exp.config.penalty
                 };
 
-                console.log("decoded:", req.decoded);
+                // console.log("decoded:", req.decoded);
                 ExperimentModel.repo.create(<any>{
                     user: req.decoded._id,
                     isPrivate: exp.isPrivate,
@@ -126,7 +133,7 @@ export class ExperimentRouter extends BaseRoute {
                         console.log("Error:" + err);
                         return next(err);
                     }
-                    console.log("experiment posted!:" + exp);
+                    // console.log("experiment posted!:" + exp);
                     let id = exp._id;
                     res.writeHead(200, {
                         'Content-Type': 'text/plain'
@@ -134,19 +141,26 @@ export class ExperimentRouter extends BaseRoute {
                     res.end('Added the exp id: ' + id);
 
                     ExperimentRouter._handleExperiment(exp);
-
+                    return;
                 });
             })
 
-            .get(function (req: Request, res: Response, next: NextFunction) {
-                ExperimentModel.repo.retrieve(function (err: any, experiments: any) {
+            .get(verifyOrdinaryUser, (req: Request, res: Response, next: NextFunction) => {
+                ExperimentModel.repo.retrieve((err: any, experiments: IExperimentModel[]) => {
                     if (err) return next(err);
-
-                    res.json(experiments);
+                    const userExperiments = experiments.filter((exp: any) => {
+                        return exp.user.username === (<any>req).decoded.username;
+                    });
+                    return res.json(userExperiments);
                 }, [
                         {
                             path: 'user',
                             select: 'username admin'
+                        },
+                        {
+                            path: 'results.wevoteClassification',
+                            model: 'WevoteClassificationPatch' ,
+                            select: 'status'
                         }
                     ]);
             })
@@ -174,7 +188,8 @@ export class ExperimentRouter extends BaseRoute {
                             path: 'user'
                         },
                         {
-                            path: 'results.wevoteClassification'
+                            path: 'results.wevoteClassification',
+                            model: 'WevoteClassificationPatch'
                         },
                         {
                             path: 'results.taxonomyAbundanceProfile',
@@ -231,6 +246,7 @@ export class ExperimentRouter extends BaseRoute {
                             },
                             jobID: exp._id,
                             reads: unclassifiedReads,
+                            status: <any>{},
                             score: exp.config.minScore,
                             minNumAgreed: exp.config.minNumAgreed,
                             penalty: exp.config.penalty
@@ -249,7 +265,7 @@ export class ExperimentRouter extends BaseRoute {
                     const httpreq = http.request(options, function (response) {
                         response.setEncoding('utf8');
                         response.on('data', function (chunk) {
-                            console.log("body: " + chunk);
+                            // console.log("body: " + chunk);
                         });
 
                         response.on('end', function () {

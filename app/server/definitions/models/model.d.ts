@@ -21,7 +21,7 @@ export declare class RepositoryBase<T extends mongoose.Document> implements IRea
     constructor(schemaModel: mongoose.Model<mongoose.Document>);
     private toObjectId(_id);
     create(item: T, callback: (error: any, result: T) => void): void;
-    retrieve(callback: (error: any, result: T) => void, populateElements?: mongoose.ModelPopulateOptions | mongoose.ModelPopulateOptions[]): mongoose.DocumentQuery<mongoose.Document[], mongoose.Document> | Promise<mongoose.Document[]>;
+    retrieve(callback: (error: any, result: T[]) => void, populateElements?: mongoose.ModelPopulateOptions | mongoose.ModelPopulateOptions[]): mongoose.DocumentQuery<mongoose.Document[], mongoose.Document> | Promise<mongoose.Document[]>;
     update(_id: string | mongoose.Types.ObjectId, item: T, callback: (error: any, result: any) => void): void;
     findByIdAndUpdate(_id: string | mongoose.Types.ObjectId, update: Object, callback: (error: any, result: any) => void): void;
     delete(_id: string | mongoose.Types.ObjectId, callback: (error: any, result: any) => void): void;

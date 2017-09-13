@@ -65,7 +65,7 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
         });
     }
 
-    retrieve(callback: (error: any, result: T) => void,
+    retrieve(callback: (error: any, result: T[]) => void,
         populateElements?: mongoose.ModelPopulateOptions | mongoose.ModelPopulateOptions[]) {
         if (populateElements)
             return this._model.find({})

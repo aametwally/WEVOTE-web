@@ -6,18 +6,30 @@ import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 import { ITaxonomyAbundance } from './taxprofile';
 import { IExperimentModel } from './experiment';
-import {config} from '../config';
-export interface IRemoteAddress 
-{
-    host: string , 
-    port: number , 
+import { config } from '../config';
+export interface IRemoteAddress {
+    host: string,
+    port: number,
     relativePath: string
+}
+
+export enum EWevoteClassificationStatus {
+    NOT_STARTED = 0,
+    IN_PROGRESS,
+    SUCCESS,
+    FAILURE
+};
+
+export interface IWevoteClassificationStatus extends mongoose.Document {
+    status: string,
+    percentage: number
 }
 
 export interface IWevoteSubmitEnsemble {
     jobID: string,
     resultsRoute: IRemoteAddress,
     reads: IWevoteClassification[],
+    status: IWevoteClassificationStatus,
     score: number,
     penalty: number,
     minNumAgreed: number
@@ -35,8 +47,20 @@ export interface IWevoteClassification extends mongoose.Document {
 
 export interface IWevoteClassificationPatch extends mongoose.Document {
     experiment: mongoose.Types.ObjectId,
-    patch: mongoose.Types.Array<IWevoteClassification>
+    patch: mongoose.Types.Array<IWevoteClassification> , 
+    status: IWevoteClassificationStatus
 }
+
+export const wevoteClassificationStatusSchema = new mongoose.Schema({
+    status: {
+        type: String ,
+        default: EWevoteClassificationStatus[EWevoteClassificationStatus.NOT_STARTED] 
+    } ,
+    percentage: {
+        type: Number , 
+        default: 0 
+    } 
+})
 
 export const wevoteClassificationSchema = new mongoose.Schema({
     seqId: {
@@ -75,8 +99,11 @@ export class WevoteClassificationPatchModel {
         patch: {
             type: [wevoteClassificationSchema],
             required: true
-
+        },
+        status: {
+            type: wevoteClassificationStatusSchema
         }
+
     });
 
     private static _model =
@@ -88,7 +115,7 @@ export class WevoteClassificationPatchModel {
         const lines = file.split('\n');
         lines.forEach((line: string) => {
             const tokens: string[] = line.trim().split(",");
-            if ( tokens.length <= 1 ) return;
+            if (tokens.length <= 1) return;
             const seqId = tokens[0];
             const votes = tokens.slice(1).map((val: string) => { return parseInt(val, 10); });
             array.push(<IWevoteClassification>{ seqId: seqId, votes: votes });
@@ -107,25 +134,26 @@ export class WevoteClassificationPatchModel {
                 patch: <any>unclassifiedReads
             };
 
-            const resultsRoute = 
-            {
-                host: config.host ,
-                port: config.port , 
-            }
+            const resultsRoute =
+                {
+                    host: config.host,
+                    port: config.port,
+                }
 
             const submission: IWevoteSubmitEnsemble = {
                 jobID: experiment._id,
                 resultsRoute: {
-                    host: config.host , 
-                    port: config.port , 
+                    host: config.host,
+                    port: config.port,
                     relativePath: '/experiment/classification'
                 },
+                status: <any>{} ,
                 reads: unclassifiedReads,
                 score: experiment.config.minScore,
                 penalty: experiment.config.penalty,
                 minNumAgreed: experiment.config.minNumAgreed
             };
-            cb( submission );
+            cb(submission);
         });
     }
 }
