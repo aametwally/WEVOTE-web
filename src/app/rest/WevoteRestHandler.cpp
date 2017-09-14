@@ -49,10 +49,10 @@ void WevoteRestHandler::_receiveWevoteEnsemble(http_request message)
             {
                 return read.resolvedTaxon == wevote::ReadInfo::noAnnotation;
             });
-            //        LOG_INFO("Unresolved taxan=%d/%d",undefined,data.getReads().size());
+                    LOG_INFO("Unresolved taxan=%d/%d",undefined,data.getReads().size());
 
             data.getStatus().setPercentage( 100.0 );
-            data.getStatus().setStatus( WevoteSubmitEnsembleStatus::Status::SUCCESS );
+            data.getStatus().setCode( Status::StatusCode::SUCCESS );
 
             LOG_DEBUG("Submitting..");
             LOG_DEBUG("serializing classified reads..");

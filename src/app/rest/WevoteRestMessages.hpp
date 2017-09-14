@@ -4,16 +4,19 @@
 #include <atomic>
 
 #include <QMetaEnum>
+
 #include "WevoteJSON.hpp"
 #include "ReadInfo.h"
 #include "Serializable.hpp"
 
-class WevoteSubmitEnsembleStatus : public Serializable< WevoteSubmitEnsembleStatus >
+class Status : public Serializable< Status >
 {
+    Q_GADGET
 protected:
-    friend class Serializable< WevoteSubmitEnsembleStatus >;
+    friend class Serializable< Status >;
 public:
-    enum class Status
+
+    enum class StatusCode
     {
         NOT_STARTED = 0,
         IN_PROGRESS,
@@ -21,29 +24,39 @@ public:
         FAILURE
     };
 
-    WevoteSubmitEnsembleStatus( const WevoteSubmitEnsembleStatus &other )
-    {
-        setPercentage( other.getPercentage());
-        setStatus( other.getStatus());
-    }
-    WevoteSubmitEnsembleStatus()
-        : _status( Status::NOT_STARTED ), _percentage( 0 ) {}
+    Q_ENUM( StatusCode )
 
-    WevoteSubmitEnsembleStatus &operator=( const WevoteSubmitEnsembleStatus &other )
+    Status( const Status &other )
     {
         setPercentage( other.getPercentage());
-        setStatus( other.getStatus());
+        setCode( other.getCode());
+    }
+    Status()
+        : _code( StatusCode::NOT_STARTED ), _percentage( 0 ) {}
+
+    Status &operator=( const Status &other )
+    {
+        setPercentage( other.getPercentage());
+        setCode( other.getCode());
         return *this;
     }
 
-    void setStatus( Status status )
+    void setCode( StatusCode status )
     {
-        _status.store( status );
+        _code.store( status );
+        _message = _metaEnum().valueToKey( static_cast< int >( status ));
     }
-    Status getStatus() const volatile
+
+    StatusCode getCode() const volatile
     {
-        return _status.load();
+        return _code.load();
     }
+
+    const std::string &getMessage() const
+    {
+        return _message;
+    }
+
     void setPercentage( float percentage )
     {
         _percentage.store( percentage );
@@ -57,40 +70,52 @@ public:
     void objectify( Objectifier &properties ) const
     {
         auto meta = _meta< defs::char_t , Meta >;
-        properties.objectify( meta( Meta::Status ) , static_cast< int >( getStatus()) );
+        const int code = _metaEnum().value( static_cast< int >( getCode()));
+        const std::string message( _metaEnum().valueToKey( code ));
+        properties.objectify( meta( Meta::StatusCode ) , code );
+        properties.objectify( meta( Meta::StatusMessage ) , message );
         properties.objectify( meta( Meta::Percentage  ) , static_cast< float >( getPercentage()) );
     }
 protected:
     enum class Meta
     {
-        Status ,
+        StatusCode ,
+        StatusMessage,
         Percentage
     };
+
+    static const QMetaEnum &_metaEnum()
+    {
+        static auto meta = QMetaEnum::fromType<StatusCode>();
+        return meta;
+    }
 
     template< typename DeObjectifier >
     void _populateFromObject( const DeObjectifier &properties )
     {
         auto meta = _meta< defs::char_t , Meta >;
-        int s;
-        float p;
-        properties.deObjectify( meta( Meta::Status  ) , s );
-        properties.deObjectify( meta( Meta::Percentage  ) , p );
-        _status.store( static_cast< Status >( s ));
-        _percentage.store( p );
+        int code = 0;
+        float percentage;
+        properties.deObjectify( meta( Meta::StatusCode  ) , code );
+        properties.deObjectify( meta( Meta::Percentage  ) , percentage );
+        setCode( static_cast< StatusCode >( code ));
+        setPercentage( percentage );
     }
 
     static const std::map< Meta , std::string > &_metaMap()
     {
         static const std::map< Meta , std::string > m {
-            { Meta::Status , "status" } ,
+            { Meta::StatusCode , "code" } ,
+            { Meta::StatusMessage , "message" },
             { Meta::Percentage , "percentage" }
         };
         return m;
     }
 
 private:
-    std::atomic< Status > _status;
+    std::atomic< StatusCode > _code;
     std::atomic< float > _percentage;
+    std::string _message;
 };
 
 class RemoteAddress : public Serializable<RemoteAddress>
@@ -182,7 +207,7 @@ public:
         return _d->reads;
     }
 
-    WevoteSubmitEnsembleStatus &getStatus()
+    Status &getStatus()
     {
         return _d->status;
     }
@@ -217,7 +242,7 @@ private:
     {
         std::string jobID;
         RemoteAddress resultsRoute;
-        WevoteSubmitEnsembleStatus status;
+        Status status;
         std::vector< wevote::ReadInfo > reads;
         double score;
         double penalty;
