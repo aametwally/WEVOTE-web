@@ -55,14 +55,14 @@
                                         <td nowrap>{{exp.reads.count | shortNumber}} bp</td>
                                         <td>
                                             <div class="progress" style="margin-bottom: 0;">
-                                                <div class="progress-bar" role="progressbar" ng-style="{ 'width': exp.results.wevoteClassification.status.percentage + '%' }"></div>
+                                                <div class="progress-bar" role="progressbar" ng-style="{ 'width': exp.status.percentage + '%' }"></div>
                                                 
                                             </div>
                                         </td>
                                         <td class="text-center">
-                                            <span ng-show='exp.results.wevoteClassification.status.status === "SUCCESS"'><i class="glyphicon glyphicon-ok"></i></span>
-                                            <span ng-show='exp.results.wevoteClassification.status.status === "NOT_STARTED"'><i class="glyphicon glyphicon-ban-circle"></i></span>
-                                            <span ng-show='exp.results.wevoteClassification.status.status === "FAILURE"'><i class="glyphicon glyphicon-remove"></i></span>
+                                            <span ng-show='exp.status.message === "SUCCESS"'><i class="glyphicon glyphicon-ok"></i></span>
+                                            <span ng-show='exp.status.message === "NOT_STARTED"'><i class="glyphicon glyphicon-ban-circle"></i></span>
+                                            <span ng-show='exp.status.message === "FAILURE"'><i class="glyphicon glyphicon-remove"></i></span>
                                         </td>
                                         <td nowrap>
                                             <button type="button" class="btn btn-warning btn-xs" data-toggle="tooltip" data-placement="top" title="Cancel" ng-click=""

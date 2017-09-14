@@ -30,42 +30,37 @@ module wevote {
         readonly hint: string
     }
 
-    interface ITaxonomySource
-    {
-        readonly value: string ,
+    interface ITaxonomySource {
+        readonly value: string,
         readonly label: string
     }
-    
-    interface IRemoteFile
-    {
-        name: string ,
-        description: string , 
+
+    interface IRemoteFile {
+        name: string,
+        description: string,
         onServer?: boolean,
-        uri: string , 
-        data: string , 
-        size: string , 
-        count?: number 
+        uri: string,
+        data: string,
+        size: string,
+        count?: number
     }
-    interface IConfig
-    {
-        minScore: number , 
-        minNumAgreed: number , 
-        penalty: number , 
+    interface IConfig {
+        minScore: number,
+        minNumAgreed: number,
+        penalty: number,
         algorithms: any
     }
 
-    interface IStatus 
-    {
+    interface IStatus {
         code: number,
-        message:string,
-        progress?: number
+        message: string,
+        percentage?: number
     }
-    interface IExperiment 
-    {
+    interface IExperiment {
         user: string,
         email: string,
         description: string,
-        status?: string ,
+        status?: string,
         private: boolean,
         usageScenario: IUsageScenario,
         taxonomySource: ITaxonomySource,
@@ -83,16 +78,20 @@ module wevote {
         areDataLoaded: any,
         error: boolean,
         message: string,
+        formError: boolean,
+        formErrorMessage: string,
+        taxonomyError: boolean,
+        selectiveAlgorithms: boolean,
+        noAlgorithmChosen: boolean,
         supportedAlgorithms: any,
         experiment: IExperiment,
         inputForm: any,
         usageScenarios: IUsageScenario[],
         taxonomySources: ITaxonomySource[],
-        noAlgorithmChosen: boolean,
         postExperiment: any,
         readsUploader: any,
         readsUploaderPostValidation: boolean,
-        ensembleUploader: any , 
+        ensembleUploader: any,
         ensembleUploaderPostValidation: boolean,
         taxonomyUploader: any,
         taxonomyUploaderPostValidation: boolean
@@ -111,12 +110,12 @@ module wevote {
         },
         {
             value: "pipelineFromSimulatedReads",
-            usage: "Full Pipeline" ,
+            usage: "Full Pipeline",
             hint: "use simulated reads from the server"
         },
         {
-            value: "classificationFromEnsemble" , 
-            usage: "Classification" ,
+            value: "classificationFromEnsemble",
+            usage: "Classification",
             hint: "upload a wevote ensemble file"
         }
         ];
@@ -131,7 +130,8 @@ module wevote {
         }
         ];
 
-        private readonly emptyInput: IExperiment = {
+
+        private readonly emptyExperiment: IExperiment = {
             user: "public",
             email: "",
             description: "",
@@ -172,6 +172,112 @@ module wevote {
 
         };
 
+        constructor($scope: ng.IScope, private SimulatedReadsService: any,
+            private AlgorithmsService: any, private ExperimentService: any) {
+            this._scope = <InputControllerScope>$scope;
+            this._scope.inputForm = {};
+
+            this._scope.formError = false;
+            this._scope.formErrorMessage = '';
+
+            this._scope.usageScenarios = this.usageScenarios;
+            this._scope.taxonomySources = this.taxonomySources;
+
+            this._scope.availableDatabase = {};
+            this._scope.selectiveAlgorithms = true;
+            this._scope.supportedAlgorithms = {};
+            this._scope.availableDatabaseLoaded = false;
+            this._scope.supportedAlgorithmsLoaded = false;
+
+            this._scope.areDataLoaded = this.areDataLoaded;
+
+            SimulatedReadsService.retrieve(this.onSimulateReadsSuccess, this.onSimulatedReadsFail);
+            AlgorithmsService.retrieve(this.onSupportedAlgorithmsSuccess, this.onSupportedAlgorithmsFail);
+
+            this._scope.experiment = JSON.parse(JSON.stringify(this.emptyExperiment));
+
+            this._scope.noAlgorithmChosen = false;
+            this._scope.postExperiment = () => {
+                this.postExperiment(this._scope.inputForm.form);
+            };
+
+            this._scope.readsUploader = {};
+            this._scope.readsUploaderPostValidation = true;
+            this._scope.ensembleUploader = {};
+            this._scope.ensembleUploaderPostValidation = true;
+            this._scope.taxonomyUploader = {};
+            this._scope.taxonomyUploaderPostValidation = true;
+
+            // Watchers!
+            // this._scope.experiment.usageScenario.value;
+            this._scope.$watch('experiment.usageScenario.value', (usage: string) => {
+                switch (usage) {
+                    case 'pipelineFromReads':
+                        {
+
+                        } break;
+                    case 'pipelineFromSimulatedReads':
+                        {
+
+                        } break;
+                    case 'classificationFromEnsemble':
+                        {
+                            this._scope.selectiveAlgorithms = false;
+                        } break;
+                }
+            });
+
+            this._scope.$watchGroup(
+                [
+                    'experiment.usageScenario.value',
+                    'readsUploader.atLeastSingleFileUploaded',
+                    'readsUploaderPostValidation',
+                    'ensembleUploader.atLeastSingleFileUploaded',
+                    'ensembleUploaderPostValidation'
+                ],
+                (newVal: any, oldVal: any, scope: ng.IScope) => {
+                    if (this._scope.inputForm.form &&
+                        this._scope.inputForm.form.usageScenariosSelect.$pristine)
+                        this._scope.formError = false;
+                    else
+                        switch (this._scope.experiment.usageScenario.value) {
+                            case 'pipelineFromReads':
+                                {
+                                    this._scope.formError =
+                                        !this._scope.readsUploader.atLeastSingleFileUploaded &&
+                                        this._scope.readsUploaderPostValidation;
+                                } break;
+                            case 'pipelineFromSimulatedReads':
+                                {
+
+                                } break;
+                            case 'classificationFromEnsemble':
+                                {
+                                    this._scope.formError =
+                                        !this._scope.ensembleUploader.atLeastSingleFileUploaded &&
+                                        this._scope.ensembleUploaderPostValidation;
+                                } break;
+                        }
+                });
+
+            this._scope.$watchGroup(
+                [
+                    'experiment.taxonomySource.value',
+                    'taxonomyUploader.atLeastSingleFileUploaded',
+                    'taxonomyUploaderPostValidation'
+                ],
+                (newVal: any, oldVal: any, scope: ng.IScope) => {
+                    if (this._scope.inputForm.form &&
+                        !this._scope.inputForm.form.taxonomyOptionSelect.$pristine)
+                        this._scope.taxonomyError =
+                            this._scope.experiment.taxonomySource.value === 'custom'
+                            && !this._scope.taxonomyUploader.atLeastSingleFileUploaded
+                            && this._scope.taxonomyUploaderPostValidation;
+                    else this._scope.taxonomyError = false;
+                }
+            )
+        }
+
         private areDataLoaded = () => {
             return this._scope.availableDatabaseLoaded &&
                 this._scope.supportedAlgorithmsLoaded;
@@ -210,63 +316,28 @@ module wevote {
             });
         }
 
-        private getUsageScenarioOrReturn = ( otherwise: IUsageScenario ):IUsageScenario =>{
-            for( const usage of this.usageScenarios )
-                if( usage.value === this._scope.experiment.usageScenario.value )
+        private getUsageScenarioOrReturn = (otherwise: IUsageScenario): IUsageScenario => {
+            for (const usage of this.usageScenarios)
+                if (usage.value === this._scope.experiment.usageScenario.value)
                     return usage;
             return otherwise;
         }
 
         private postExperiment = (form: any) => {
             console.log('postExperiment() invoked.');
-            this._scope.experiment.usageScenario = this.getUsageScenarioOrReturn( this.usageScenarios[0] );
+            this._scope.experiment.usageScenario = this.getUsageScenarioOrReturn(this.usageScenarios[0]);
             this._scope.experiment.config.algorithms = this.getUsedAlgorithms();
             console.log(this._scope.experiment);
             let noAlgorithmChosen: boolean = this.getUsedAlgorithms().length === 0;
 
             if (!noAlgorithmChosen) {
                 this.ExperimentService.submit(this._scope.experiment);
-                this._scope.experiment = JSON.parse(JSON.stringify(this.emptyInput));
+                this._scope.experiment = JSON.parse(JSON.stringify(this.emptyExperiment));
                 form.$setPristine();
                 form.$setUntouched();
                 $('#advanced').collapse("hide");
             }
         }
-
-        constructor($scope: ng.IScope, private SimulatedReadsService: any,
-            private AlgorithmsService: any, private ExperimentService: any) {
-            this._scope = <InputControllerScope>$scope;
-            this._scope.inputForm = {};
-
-            this._scope.usageScenarios = this.usageScenarios;
-            this._scope.taxonomySources = this.taxonomySources;
-
-            this._scope.availableDatabase = {};
-            this._scope.supportedAlgorithms = {};
-            this._scope.availableDatabaseLoaded = false;
-            this._scope.supportedAlgorithmsLoaded = false;
-
-            this._scope.areDataLoaded = this.areDataLoaded;
-
-            SimulatedReadsService.retrieve(this.onSimulateReadsSuccess, this.onSimulatedReadsFail);
-            AlgorithmsService.retrieve(this.onSupportedAlgorithmsSuccess, this.onSupportedAlgorithmsFail);
-
-            this._scope.experiment = JSON.parse(JSON.stringify(this.emptyInput));
-
-            this._scope.noAlgorithmChosen = false;
-            this._scope.postExperiment = () => {
-                this.postExperiment(this._scope.inputForm.form);
-            };
-
-
-            this._scope.readsUploader = {};
-            this._scope.readsUploaderPostValidation = true;
-            this._scope.ensembleUploader = {};
-            this._scope.ensembleUploaderPostValidation = true;
-            this._scope.taxonomyUploader = {};
-            this._scope.taxonomyUploaderPostValidation = true;
-        }
-
     }
 
     interface OnSuccessCBType {
@@ -697,8 +768,8 @@ module wevote {
             this._scope.results = {
                 wevoteClassification: response.results.wevoteClassification.patch,
                 numToolsUsed: response.results.wevoteClassification.numToolsUsed,
-                taxonomyAbundanceProfile: response.results.taxonomyAbundanceProfile, 
-                statistics: {readsCount:0,nonAbsoluteAgreement:0}
+                taxonomyAbundanceProfile: response.results.taxonomyAbundanceProfile,
+                statistics: { readsCount: 0, nonAbsoluteAgreement: 0 }
             };
             this._scope.showExperiment = true;
             this._scope.experimentError = false;
@@ -718,7 +789,7 @@ module wevote {
         .controller('InputController', InputController.$inject)
         .controller('ReadsUploaderController', ReadsUploaderController.$inject)
         .controller('TaxonomyUploaderController', TaxonomyUploaderController.$inject)
-        .controller('EnsembleUploaderController' , EnsembleUploaderController.$inject )
+        .controller('EnsembleUploaderController', EnsembleUploaderController.$inject)
         .controller('HeaderController', HeaderController.$inject)
         .controller('LoginController', LoginController.$inject)
         .controller('RegisterController', RegisterController.$inject)

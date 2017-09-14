@@ -20,7 +20,7 @@ import { TaxonomyAbundanceProfileRouter } from './routes/taxprofile';
 import { init } from './models/initdb';
 import { UserModel } from './models/user';
 import { WevoteClassificationPatchModel, IWevoteSubmitEnsemble } from './models/wevote';
-import { IExperimentModel, Status } from './models/experiment';
+import { IExperimentModel, EStatus, IStatus } from './models/experiment';
 import { config } from './config'
 
 export class Server {
@@ -45,7 +45,7 @@ export class Server {
                     const options: http.RequestOptions = {
                         host: config.cppWevoteUrl,
                         port: config.cppWevotePort,
-                        path: '/wevote/submit/ensemble',
+                        path: config.cppWevoteClassificationPath,
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -54,14 +54,9 @@ export class Server {
 
                     const httpreq = http.request(options, function (response) {
                         response.setEncoding('utf8');
-                        // response.on('data', function (chunk) {
-                        //     console.log("data received");
-                        // });
-
                         response.on('end', function () {
-                            console.log('ensemble file posted to wevote core server');
-                            experiment.status.code = Status.IN_PROGRESS;
-                            experiment.status.message = Status[Status.IN_PROGRESS];
+                            experiment.status.code = EStatus.IN_PROGRESS;
+                            experiment.status.message = EStatus[EStatus.IN_PROGRESS];
                             experiment.save((err: any, doc: IExperimentModel) => {
                                 if (err)
                                     throw err;

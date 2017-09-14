@@ -11,7 +11,7 @@ import { IUserModel } from './user';
 import * as mongoose from 'mongoose';
 
 
-export enum Status {
+export enum EStatus {
     NOT_STARTED , 
     IN_PROGRESS ,
     SUCCSESS ,
@@ -19,14 +19,14 @@ export enum Status {
 }
 
 export interface IStatus extends mongoose.Document {
-    code: Status,
+    code: EStatus,
     message: string,
-    progress?: number
+    percentage: number
 }
 
 
 export interface IConfig extends mongoose.Document {
-    algorithms: mongoose.Types.DocumentArray<IAlgorithmModel>;
+    algorithms: IAlgorithmModel[];
     minNumAgreed: number;
     minScore: number;
     penalty: number;
@@ -45,7 +45,7 @@ export interface IUsageScenario extends mongoose.Document {
 
 export interface IExperimentModel extends mongoose.Document {
     user: mongoose.Types.ObjectId;
-    isPrivate: Boolean;
+    isPrivate: boolean;
     email: string;
     description: string;
     reads: IRemoteFile;
@@ -80,10 +80,16 @@ const configSchema = new mongoose.Schema({
     }
 });
 
-const statusSchema = new mongoose.Schema({
-    code: Number,
-    message: String,
-    progress: {
+export const statusSchema = new mongoose.Schema({
+    code: {
+        type: Number,
+        default: EStatus.NOT_STARTED
+    },
+    message: {
+        type: String,
+        default: EStatus[ EStatus.NOT_STARTED ]
+    },
+    percentage: {
         type: Number,
         min: 0,
         max: 100,
@@ -197,7 +203,7 @@ export class ExperimentModel {
                         reads: _reads,
                         ensemble: _ensemble,
                         taxonomy: _taxonomy,
-                        status: <IStatus> { code: Status.NOT_STARTED , message: Status[Status.NOT_STARTED] },
+                        status: <IStatus> { code: EStatus.NOT_STARTED , message: EStatus[EStatus.NOT_STARTED] },
                         config: _config
                     }, (err: any, exp: any) => {
                         if (err) {

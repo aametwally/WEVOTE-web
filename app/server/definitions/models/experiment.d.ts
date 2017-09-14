@@ -3,19 +3,19 @@ import { IAlgorithmModel } from './algorithm';
 import { IRemoteFile } from './remotefile';
 import { RepositoryBase } from './model';
 import * as mongoose from 'mongoose';
-export declare enum Status {
+export declare enum EStatus {
     NOT_STARTED = 0,
     IN_PROGRESS = 1,
     SUCCSESS = 2,
     FAILURE = 3,
 }
 export interface IStatus extends mongoose.Document {
-    code: Status;
+    code: EStatus;
     message: string;
-    progress?: number;
+    percentage: number;
 }
 export interface IConfig extends mongoose.Document {
-    algorithms: mongoose.Types.DocumentArray<IAlgorithmModel>;
+    algorithms: IAlgorithmModel[];
     minNumAgreed: number;
     minScore: number;
     penalty: number;
@@ -31,7 +31,7 @@ export interface IUsageScenario extends mongoose.Document {
 }
 export interface IExperimentModel extends mongoose.Document {
     user: mongoose.Types.ObjectId;
-    isPrivate: Boolean;
+    isPrivate: boolean;
     email: string;
     description: string;
     reads: IRemoteFile;
@@ -44,6 +44,7 @@ export interface IExperimentModel extends mongoose.Document {
     createdAt?: Date;
     modifiedAt?: Date;
 }
+export declare const statusSchema: mongoose.Schema;
 export declare class ExperimentModel {
     static schema: mongoose.Schema;
     private static _model;

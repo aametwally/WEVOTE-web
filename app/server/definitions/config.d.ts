@@ -6,4 +6,5 @@ export declare let config: {
     'uploadDir': string;
     'cppWevoteUrl': string;
     'cppWevotePort': number;
+    'cppWevoteClassificationPath': string;
 };

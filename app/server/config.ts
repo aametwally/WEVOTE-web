@@ -5,5 +5,6 @@ export let config = {
     'port' : 3000 , 
     'uploadDir': __dirname + '/uploads',
     'cppWevoteUrl': '127.0.0.1' ,
-    'cppWevotePort': 34568  
+    'cppWevotePort': 34568  ,
+    'cppWevoteClassificationPath' :'/wevote/submit/ensemble' 
 }
