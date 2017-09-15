@@ -66,8 +66,8 @@ public:
 
     template< typename SeqIt >
     static std::string toString( SeqIt first , SeqIt last ,
-                                    const std::vector< std::string > &tools ,
-                                    bool csv )
+                                 const std::vector< std::string > &tools ,
+                                 bool csv )
     {
         std::stringstream ss;
         if( csv )
@@ -185,7 +185,7 @@ public:
     {
         const auto tokens = io::split( header , delim );
         return std::vector< std::string >( tokens.cbegin() + 1 ,
-                                              tokens.cend());
+                                           tokens.cend());
     }
 
     static std::vector< std::string >
@@ -196,7 +196,7 @@ public:
         const auto toolsOffset = static_cast< std::size_t >( Meta::Votes );
         const auto toolsCount = headerSize - static_cast< std::size_t >( Meta::Offset ) + 1;
         return std::vector< std::string >( tokens.cbegin() + toolsOffset ,
-                                              tokens.cbegin() + toolsOffset + toolsCount );
+                                           tokens.cbegin() + toolsOffset + toolsCount );
     }
 
 

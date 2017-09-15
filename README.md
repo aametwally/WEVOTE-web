@@ -2,7 +2,7 @@
 This section details steps for installing and running WEVOTE. Current WEVOTE version only supports Linux. If you experience difficulty installing or running the software, please contact (Ahmed Metwally: ametwa2@uic.edu).
 
 ### Prerequisites
-
+* cpprest: a restfull API c++ library. [Follow this link for installation.](https://github.com/Microsoft/cpprestsdk/wiki)
 * BLASTN, Kraken, TIPP, CLARK, and MetaPhlan installed on the machine. 
 * g++: 
 ```shell
@@ -10,7 +10,7 @@ sudo apt-get install build-essential
 ```
 
 * OpenMP: for multithreading execution. 
-* CMake (minimum version 3.5): 
+* CMake (minimum version 3.9): 
 ```
 sudo apt-get install cmake
 ``` 
