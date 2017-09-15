@@ -49,7 +49,7 @@ After installation three applications are installed at ```CMAKE_INSTALL_PREFIX/b
 
 ### Running WEVOTE Rest computational server:
 ```
-cd ```CMAKE_INSTALL_PREFIX/bin```
+cd <CMAKE_INSTALL_PREFIX>/bin
 ./wevoteREST -h
 ```
 
