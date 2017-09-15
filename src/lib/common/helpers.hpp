@@ -46,17 +46,23 @@ template< typename SeqIt, typename SeperatorType  >
 auto join( SeqIt first , SeqIt last , const SeperatorType &sep )
 {
     using StringType = typename std::iterator_traits< SeqIt >::value_type;
-    auto binaryJoinString = [sep]( const StringType &a , const StringType &b )->StringType
+    auto binaryJoinString = [sep]( StringType &a , const StringType &b )->StringType&
     {
-        return a + sep + b;
+        return (a += sep) += b ;
     };
 
     if( first == last )
         return StringType();
     else if ( std::next( first , 1 ) == last )
         return *first;
-    else return std::accumulate( std::next( first , 1 ) , last ,
-                                 *first , binaryJoinString  );
+    else
+    {
+        StringType result = *first;
+        result.reserve( std::accumulate( first , last , std::distance( first , last ) ,
+                                         []( size_t size , const StringType &s ){ return size + s.size();}));
+        return std::accumulate( std::next( first , 1 ) , last ,
+                                 result , binaryJoinString  );
+    }
 }
 
 template< typename SeperatorType , typename Container >
