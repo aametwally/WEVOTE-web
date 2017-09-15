@@ -81,6 +81,10 @@ module wevote {
         formError: boolean,
         formErrorMessage: string,
         taxonomyError: boolean,
+        usageError: boolean,
+        usageErrorMessage: string,
+        emailError: boolean,
+        emailErrorMessage: string,
         selectiveAlgorithms: boolean,
         noAlgorithmChosen: boolean,
         supportedAlgorithms: any,
@@ -169,7 +173,6 @@ module wevote {
                 penalty: 2,
                 algorithms: ""
             }
-
         };
 
         constructor($scope: ng.IScope, private SimulatedReadsService: any,
@@ -180,32 +183,40 @@ module wevote {
             this._scope.formError = false;
             this._scope.formErrorMessage = '';
 
+            this._scope.taxonomyError = false;
+            this._scope.emailError = false;
+            this._scope.emailErrorMessage = '';
+
             this._scope.usageScenarios = this.usageScenarios;
             this._scope.taxonomySources = this.taxonomySources;
 
-            this._scope.availableDatabase = {};
+            this._scope.availableDatabase = [];
             this._scope.selectiveAlgorithms = true;
-            this._scope.supportedAlgorithms = {};
+            this._scope.supportedAlgorithms = [];
             this._scope.availableDatabaseLoaded = false;
             this._scope.supportedAlgorithmsLoaded = false;
-
             this._scope.areDataLoaded = this.areDataLoaded;
-
             SimulatedReadsService.retrieve(this.onSimulateReadsSuccess, this.onSimulatedReadsFail);
             AlgorithmsService.retrieve(this.onSupportedAlgorithmsSuccess, this.onSupportedAlgorithmsFail);
-
             this._scope.experiment = JSON.parse(JSON.stringify(this.emptyExperiment));
 
-            this._scope.noAlgorithmChosen = false;
             this._scope.postExperiment = () => {
-                this.postExperiment(this._scope.inputForm.form);
+                if (!this._scope.formError) {
+                    this._scope.experiment.usageScenario = this.getUsageScenarioOrReturn(this.usageScenarios[0]);
+                    this._scope.experiment.config.algorithms = this.getUsedAlgorithms();
+                    this.ExperimentService.submit(this._scope.experiment);
+                    this._scope.experiment = JSON.parse(JSON.stringify(this.emptyExperiment));
+                    this._scope.inputForm.form.$setPristine();
+                    this._scope.inputForm.form.$setUntouched();
+                    $('#advanced').collapse("hide");
+                }
             };
 
-            this._scope.readsUploader = {};
+            this._scope.readsUploader = null;
             this._scope.readsUploaderPostValidation = true;
-            this._scope.ensembleUploader = {};
+            this._scope.ensembleUploader = null;
             this._scope.ensembleUploaderPostValidation = true;
-            this._scope.taxonomyUploader = {};
+            this._scope.taxonomyUploader = null;
             this._scope.taxonomyUploaderPostValidation = true;
 
             // Watchers!
@@ -214,11 +225,11 @@ module wevote {
                 switch (usage) {
                     case 'pipelineFromReads':
                         {
-
+                            this._scope.selectiveAlgorithms = true;
                         } break;
                     case 'pipelineFromSimulatedReads':
                         {
-
+                            this._scope.selectiveAlgorithms = true;
                         } break;
                     case 'classificationFromEnsemble':
                         {
@@ -233,19 +244,22 @@ module wevote {
                     'readsUploader.atLeastSingleFileUploaded',
                     'readsUploaderPostValidation',
                     'ensembleUploader.atLeastSingleFileUploaded',
-                    'ensembleUploaderPostValidation'
+                    'ensembleUploaderPostValidation',
+                    'postValidationError'
                 ],
                 (newVal: any, oldVal: any, scope: ng.IScope) => {
-                    if (this._scope.inputForm.form &&
-                        this._scope.inputForm.form.usageScenariosSelect.$pristine)
-                        this._scope.formError = false;
-                    else
+                    const noAlgorithmChosen =
+                        (this._scope.supportedAlgorithms.length === 0) ? false : this.getUsedAlgorithms().length === 0;
+                    this._scope.usageError = noAlgorithmChosen;
+                    if (this._scope.inputForm.form)
                         switch (this._scope.experiment.usageScenario.value) {
                             case 'pipelineFromReads':
                                 {
-                                    this._scope.formError =
-                                        !this._scope.readsUploader.atLeastSingleFileUploaded &&
-                                        this._scope.readsUploaderPostValidation;
+                                    if (this._scope.readsUploader)
+                                        this._scope.usageError =
+                                            this._scope.usageError ||
+                                            !this._scope.readsUploader.atLeastSingleFileUploaded;
+
                                 } break;
                             case 'pipelineFromSimulatedReads':
                                 {
@@ -253,13 +267,30 @@ module wevote {
                                 } break;
                             case 'classificationFromEnsemble':
                                 {
-                                    this._scope.formError =
-                                        !this._scope.ensembleUploader.atLeastSingleFileUploaded &&
-                                        this._scope.ensembleUploaderPostValidation;
+                                    if (this._scope.ensembleUploader) {
+                                        {
+                                            this._scope.usageError =
+                                                !this._scope.ensembleUploader.atLeastSingleFileUploaded;
+                                            console.log(this._scope.ensembleUploader);
+                                            console.log('at least', this._scope.ensembleUploader.atLeastSingleFileUploaded);
+                                        }
+                                    }
                                 } break;
                         }
                 });
 
+            this._scope.$watchGroup(
+                [
+                    'taxonomyError',
+                    'emailError',
+                    'usageError'
+                ],
+                (newVal: any, oldVal: any, scope: ng.IScope) => {
+                    this._scope.formError =
+                        this._scope.usageError ||
+                        this._scope.taxonomyError ||
+                        this._scope.emailError;
+                });
             this._scope.$watchGroup(
                 [
                     'experiment.taxonomySource.value',
@@ -275,7 +306,24 @@ module wevote {
                             && this._scope.taxonomyUploaderPostValidation;
                     else this._scope.taxonomyError = false;
                 }
-            )
+            );
+
+            this._scope.$watchGroup(
+                [
+                    'inputForm.form.emailid.$error.required',
+                    'inputForm.form.emailid.$invalid',
+                    'inputForm.form.emailid.$pristine'
+                ]
+                ,
+                (newVal: any, oldVal: any, scope: ng.IScope) => {
+                    this._scope.emailError = false;
+                    if (this._scope.inputForm.form)
+                        this._scope.emailError =
+                            (this._scope.inputForm.form.emailid.$error.required ||
+                                this._scope.inputForm.form.emailid.$invalid)
+                            && !this._scope.inputForm.form.emailid.$pristine;
+                }
+            );
         }
 
         private areDataLoaded = () => {
@@ -311,9 +359,11 @@ module wevote {
         }
 
         private getUsedAlgorithms = () => {
-            return this._scope.supportedAlgorithms.filter(function (alg: any) {
-                return alg.used;
-            });
+            if (this._scope.supportedAlgorithms)
+                return this._scope.supportedAlgorithms.filter(function (alg: any) {
+                    return alg.used;
+                });
+            else return [];
         }
 
         private getUsageScenarioOrReturn = (otherwise: IUsageScenario): IUsageScenario => {
@@ -323,21 +373,7 @@ module wevote {
             return otherwise;
         }
 
-        private postExperiment = (form: any) => {
-            console.log('postExperiment() invoked.');
-            this._scope.experiment.usageScenario = this.getUsageScenarioOrReturn(this.usageScenarios[0]);
-            this._scope.experiment.config.algorithms = this.getUsedAlgorithms();
-            console.log(this._scope.experiment);
-            let noAlgorithmChosen: boolean = this.getUsedAlgorithms().length === 0;
 
-            if (!noAlgorithmChosen) {
-                this.ExperimentService.submit(this._scope.experiment);
-                this._scope.experiment = JSON.parse(JSON.stringify(this.emptyExperiment));
-                form.$setPristine();
-                form.$setUntouched();
-                $('#advanced').collapse("hide");
-            }
-        }
     }
 
     interface OnSuccessCBType {
@@ -348,33 +384,34 @@ module wevote {
     }
 
 
-    interface UploaderControllerScope extends ng.IScope {
+    interface UploaderControllerScope extends InputControllerScope {
         uploader: any,
         experiment: any
     }
     abstract class UploaderController {
         protected _scope: UploaderControllerScope;
         protected _uploader: any;
-
+        protected _inputScope: InputControllerScope;
         protected abstract onSuccessItemCB: OnSuccessCBType;
 
         protected abstract onAfterAddingFileCB: OnAfterAddingFileCBType;
 
         constructor($scope: ng.IScope, FileUploaderService: any) {
             this._scope = <UploaderControllerScope>$scope;
-
+            this._inputScope = <any>$scope.$parent.$parent.$parent;
         }
     }
 
     export class ReadsUploaderController extends UploaderController {
         static readonly $inject = ['$scope', 'FileUploaderService', ReadsUploaderController];
 
-        constructor($scope: ng.IScope, FileUploaderService: any) {
+        constructor($scope: UploaderControllerScope, FileUploaderService: any) {
             super($scope, FileUploaderService);
             this._uploader = FileUploaderService.getFileUploader(
                 'upload/reads', 'Drop reads file here', 'External dataset uploader');
             this._uploader.onSuccessItem = this.onSuccessItemCB;
             this._uploader.onAfterAddingFile = this.onAfterAddingFileCB;
+            this._inputScope.readsUploader = this._uploader;
             this._scope.uploader = this._uploader;
         };
 
@@ -409,12 +446,13 @@ module wevote {
     export class EnsembleUploaderController extends UploaderController {
         static readonly $inject = ['$scope', 'FileUploaderService', EnsembleUploaderController];
 
-        constructor($scope: ng.IScope, FileUploaderService: any) {
+        constructor($scope: UploaderControllerScope, FileUploaderService: any) {
             super($scope, FileUploaderService);
             this._uploader = FileUploaderService.getFileUploader(
                 'upload/ensemble', 'Drop ensemble file here', 'Ensemble file uploader');
             this._uploader.onSuccessItem = this.onSuccessItemCB;
             this._uploader.onAfterAddingFile = this.onAfterAddingFileCB;
+            this._inputScope.ensembleUploader = this._uploader;
             this._scope.uploader = this._uploader;
         };
 

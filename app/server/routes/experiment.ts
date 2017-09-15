@@ -11,6 +11,10 @@ import {
     IWevoteSubmitEnsemble, IRemoteAddress,
     WevoteClassificationPatchModel
 } from '../models/wevote';
+import {
+    ITaxonomyAbundanceProfileModel,
+    TaxonomyAbundanceProfileModel
+} from '../models/taxprofile';
 import { IAlgorithmModel } from '../models/algorithm';
 import { verifyOrdinaryUser } from './verify';
 import { UploadRouter } from './upload';
@@ -53,9 +57,12 @@ export class ExperimentRouter extends BaseRoute {
                         else
                             experiment.results = <any>{ wevoteClassification: resutls._id };
 
-                        experiment.save();
-                        res.writeHead(200, { 'Content-Type': 'text/plain' });
-                        return res.end();
+                        experiment.save((err: any, exp: IExperimentModel) => {
+                            TaxonomyAbundanceProfileModel.makeTaxonomyProfile(exp._id, (id: mongoose.Types.ObjectId) => {
+                                res.writeHead(200, { 'Content-Type': 'text/plain' });
+                                return res.end();
+                            })
+                        });
                     });
                 })
             })
@@ -200,7 +207,7 @@ export class ExperimentRouter extends BaseRoute {
                         const unclassifiedRead: IWevoteClassification = <any>
                             {
                                 seqId: tokens[0],
-                                votes: tokens.slice(1).map( (val: string ) => { return parseInt(val,10);})
+                                votes: tokens.slice(1).map((val: string) => { return parseInt(val, 10); })
                             }
                         unclassifiedReads.push(unclassifiedRead);
                     });

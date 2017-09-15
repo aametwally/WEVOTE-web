@@ -28,5 +28,6 @@ export declare class TaxonomyAbundanceProfileModel {
     static schema: mongoose.Schema;
     private static _model;
     static repo: RepositoryBase<ITaxonomyAbundanceProfileModel>;
-    static reset: (experimentId: string, cb?: any) => void;
+    static makeTaxonomyProfile: (experimentId: mongoose.Types.ObjectId, cb?: ((id: mongoose.Types.ObjectId) => void) | undefined) => void;
+    static reset: (experimentId: mongoose.Types.ObjectId, cb?: any) => void;
 }

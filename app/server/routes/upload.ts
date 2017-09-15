@@ -43,7 +43,7 @@ export class UploadRouter extends BaseRoute {
             let reads: ReadsDummyType = {};
             let isFasta: boolean = UploadRouter.validateDNA(UploadRouter.uploadsDir + '/' + req.file.filename, reads);
             console.log("fastaValidation", isFasta, reads.count);
-            res.setHeader("isFasta", `isFasta`);
+            res.setHeader("isFasta", `${isFasta}`);
             res.setHeader("readscount", `${reads.count}`);
             res.setHeader("filename", req.file.filename);
             res.status(204).end();
