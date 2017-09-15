@@ -22,16 +22,17 @@ sudo apt-get install cmake
 
 ## Installing, Testing, and Running
 
-### Installing Wevote Classifier
+### Installing Wevote Cpp Applications.
+
 #### Clone the project to your local repository:
 ```
-git clone https://bitbucket.org/asem_abdelaziz/wevote-service
+git clone https://bitbucket.org/asem_abdelaziz/wevote
 ```
 
 
 #### Change directory to wevote-service, then build wevote-service from scratch:
 ```
-cd wevote-service
+cd wevote
 mkdir build
 cd build
 cmake -DCMAKE_PREFIX_PATH="<path-to-qt-installed-library>" -DCMAKE_INSTALL_PREFIX="<target-installation-directory>" ..
@@ -41,17 +42,54 @@ An example where Qt root directory installed at ```/opt``` and we intend to inst
 cmake -DCMAKE_PREFIX_PATH="/opt/Qt5.9.1/5.9.1/gcc_64/lib/cmake" -DCMAKE_INSTALL_PREFIX="/projects/wevote" -DCMAKE_BUILD_TYPE=Release ..
 ```
 
+After installation three applications are installed at ```CMAKE_INSTALL_PREFIX/bin```: 
+* wevoteClassifier: wevote classification app from an ensemble file including multiple votes (i.e taxonomic binning).
+* abundanceAnnotator: evaluating the abundance per taxonomic identification.
+* wevoteREST: an Http Restful server with multiple functionalities.
+
+### Running WEVOTE Rest computational server:
+```
+cd ```CMAKE_INSTALL_PREFIX/bin```
+./wevoteREST -h
+```
+
+```
+Usage: E:\repo\wevote\build\bin\Release\wevoteREST.exe [options]
+E:\repo\wevote\build\bin\Release\wevoteREST.exe help
+
+Options:
+  -?, -h, --help                             Displays this help.
+  -H, --host <host>                          host where application is served.
+  -P, --port <port>                          The port (i.e socket number)
+                                             selected for the application.
+  -W, --wevote-host <wevote-host>            host where central wevote server
+                                             served.
+  -R, --wevote-port <port>                   The port (i.e socket number)
+                                             selected for the central wevote
+                                             server.
+  -A, --wevote-path <wevote-path>            The relative path used to submit
+                                             wevote results.
+  -d, --taxonomy-db-path <taxonomy-db-path>  The path of the taxonomy database
+                                             file.
+  -v, --verbose <verbose>                    Enable verbose mode.
+```
+
+#### Example 
+```
+.\wevoteREST.exe -d path/to/taxonomy/dir
+```
+
 ### Testing Wevote Classifier
 To run unit tests the path of ensemble file ```TEST_ENSEMBLE_CSV_FILE``` and the taxonomy files directory ```TEST_TAXONOMY_DIRECTORY``` need to be introduced
 in the cmake command. For example: 
 ```
-cd wevote-service
+cd wevote
 mkdir build
 cd build
 cmake -DCMAKE_PREFIX_PATH="/opt/Qt5.9.1/5.9.1/gcc_64/lib/cmake" -DCMAKE_INSTALL_PREFIX="/projects/wevote" -DTEST_TAXONOMY_DIRECTORY="/projects/data/taxonomy" -DTEST_ENSEMBLE_CSV_FILE="/projects/data/03C31_S1_71_ensemble.csv"  ..
 ```
 ### Running Wevote Classifier:
-#### Change directory to ```dist-dir/bin```
+#### Change directory to ```CMAKE_INSTALL_PREFIX/bin```
 
 ```
 cd /projects/wevote/bin
