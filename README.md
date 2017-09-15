@@ -43,9 +43,9 @@ cmake -DCMAKE_PREFIX_PATH="/opt/Qt5.9.1/5.9.1/gcc_64/lib/cmake" -DCMAKE_INSTALL_
 ```
 
 After installation three applications are installed at ```CMAKE_INSTALL_PREFIX/bin```: 
-* wevoteClassifier: wevote classification app from an ensemble file including multiple votes (i.e taxonomic binning).
-* abundanceAnnotator: evaluating the abundance per taxonomic identification.
-* wevoteREST: an Http Restful server with multiple functionalities.
+* wevoteClassifier: wevote classification app from an ensemble file including multiple votes (i.e taxonomic binning). 
+* abundanceAnnotator: evaluating the abundance per taxonomic identification. 
+* wevoteREST: an Http Restful server with multiple functionalities. 
 
 ### Running WEVOTE Rest computational server:
 ```
