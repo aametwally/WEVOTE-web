@@ -86,7 +86,7 @@ in the cmake command. For example:
 cd wevote
 mkdir build
 cd build
-cmake -DCMAKE_PREFIX_PATH="/opt/Qt5.9.1/5.9.1/gcc_64/lib/cmake" -DCMAKE_INSTALL_PREFIX="/projects/wevote" -DTEST_TAXONOMY_DIRECTORY="/projects/data/taxonomy" -DTEST_ENSEMBLE_CSV_FILE="/projects/data/03C31_S1_71_ensemble.csv"  ..
+cmake -DCMAKE_PREFIX_PATH="/opt/Qt5.9.1/5.9.1/gcc_64/lib/cmake" -DCMAKE_INSTALL_PREFIX="/projects/wevote" -DTEST_TAXONOMY_DIRECTORY="/projects/data/taxonomy" -DTEST_ENSEMBLE_CSV_FILE="/projects/data/03C31_S1_71_ensemble.csv" -DCMAKE_BUILD_TYPE=Release  ..
 ```
 ### Running Wevote Classifier:
 #### Change directory to ```CMAKE_INSTALL_PREFIX/bin```
