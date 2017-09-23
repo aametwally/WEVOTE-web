@@ -32,6 +32,7 @@
 #include <algorithm>
 #include <functional>
 #include <numeric>
+#include <atomic>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdint.h>

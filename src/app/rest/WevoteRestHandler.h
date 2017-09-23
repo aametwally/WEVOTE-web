@@ -1,11 +1,15 @@
 #ifndef WEVOTERESTHANDLER_H
 #define WEVOTERESTHANDLER_H
 
-#include "RestHandler.h"
-#include "WevoteRestMessages.hpp"
+// cpprest
 #include "cpprest/json.h"
 #include "cpprest/http_client.h"
 
+// local app
+#include "RestHandler.h"
+#include "WevoteRestMessages.hpp"
+
+// local lib
 #include "TaxonomyBuilder.h"
 #include "WevoteClassifier.h"
 
@@ -38,7 +42,7 @@ private:
 private:
     const TaxonomyBuilder &_taxonomy;
     const WevoteClassifier _classifier;
-    std::atomic_int64_t _jobCounter;
+    std::atomic< uint64_t > _jobCounter;
 };
 
 }
