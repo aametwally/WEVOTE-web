@@ -140,10 +140,19 @@ export class ExperimentModel {
         ensemble: {
             type: EnsembleFileModel.schema
         },
-        config: configSchema,
-        status: statusSchema,
-        results: resultsSchema,
-        usageScenario: usageScenarioSchema
+        config: {
+            type: configSchema
+        },
+        status: {
+            type: statusSchema
+        },
+        results: {
+            type: resultsSchema
+        },
+        usageScenario: 
+        {
+            type: usageScenarioSchema
+        }
     }, {
             timestamps: true
         });
