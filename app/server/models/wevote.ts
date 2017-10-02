@@ -4,7 +4,7 @@
 import { RepositoryBase, csvJSON } from './model';
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
-import { ITaxonomyAbundance } from './taxprofile';
+import { ITaxonomyAbundanceModel } from './taxprofile';
 import { IExperimentModel, EStatus, IStatus, statusSchema } from './experiment';
 import { config } from '../config';
 

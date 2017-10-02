@@ -7,17 +7,7 @@ import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 
 
-export interface ITaxLine extends mongoose.Document {
-    taxon: number;
-    root: string;
-    superkingdom: string;
-    kingdom: string;
-    phylum: string;
-    class: string;
-    order: string;
-    family: string;
-    genus: string;
-    species: string;
+export interface ITaxLineModel extends common.ITaxLine,  mongoose.Document {
 }
 
 export const taxlineSchema = new mongoose.Schema({
@@ -33,15 +23,14 @@ export const taxlineSchema = new mongoose.Schema({
     species: String
 });
 
-export interface ITaxonomyAbundance extends mongoose.Document {
-    taxon: number;
-    count: number;
-    taxline: ITaxLine;
+export interface ITaxonomyAbundanceModel extends common.ITaxonomyAbundance, mongoose.Document 
+{
+    taxline: ITaxLineModel;
 }
 
 export interface ITaxonomyAbundanceProfileModel extends mongoose.Document {
     experiment: mongoose.Types.ObjectId,
-    taxa_abundance: mongoose.Types.DocumentArray<ITaxonomyAbundance>;
+    taxa_abundance: mongoose.Types.DocumentArray<ITaxonomyAbundanceModel>;
 }
 
 export const taxonomyAbundanceSchema = new mongoose.Schema({
@@ -82,7 +71,7 @@ export class TaxonomyAbundanceProfileModel {
         fs.readFile(__dirname + "/taxprofile.csv", 'utf8', function (err, data) {
             if (err) throw err;
             const rawTaxAbundance = csvJSON(data);
-            let taxaAbundance = new Array<ITaxonomyAbundance>();
+            let taxaAbundance = new Array<ITaxonomyAbundanceModel>();
             for (const line of rawTaxAbundance) {
                 taxaAbundance.push(<any>{
                     count: line.count,
