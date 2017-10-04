@@ -4,14 +4,9 @@ import * as mongoose from 'mongoose';
 import * as passport from 'passport';
 import * as passportLocal from 'passport-local';
 import * as passportLocalMongoose from 'passport-local-mongoose';
+import * as common from '../common/common';
 
-export interface IUserModel extends mongoose.PassportLocalDocument {
-    username: string;
-    password: string;
-    email: string;
-    admin: boolean;
-    createdAt: Date;
-    modifiedAt: Date;
+export interface IUserModel extends common.IUser, mongoose.PassportLocalDocument {
 }
 
 export class UserModel {

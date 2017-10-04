@@ -1,8 +1,7 @@
 {
   "files": [ 
     "scripts/*.ts" , 
-    "../metaviz/definitions/metaviz.d.ts" , 
-    "../server/definitions/models/experiment.d.ts"],
+    "../metaviz/definitions/metaviz.d.ts"],
   "compileOnSave": false,
   "compilerOptions": {
     /* Basic Options */

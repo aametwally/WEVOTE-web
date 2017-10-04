@@ -19,10 +19,10 @@ import { ExperimentRouter } from './routes/experiment';
 import { TaxonomyAbundanceProfileRouter } from './routes/taxprofile';
 import { init } from './models/initdb';
 import { UserModel } from './models/user';
-import { WevoteClassificationPatchModel, IWevoteSubmitEnsemble } from './models/wevote';
-import { IExperimentModel, EStatus, IStatus } from './models/experiment';
+import { WevoteClassificationPatchModel } from './models/wevote';
+import { IExperimentModel } from './models/experiment';
 import { config } from './config'
-
+import { IStatus, EStatus, IWevoteSubmitEnsemble } from './common/common';
 export class Server {
     private _app: Express.Application;
 
@@ -55,8 +55,11 @@ export class Server {
                     const httpreq = http.request(options, function (response) {
                         response.setEncoding('utf8');
                         response.on('end', function () {
-                            experiment.status.code = EStatus.IN_PROGRESS;
-                            experiment.status.message = EStatus[EStatus.IN_PROGRESS];
+                            experiment.status = {
+                                code: EStatus.IN_PROGRESS,
+                                message: EStatus[EStatus.IN_PROGRESS],
+                                percentage: 0
+                            }
                             experiment.save((err: any, doc: IExperimentModel) => {
                                 if (err)
                                     throw err;

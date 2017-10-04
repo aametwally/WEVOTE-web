@@ -9,22 +9,26 @@ var gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps');
 
 
-gulp.task('ts', function () {
+gulp.task('common', function () {
+    return gulp.src('../common/*ts')
+        .pipe(gulp.dest('common'));
+});
+
+gulp.task('ts', ['common'], function () {
     var tsResults = tsServerProject.src()
         .pipe(tsServerProject());
     return tsResults.js.pipe(gulp.dest("../build")),
-        gulp.src('bin/*').pipe(gulp.dest('../build/bin')),
-        tsResults.dts.pipe(gulp.dest("./definitions"));
+        gulp.src('bin/*').pipe(gulp.dest('../build/bin'));
 });
 
 gulp.task('clean', function (cb) {
     return del(['../build/models'], {
-            force: true
-        }, cb),
+        force: true
+    }, cb),
         del(['../build/routes'], {
             force: true
         }, cb),
-        del(['../build/app.js'], {
+        del(['../build/app.js', 'common'], {
             force: true
         }, cb);
 });

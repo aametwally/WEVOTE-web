@@ -3,9 +3,51 @@
  */
 "use strict";
 namespace metaviz {
+
+    export interface IDonutChartData {
+        description: string,
+        array: Array<number>
+    }
+
+    export interface IWevoteResutlsStatistics {
+        readsCount: number
+        nonAbsoluteAgreement: number
+    }
+    export interface IResults {
+        wevoteClassification: common.IWevoteClassification[],
+        abundance: common.ITaxonomyAbundance[],
+        numToolsUsed: number,
+        statistics: IWevoteResutlsStatistics
+    }
+
+    export interface IAlgorithmsVennSets {
+        count: number, // size
+        reads: Array<common.IWevoteClassification> //seqId
+    }
+
+    export interface IVennDiagramSet {
+        sets: Array<string>,
+        size: number,
+        reads: Array<common.IWevoteClassification>,
+        nodes: Array<string>
+    }
+
+    export interface IHCLColor {
+        H: number,
+        C: number,
+        L: number
+    }
+    export interface IAbundanceNode {
+        name: string,
+        size?: number,
+        color?: IHCLColor,
+        children: Map<string, IAbundanceNode>
+    }
+
     interface MainControllerScope extends ng.IScope {
         message: String,
     }
+
     export class MainController {
         static readonly $inject: any = ['$scope', MainController];
         private _scope: MainControllerScope;
@@ -15,13 +57,8 @@ namespace metaviz {
             this._scope.message = "Hello, this is metaviz ...";
             console.log(this._scope.message);
         }
-
     }
 
-    export interface IDonutChartData {
-        description: string,
-        array: Array<number>
-    }
     export interface IDonutChartScope extends ng.IScope {
         data: IDonutChartData
     }
@@ -45,75 +82,9 @@ namespace metaviz {
         }
     }
 
-    export interface Algorithm {
-        name: string;
-        used: boolean;
-    }
-
-    export interface IConfig {
-        algorithms: Array<Algorithm>;
-        minNumAgreed: Number;
-        minScore: Number;
-        penalty: Number;
-    }
-
-    export interface IWevoteClassification {
-        seqId: string,
-        votes: Array<Number>,
-        resolvedTaxon: Number,
-        numToolsReported: Number,
-        numToolsAgreed: Number,
-        score: Number,
-    }
-
-    // Note: Root and Kingdom are not included.
-    export interface ITaxLine {
-        taxon: number;
-        superkingdom: string;
-        phylum: string;
-        class: string;
-        order: string;
-        family: string;
-        genus: string;
-        species: string;
-    }
-
-    export interface ITaxonomyAbundance {
-        taxon: number;
-        count: number;
-        taxline: ITaxLine;
-    }
-
-    export interface ITaxonomyAbundanceProfile {
-        taxa_abundance: Array<ITaxonomyAbundance>
-    }
-
-    export interface IResutlsStatistics {
-        readsCount: number
-        nonAbsoluteAgreement: number
-    }
-    export interface IResults {
-        wevoteClassification: Array<IWevoteClassification>,
-        numToolsUsed: number,
-        taxonomyAbundanceProfile: ITaxonomyAbundanceProfile,
-        statistics: IResutlsStatistics
-    }
-
-    export interface IAlgorithmsVennSets {
-        count: number, // size
-        reads: Array<IWevoteClassification> //seqId
-    }
-
-    export interface IVennDiagramSet {
-        sets: Array<string>,
-        size: number,
-        reads: Array<IWevoteClassification>,
-        nodes: Array<string>
-    }
-
     export interface IVennDiagramScope extends ng.IScope {
         results: IResults,
-        config: IConfig,
+        config: common.IConfig,
         wevoteContribution: boolean,
         sets: Array<IVennDiagramSet>
     }
@@ -130,7 +101,7 @@ namespace metaviz {
                     if (this._scope.wevoteContribution) {
                         this._scope.results.statistics.nonAbsoluteAgreement =
                             this.processResults(results.wevoteClassification, this._scope.config,
-                                (readClassification: IWevoteClassification) => {
+                                (readClassification: common.IWevoteClassification) => {
                                     const firstTaxid = readClassification.votes[0];
                                     return readClassification.votes.reduce((acc: Boolean, curr: Number): Boolean => {
                                         return acc && (curr == 0 || curr == 1);
@@ -144,11 +115,11 @@ namespace metaviz {
                     else {
                         this._scope.results.statistics.readsCount =
                             this.processResults(results.wevoteClassification, this._scope.config,
-                                (readClassification: IWevoteClassification) => {
+                                (readClassification: common.IWevoteClassification) => {
                                     return readClassification.votes.reduce((acc: Boolean, curr: Number): Boolean => {
                                         return acc && (curr == 0 || curr == 1);
                                     }, true);
-                                }, false );
+                                }, false);
                     }
                 }
                 else console.log("results is not yet defined.");
@@ -156,11 +127,11 @@ namespace metaviz {
         }
 
 
-        protected processResults = (wevoteClassification: Array<IWevoteClassification>, config: IConfig,
-            filter?: (readClassification: IWevoteClassification) => Boolean,
+        protected processResults = (wevoteClassification: Array<common.IWevoteClassification>, config: common.IConfig,
+            filter?: (readClassification: common.IWevoteClassification) => Boolean,
             showWevote: Boolean = false): number => {
-            const algorithms = config.algorithms.concat({name:'WEVOTE',used:true});
-            if (algorithms.length - 1 != wevoteClassification[0].votes.length ) {
+            const algorithms = config.algorithms.concat({ name: 'WEVOTE', used: true });
+            if (algorithms.length - 1 != wevoteClassification[0].votes.length) {
                 console.warn("Results inconsistency", algorithms.length - 1, wevoteClassification[0].votes);
                 return 0;
             }
@@ -169,7 +140,7 @@ namespace metaviz {
 
             let ignored = 0;
             // Prepare data to be passed to d3.js venn diagram.
-            wevoteClassification.forEach(function (readClassification: IWevoteClassification, readIndex: number) {
+            wevoteClassification.forEach(function (readClassification: common.IWevoteClassification, readIndex: number) {
 
                 // Ignore all taxid=0,1 when all algorithms agree.
                 const ignore = filter ? filter(readClassification) : false;
@@ -179,8 +150,8 @@ namespace metaviz {
                     // counterMap< targeted taxid , algorithms agreed >
                     let counterMap: Map<number, Set<Array<number>>> = new Map<number, Set<Array<number>>>();
                     const votes = (showWevote) ?
-                        readClassification.votes.concat(readClassification.resolvedTaxon) : readClassification.votes;
-                    
+                        readClassification.votes.concat(<number>readClassification.resolvedTaxon) : readClassification.votes;
+
                     votes.forEach(function (taxid: number, algIdx: number) {
                         const set = counterMap.get(taxid);
                         if (set) {
@@ -227,7 +198,7 @@ namespace metaviz {
                         }),
                         size: vennBucket.count,
                         reads: vennBucket.reads,
-                        nodes: vennBucket.reads.map(function (wevoteItem: IWevoteClassification) {
+                        nodes: vennBucket.reads.map(function (wevoteItem: common.IWevoteClassification) {
                             return wevoteItem.seqId;
                         })
                     });
@@ -236,33 +207,19 @@ namespace metaviz {
             this._scope.sets = sets;
             return wevoteClassification.length - ignored;
         }
-
-    }
-
-    export interface IHCLColor
-    {
-        H: number , 
-        C: number , 
-        L: number
-    }
-    export interface IAbundanceNode {
-        name: string,
-        size?: number,
-        color?:IHCLColor,
-        children: Map<string, IAbundanceNode>
     }
 
     export interface IAbundanceSunburstScope extends ng.IScope {
         results: IResults,
-        config: IConfig,
+        config: common.IConfig,
         hierarchy: any
     }
 
     export class AbundanceSunburstController {
-        static readonly $inject: any = ['$scope','TreemapColorSchemeService', AbundanceSunburstController];
+        static readonly $inject: any = ['$scope', 'TreemapColorSchemeService', AbundanceSunburstController];
         private _scope: IAbundanceSunburstScope;
-        private _treeColoring : TreemapColorSchemeFactory;
-        constructor(scope: ng.IScope , treeColoring: TreemapColorSchemeFactory ) {
+        private _treeColoring: TreemapColorSchemeFactory;
+        constructor(scope: ng.IScope, treeColoring: TreemapColorSchemeFactory) {
             this._treeColoring = treeColoring;
             this._scope = <IAbundanceSunburstScope>scope;
             this._scope.$watch('results', (results: IResults) => {
@@ -275,9 +232,9 @@ namespace metaviz {
             });
         };
 
-        private processResults = (results: IResults, config: IConfig) => {
-            const tree = this.buildHierarchy(results.taxonomyAbundanceProfile.taxa_abundance);
-            this._treeColoring.colorizeTree( tree ); 
+        private processResults = (results: IResults, config: common.IConfig) => {
+            const tree = this.buildHierarchy(results.abundance);
+            this._treeColoring.colorizeTree(tree);
             this._scope.hierarchy = this.hierarchyAsObject(tree);
         };
 
@@ -298,8 +255,7 @@ namespace metaviz {
             return obj;
         }
 
-        private buildHierarchy = (taxonomyAbundanceProfile: Array<ITaxonomyAbundance>): IAbundanceNode => {
-
+        private buildHierarchy = (taxonomyAbundanceProfile: Array<common.ITaxonomyAbundance>): IAbundanceNode => {
             const tree: IAbundanceNode = {
                 name: "Abundance Tree",
                 children: new Map<string, IAbundanceNode>()
@@ -340,6 +296,91 @@ namespace metaviz {
     }
 
 
+
+    export interface ITaxInfo {
+        id: number,
+        name?: string,
+        link?: string
+    }
+
+    export type WevoteTableHeaderFunction = (config: common.IConfig) => string[];
+
+    export const wevoteTableHeader: WevoteTableHeaderFunction = (config: common.IConfig) => {
+        const algorithms: common.IAlgorithm[] = config.algorithms;
+        return ['seq'].concat(algorithms.map((alg: common.IAlgorithm) => {
+            return alg.name;
+        })).concat(['resolved tax', 'score']);
+    };
+    export const abundanceTableHeader = ['tax', 'count'];
+
+    export interface IWevoteTableEntry {
+        seqId: string,
+        votes: ITaxInfo[],
+        resolvedTaxon: ITaxInfo,
+        score: number
+    }
+
+    export interface IAbundanceTableEntry {
+        taxon: ITaxInfo,
+        count: number
+    }
+
+    export interface ITableScope< E > extends ng.IScope {
+        results: IResults,
+        config: common.IConfig,
+        header: string[],
+        entries: E[]
+    }
+
+    export class IWevoteTableController {
+        static readonly $inject: any = ['$scope', IWevoteTableController];
+        private _scope: ITableScope<IWevoteTableEntry>;
+
+        constructor(scope: ITableScope<IWevoteTableEntry>) {
+            this._scope = scope;
+            this._scope.$watch('results', (results: IResults) => {
+                if (results && results.wevoteClassification && this._scope.config)
+                    this.processResults(results.wevoteClassification, this._scope.config);
+            })
+        }
+
+        protected processResults = (wevoteClassification: Array<common.IWevoteClassification>,
+            config: common.IConfig) => {
+            this._scope.header = wevoteTableHeader(config);
+            this._scope.entries = wevoteClassification.map( (wevoteInfo: common.IWevoteClassification)=>{
+                return {
+                    seqId: wevoteInfo.seqId , 
+                    votes: wevoteInfo.votes.map( (taxid:number)=> {return{id:taxid };}) , 
+                    resolvedTaxon: { id: wevoteInfo.resolvedTaxon || 0 } ,
+                    score : wevoteInfo.score || 0
+                } ;
+            });
+        }
+    }
+
+    export class IAbundanceTableController {
+        static readonly $inject: any = ['$scope', IAbundanceTableController];
+        private _scope: ITableScope<IAbundanceTableEntry>;
+
+        constructor(scope: ITableScope<IAbundanceTableEntry>) {
+            this._scope = scope;
+            this._scope.$watch('results', (results: IResults) => {
+                if (results && results.abundance && this._scope.config)
+                    this.processResults(results.abundance, this._scope.config);
+            })
+        }
+
+        protected processResults = (abundance: Array<common.ITaxonomyAbundance>,
+            config: common.IConfig) => {
+            this._scope.header = wevoteTableHeader(config);
+            this._scope.entries = abundance.map( (taxAbundance: common.ITaxonomyAbundance)=>{
+                return <IAbundanceTableEntry>{
+                    taxon: {id:taxAbundance.taxon} , 
+                    count : taxAbundance.count
+                };
+            });
+        }
+    }
 
     metavizApp
         .controller('MainController', MainController.$inject)

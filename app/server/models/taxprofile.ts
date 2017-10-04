@@ -5,9 +5,9 @@ import { RepositoryBase, csvJSON } from './model';
 import { IExperimentModel, ExperimentModel } from './experiment';
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
+import * as common from '../common/common';
 
-
-export interface ITaxLineModel extends common.ITaxLine,  mongoose.Document {
+export interface ITaxLine extends common.ITaxLine,  mongoose.Document {
 }
 
 export const taxlineSchema = new mongoose.Schema({
@@ -23,14 +23,14 @@ export const taxlineSchema = new mongoose.Schema({
     species: String
 });
 
-export interface ITaxonomyAbundanceModel extends common.ITaxonomyAbundance, mongoose.Document 
+export interface ITaxonomyAbundance extends common.ITaxonomyAbundance, mongoose.Document 
 {
-    taxline: ITaxLineModel;
+    taxline: ITaxLine;
 }
 
-export interface ITaxonomyAbundanceProfileModel extends mongoose.Document {
+export interface ITaxonomyAbundanceProfile extends common.ITaxonomyAbundanceProfile, mongoose.Document {
     experiment: mongoose.Types.ObjectId,
-    taxa_abundance: mongoose.Types.DocumentArray<ITaxonomyAbundanceModel>;
+    abundance: mongoose.Types.DocumentArray<ITaxonomyAbundance>;
 }
 
 export const taxonomyAbundanceSchema = new mongoose.Schema({
@@ -55,15 +55,15 @@ export class TaxonomyAbundanceProfileModel {
             required: true,
             ref: 'Experiment'
         },
-        taxa_abundance: {
+        abundance: {
             type: [taxonomyAbundanceSchema],
             required: true
         }
     });
 
     private static _model =
-    mongoose.model<ITaxonomyAbundanceProfileModel>('TaxonomyAbundanceProfile', TaxonomyAbundanceProfileModel.schema);
-    public static repo = new RepositoryBase<ITaxonomyAbundanceProfileModel>(TaxonomyAbundanceProfileModel._model);
+    mongoose.model<ITaxonomyAbundanceProfile>('TaxonomyAbundanceProfile', TaxonomyAbundanceProfileModel.schema);
+    public static repo = new RepositoryBase<ITaxonomyAbundanceProfile>(TaxonomyAbundanceProfileModel._model);
 
     public static makeTaxonomyProfile = (experimentId: mongoose.Types.ObjectId, cb?: (id: mongoose.Types.ObjectId) => void) => {
         //Collection is empty
@@ -71,7 +71,7 @@ export class TaxonomyAbundanceProfileModel {
         fs.readFile(__dirname + "/taxprofile.csv", 'utf8', function (err, data) {
             if (err) throw err;
             const rawTaxAbundance = csvJSON(data);
-            let taxaAbundance = new Array<ITaxonomyAbundanceModel>();
+            let taxaAbundance = new Array<ITaxonomyAbundance>();
             for (const line of rawTaxAbundance) {
                 taxaAbundance.push(<any>{
                     count: line.count,
@@ -90,9 +90,9 @@ export class TaxonomyAbundanceProfileModel {
                     }
                 });
             }
-            let abundance = <ITaxonomyAbundanceProfileModel>{
+            let abundance = <ITaxonomyAbundanceProfile>{
                 experiment: experimentId,
-                taxa_abundance: taxaAbundance
+                abundance: taxaAbundance
             };
             TaxonomyAbundanceProfileModel.repo.create(abundance, (err, doc) => {
                 if (err) throw err;

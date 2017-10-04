@@ -1,16 +1,8 @@
 import { RepositoryBase, csvJSON } from './model';
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
-
-export interface IRemoteFile extends mongoose.Document {
-    name: string,
-    description: string,
-    onServer: Boolean,
-    uri: string,
-    data: string,
-    size: number,
-    tag?:string,
-    count?: number
+import * as common from '../common/common';
+export interface IRemoteFile extends common.IRemoteFile, mongoose.Document {
 }
 
 export class RemoteFileModel {

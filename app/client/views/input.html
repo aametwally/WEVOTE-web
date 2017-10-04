@@ -10,7 +10,7 @@
                 <div role="tabpanel" class="tab-pane">
                     <div class="panel-body data-submission-form">
                         <div class="form-group" >
-                            <div class="form-group" ng-class="{'has-error has-feedback': formError }">
+                            <div class="form-group" ng-class="{'has-error has-feedback': usageError }">
                                 <label><h4><strong>Select a usage scenario of WEVOTE pipeline.</strong></h4>
                                     <select class="form-control" ng-model="experiment.usageScenario.value"
                                             name="usageScenariosSelect" >
@@ -49,7 +49,7 @@
                                 <div class="col-xs-11">
                                     <label><h4><strong>Use NCBI taxonomy database or upload custom one.</strong>
                                     </h4>
-                                        <select class="form-control" ng-model="experiment.taxonomySource"
+                                        <select class="form-control" ng-model="experiment.taxonomy.name"
                                                 name="taxonomyOptionSelect"
                                                 ng-options="taxonomySource.value as taxonomySource.label for taxonomySource
                                             in taxonomySources">
@@ -58,7 +58,7 @@
                                     <div class="col-xs-8 col-sm-6 col-md-5">
                                     <div ng-controller="TaxonomyUploaderController">
                                     <div ng-include="'views/taxonomyupload.html'"
-                                         ng-if="experiment.taxonomySource.value==='custom'"
+                                         ng-if="experiment.taxonomy.name==='custom'"
                                          nv-file-drop=""
                                          uploader="uploader" filters="queueLimit, customFilter">
                                     </div>

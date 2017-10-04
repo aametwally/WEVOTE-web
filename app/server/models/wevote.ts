@@ -4,40 +4,18 @@
 import { RepositoryBase, csvJSON } from './model';
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
-import { ITaxonomyAbundanceModel } from './taxprofile';
-import { IExperimentModel, EStatus, IStatus, statusSchema } from './experiment';
+import { ITaxonomyAbundance } from './taxprofile';
+import { IExperimentModel, statusSchema } from './experiment';
 import { config } from '../config';
+import * as common from '../common/common';
 
-export interface IRemoteAddress {
-    host: string,
-    port: number,
-    relativePath: string
-}
-
-export interface IWevoteSubmitEnsemble {
-    jobID: string,
-    resultsRoute: IRemoteAddress,
-    reads: IWevoteClassification[],
-    status: IStatus,
-    score: number,
-    penalty: number,
-    minNumAgreed: number
-}
-
-export interface IWevoteClassification extends mongoose.Document {
-    seqId: string,
+export interface IWevoteClassification extends common.IWevoteClassification, mongoose.Document {
     votes: mongoose.Types.Array<number>,
-    resolvedTaxon?: number,
-    numToolsReported?: number,
-    numToolsAgreed?: number,
-    numToolsUsed?: number,
-    score?: number
 }
 
-export interface IWevoteClassificationPatch extends mongoose.Document {
+export interface IWevoteClassificationPatch extends common.IWevoteClassificationPatch, mongoose.Document {
     experiment: mongoose.Types.ObjectId,
-    patch: mongoose.Types.Array<IWevoteClassification>,
-    status: IStatus
+    patch: mongoose.Types.Array<IWevoteClassification>
 }
 
 export const wevoteClassificationSchema = new mongoose.Schema({
@@ -141,7 +119,7 @@ export class WevoteClassificationPatchModel {
     }
 
     public static makeWevoteSubmission =
-    (experiment: IExperimentModel, cb: (wevoteSubmission: IWevoteSubmitEnsemble) => void) => {
+    (experiment: IExperimentModel, cb: (wevoteSubmission: common.IWevoteSubmitEnsemble) => void) => {
         fs.readFile(__dirname + '/ensemble_unclassified.csv', 'utf8', (err: any, data: string) => {
             if (err) throw err;
             let unclassifiedReads = WevoteClassificationPatchModel.parseUnclassifiedEnsemble(data);
@@ -157,7 +135,7 @@ export class WevoteClassificationPatchModel {
                     port: config.port,
                 }
 
-            const submission: IWevoteSubmitEnsemble = {
+            const submission: common.IWevoteSubmitEnsemble = {
                 jobID: experiment._id,
                 resultsRoute: {
                     host: config.host,

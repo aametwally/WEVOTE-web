@@ -1,27 +1,26 @@
 import { BaseRoute } from "./route";
 import {
-    ExperimentModel, IExperimentModel, IConfig,
-    IStatus, EStatus, IUsageScenario, IResults
+    ExperimentModel, IExperimentModel, IConfig, IUsageScenario, IResults
 } from '../models/experiment';
 import { Request, Response, NextFunction } from 'express';
 import { IRemoteFile } from "../models/remotefile";
 import { UserModel, IUserModel } from '../models/user';
 import {
     IWevoteClassification, IWevoteClassificationPatch,
-    IWevoteSubmitEnsemble, IRemoteAddress,
     WevoteClassificationPatchModel
 } from '../models/wevote';
 import {
-    ITaxonomyAbundanceProfileModel,
+    ITaxonomyAbundanceProfile,
     TaxonomyAbundanceProfileModel
 } from '../models/taxprofile';
-import { IAlgorithmModel } from '../models/algorithm';
+import { IAlgorithm } from '../models/algorithm';
 import { verifyOrdinaryUser } from './verify';
 import { UploadRouter } from './upload';
 import * as fs from 'fs';
 import * as http from 'http';
 import { config } from '../config'
 import * as mongoose from 'mongoose';
+import {IWevoteSubmitEnsemble} from '../common/common';
 
 export class ExperimentRouter extends BaseRoute {
     constructor() {
@@ -197,8 +196,8 @@ export class ExperimentRouter extends BaseRoute {
                     // split on newlines...
                     let lines = ensemble.split('\n');
                     const algorithms: string[] = WevoteClassificationPatchModel.extractAlgorithms(lines[0]);
-                    exp.config.algorithms = <IAlgorithmModel[]>algorithms.map((value: string) => {
-                        return <IAlgorithmModel>{ name: value, used: true };
+                    exp.config.algorithms = <IAlgorithm[]>algorithms.map((value: string) => {
+                        return <IAlgorithm>{ name: value, used: true };
                     });
                     lines = (WevoteClassificationPatchModel.isHeaderLine(lines[0])) ? lines.slice(1) : lines;
                     const unclassifiedReads = new Array<IWevoteClassification>();

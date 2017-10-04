@@ -21,7 +21,6 @@ module wevote {
             this._scope.error = false;
             this._scope.message = "Loading ...";
         }
-
     }
 
     interface IUsageScenario {
@@ -33,41 +32,6 @@ module wevote {
     interface ITaxonomySource {
         readonly value: string,
         readonly label: string
-    }
-
-    interface IRemoteFile {
-        name: string,
-        description: string,
-        onServer?: boolean,
-        uri: string,
-        data: string,
-        size: string,
-        count?: number
-    }
-    interface IConfig {
-        minScore: number,
-        minNumAgreed: number,
-        penalty: number,
-        algorithms: any
-    }
-
-    interface IStatus {
-        code: number,
-        message: string,
-        percentage?: number
-    }
-    interface IExperiment {
-        user: string,
-        email: string,
-        description: string,
-        status?: string,
-        private: boolean,
-        usageScenario: IUsageScenario,
-        taxonomySource: ITaxonomySource,
-        reads: IRemoteFile,
-        ensemble: IRemoteFile,
-        taxonomy: IRemoteFile,
-        config: IConfig
     }
 
     interface InputControllerScope extends ng.IScope {
@@ -88,7 +52,7 @@ module wevote {
         selectiveAlgorithms: boolean,
         noAlgorithmChosen: boolean,
         supportedAlgorithms: any,
-        experiment: IExperiment,
+        experiment: common.IExperiment,
         inputForm: any,
         usageScenarios: IUsageScenario[],
         taxonomySources: ITaxonomySource[],
@@ -135,20 +99,19 @@ module wevote {
         ];
 
 
-        private readonly emptyExperiment: IExperiment = {
+        private readonly emptyExperiment: common.IExperiment = {
             user: "public",
             email: "",
             description: "",
-            private: false,
+            isPrivate: false,
             usageScenario: this.usageScenarios[0],
-            taxonomySource: this.taxonomySources[0],
             reads: {
                 name: "",
                 description: "",
                 onServer: true,
                 uri: "",
                 data: "",
-                size: "",
+                size: 0,
                 count: 0
             },
             ensemble: {
@@ -156,22 +119,23 @@ module wevote {
                 description: "",
                 uri: "",
                 data: "",
-                size: "",
+                size: 0,
                 count: 0
             },
             taxonomy: {
-                name: "",
+                name: this.taxonomySources[0].value,
                 description: "",
                 onServer: true,
                 uri: "",
                 data: "",
-                size: ""
+                size: 0 ,
+                count: 0
             },
             config: {
                 minScore: 0,
                 minNumAgreed: 0,
                 penalty: 2,
-                algorithms: ""
+                algorithms: []
             }
         };
 
@@ -301,7 +265,7 @@ module wevote {
                     if (this._scope.inputForm.form &&
                         !this._scope.inputForm.form.taxonomyOptionSelect.$pristine)
                         this._scope.taxonomyError =
-                            this._scope.experiment.taxonomySource.value === 'custom'
+                            this._scope.experiment.taxonomy.name === 'custom'
                             && !this._scope.taxonomyUploader.atLeastSingleFileUploaded
                             && this._scope.taxonomyUploaderPostValidation;
                     else this._scope.taxonomyError = false;
@@ -764,14 +728,12 @@ module wevote {
 
     }
 
-
-
     interface IExperimentScope extends ng.IScope {
         user: string;
         isPrivate: boolean;
         email: string;
         description: string;
-        config: metaviz.IConfig;
+        config: common.IConfig;
         results: metaviz.IResults;
         createdAt: Date;
         showExperiment: boolean,
@@ -806,7 +768,7 @@ module wevote {
             this._scope.results = {
                 wevoteClassification: response.results.wevoteClassification.patch,
                 numToolsUsed: response.results.wevoteClassification.numToolsUsed,
-                taxonomyAbundanceProfile: response.results.taxonomyAbundanceProfile,
+                abundance : response.results.taxonomyAbundanceProfile.abundance ,
                 statistics: { readsCount: 0, nonAbsoluteAgreement: 0 }
             };
             this._scope.showExperiment = true;
@@ -818,7 +780,6 @@ module wevote {
             this._scope.experimentError = true;
             this._scope.experimentMessage = response;
         };
-
     }
 
 

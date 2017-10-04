@@ -3,47 +3,12 @@
 declare namespace metaviz {
     let metavizApp: angular.IModule;
 }
-declare namespace metaviz {
-    class MainController {
-        static readonly $inject: any;
-        private _scope;
-        constructor($scope: ng.IScope);
-    }
-    interface IDonutChartData {
-        description: string;
-        array: Array<number>;
-    }
-    interface IDonutChartScope extends ng.IScope {
-        data: IDonutChartData;
-    }
-    class DonutChartController {
-        private $scope;
-        private $interval;
-        static readonly $inject: any;
-        private _scope;
-        constructor($scope: ng.IScope, $interval: ng.IIntervalService);
-    }
-    interface Algorithm {
-        name: string;
-        used: boolean;
-    }
-    interface IConfig {
-        algorithms: Array<Algorithm>;
-        minNumAgreed: Number;
-        minScore: Number;
-        penalty: Number;
-    }
-    interface IWevoteClassification {
-        seqId: string;
-        votes: Array<Number>;
-        resolvedTaxon: Number;
-        numToolsReported: Number;
-        numToolsAgreed: Number;
-        score: Number;
-    }
+declare namespace common {
     interface ITaxLine {
         taxon: number;
+        root: string;
         superkingdom: string;
+        kingdom: string;
         phylum: string;
         class: string;
         order: string;
@@ -57,39 +22,125 @@ declare namespace metaviz {
         taxline: ITaxLine;
     }
     interface ITaxonomyAbundanceProfile {
-        taxa_abundance: Array<ITaxonomyAbundance>;
+        experiment: any;
+        abundance: ITaxonomyAbundance[];
     }
-    interface IResutlsStatistics {
+    interface IUser {
+        username: string;
+        password: string;
+        email: string;
+        admin: boolean;
+        createdAt: Date;
+        modifiedAt: Date;
+    }
+    interface IRemoteAddress {
+        host: string;
+        port: number;
+        relativePath: string;
+    }
+    enum EStatus {
+        NOT_STARTED,
+        IN_PROGRESS,
+        SUCCSESS,
+        FAILURE,
+    }
+    interface IStatus {
+        code: EStatus;
+        message: string;
+        percentage: number;
+    }
+    interface IWevoteSubmitEnsemble {
+        jobID: string;
+        resultsRoute: IRemoteAddress;
+        reads: IWevoteClassification[];
+        status: IStatus;
+        score: number;
+        penalty: number;
+        minNumAgreed: number;
+    }
+    interface IWevoteClassification {
+        seqId: string;
+        votes: number[];
+        resolvedTaxon?: number;
+        numToolsReported?: number;
+        numToolsAgreed?: number;
+        numToolsUsed?: number;
+        score?: number;
+    }
+    interface IWevoteClassificationPatch {
+        experiment: any;
+        patch: IWevoteClassification[];
+        status: IStatus;
+    }
+    interface IAlgorithm {
+        name: string;
+        used: boolean;
+    }
+    interface IConfig {
+        algorithms: IAlgorithm[];
+        minNumAgreed: number;
+        minScore: number;
+        penalty: number;
+    }
+    interface IResults {
+        wevoteClassification: IWevoteClassificationPatch;
+        taxonomyAbundanceProfile: ITaxonomyAbundanceProfile;
+    }
+    interface IUsageScenario {
+        value: string;
+        usage: string;
+        hint?: string;
+    }
+    interface IRemoteFile {
+        name: string;
+        description: string;
+        onServer?: Boolean;
+        uri: string;
+        data: string;
+        size: number;
+        tag?: string;
+        count?: number;
+    }
+    interface IExperiment {
+        user: any;
+        isPrivate: boolean;
+        email: string;
+        description: string;
+        reads: IRemoteFile;
+        taxonomy: IRemoteFile;
+        ensemble: IRemoteFile;
+        config: IConfig;
+        status?: IStatus;
+        results?: IResults;
+        usageScenario: IUsageScenario;
+        createdAt?: Date;
+        modifiedAt?: Date;
+    }
+}
+declare namespace metaviz {
+    interface IDonutChartData {
+        description: string;
+        array: Array<number>;
+    }
+    interface IWevoteResutlsStatistics {
         readsCount: number;
         nonAbsoluteAgreement: number;
     }
     interface IResults {
-        wevoteClassification: Array<IWevoteClassification>;
+        wevoteClassification: common.IWevoteClassification[];
+        abundance: common.ITaxonomyAbundance[];
         numToolsUsed: number;
-        taxonomyAbundanceProfile: ITaxonomyAbundanceProfile;
-        statistics: IResutlsStatistics;
+        statistics: IWevoteResutlsStatistics;
     }
     interface IAlgorithmsVennSets {
         count: number;
-        reads: Array<IWevoteClassification>;
+        reads: Array<common.IWevoteClassification>;
     }
     interface IVennDiagramSet {
         sets: Array<string>;
         size: number;
-        reads: Array<IWevoteClassification>;
+        reads: Array<common.IWevoteClassification>;
         nodes: Array<string>;
-    }
-    interface IVennDiagramScope extends ng.IScope {
-        results: IResults;
-        config: IConfig;
-        wevoteContribution: boolean;
-        sets: Array<IVennDiagramSet>;
-    }
-    class VennDiagramController {
-        static readonly $inject: any;
-        private _scope;
-        constructor(scope: ng.IScope);
-        protected processResults: (wevoteClassification: IWevoteClassification[], config: IConfig, filter?: ((readClassification: IWevoteClassification) => Boolean) | undefined, showWevote?: Boolean) => number;
     }
     interface IHCLColor {
         H: number;
@@ -102,9 +153,36 @@ declare namespace metaviz {
         color?: IHCLColor;
         children: Map<string, IAbundanceNode>;
     }
+    class MainController {
+        static readonly $inject: any;
+        private _scope;
+        constructor($scope: ng.IScope);
+    }
+    interface IDonutChartScope extends ng.IScope {
+        data: IDonutChartData;
+    }
+    class DonutChartController {
+        private $scope;
+        private $interval;
+        static readonly $inject: any;
+        private _scope;
+        constructor($scope: ng.IScope, $interval: ng.IIntervalService);
+    }
+    interface IVennDiagramScope extends ng.IScope {
+        results: IResults;
+        config: common.IConfig;
+        wevoteContribution: boolean;
+        sets: Array<IVennDiagramSet>;
+    }
+    class VennDiagramController {
+        static readonly $inject: any;
+        private _scope;
+        constructor(scope: ng.IScope);
+        protected processResults: (wevoteClassification: common.IWevoteClassification[], config: common.IConfig, filter?: ((readClassification: common.IWevoteClassification) => Boolean) | undefined, showWevote?: Boolean) => number;
+    }
     interface IAbundanceSunburstScope extends ng.IScope {
         results: IResults;
-        config: IConfig;
+        config: common.IConfig;
         hierarchy: any;
     }
     class AbundanceSunburstController {
@@ -115,6 +193,42 @@ declare namespace metaviz {
         private processResults;
         private hierarchyAsObject(tree);
         private buildHierarchy;
+    }
+    interface ITaxInfo {
+        id: number;
+        name?: string;
+        link?: string;
+    }
+    type WevoteTableHeaderFunction = (config: common.IConfig) => string[];
+    const wevoteTableHeader: WevoteTableHeaderFunction;
+    const abundanceTableHeader: string[];
+    interface IWevoteTableEntry {
+        seqId: string;
+        votes: ITaxInfo[];
+        resolvedTaxon: ITaxInfo;
+        score: number;
+    }
+    interface IAbundanceTableEntry {
+        taxon: ITaxInfo;
+        count: number;
+    }
+    interface ITableScope<E> extends ng.IScope {
+        results: IResults;
+        config: common.IConfig;
+        header: string[];
+        entries: E[];
+    }
+    class IWevoteTableController {
+        static readonly $inject: any;
+        private _scope;
+        constructor(scope: ITableScope<IWevoteTableEntry>);
+        protected processResults: (wevoteClassification: common.IWevoteClassification[], config: common.IConfig) => void;
+    }
+    class IAbundanceTableController {
+        static readonly $inject: any;
+        private _scope;
+        constructor(scope: ITableScope<IAbundanceTableEntry>);
+        protected processResults: (abundance: common.ITaxonomyAbundance[], config: common.IConfig) => void;
     }
 }
 declare namespace metaviz {
@@ -150,8 +264,8 @@ declare namespace metaviz {
         static factory(): ng.IDirectiveFactory;
     }
     interface IVennDiagramDirectiveScope extends ng.IScope {
-        results: IResults;
-        config: IConfig;
+        results: common.IResults;
+        config: common.IConfig;
         wevoteContribution: boolean;
         sets: Array<IVennDiagramSet>;
     }

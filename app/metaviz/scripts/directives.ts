@@ -84,8 +84,8 @@ namespace metaviz {
     }
 
     export interface IVennDiagramDirectiveScope extends ng.IScope {
-        results: IResults,
-        config: IConfig,
+        results: common.IResults,
+        config: common.IConfig,
         wevoteContribution: boolean,
         sets: Array<IVennDiagramSet>
     }
@@ -538,6 +538,7 @@ namespace metaviz {
             return d;
         }
     }
+
 
     metavizApp
         .directive(HelloWorldDirective.directiveName,

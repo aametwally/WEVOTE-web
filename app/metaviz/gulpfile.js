@@ -44,7 +44,12 @@ gulp.task('usemin', ['ts', 'jshint'], function () {
         .pipe(gulp.dest('dist'));
 });
 
-gulp.task('ts', function () {
+gulp.task('common', function () {
+    return gulp.src('../common/*ts')
+        .pipe(gulp.dest('common'));
+});
+
+gulp.task('ts', ['common'], function () {
     var tsResults = tsMetavizProject.src()
         .pipe(tsMetavizProject());
     return tsResults.js.pipe(gulp.dest(".")),
@@ -74,7 +79,7 @@ gulp.task('copyfonts', function () {
 });
 
 gulp.task('clean', function (cb) {
-    return del(['dist'], {
+    return del(['dist','definitions'], {
         force: true
     }, cb);
 });

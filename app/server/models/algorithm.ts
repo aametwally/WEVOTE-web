@@ -1,10 +1,10 @@
 import { RepositoryBase, csvJSON } from './model';
 import * as fs from 'fs';
 import * as mongoose from 'mongoose';
+import * as common from '../common/common';
 
-export interface IAlgorithmModel extends mongoose.Document {
-    name: string;
-    used: boolean;
+export interface IAlgorithm extends common.IAlgorithm, mongoose.Document {
+
 }
 
 export class AlgorithmModel {
@@ -15,8 +15,8 @@ export class AlgorithmModel {
             default: true
         }
     });
-    private static _model = mongoose.model<IAlgorithmModel>('Algorithm', AlgorithmModel.schema);
-    public static repo = new RepositoryBase<IAlgorithmModel>(AlgorithmModel._model);
+    private static _model = mongoose.model<IAlgorithm>('Algorithm', AlgorithmModel.schema);
+    public static repo = new RepositoryBase<IAlgorithm>(AlgorithmModel._model);
 
     public static reset = () => {
         AlgorithmModel.repo.drop( (err: any) => {

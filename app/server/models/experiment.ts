@@ -1,62 +1,34 @@
 // grab the things we need
-import { AlgorithmModel, IAlgorithmModel } from './algorithm';
+import { AlgorithmModel, IAlgorithm } from './algorithm';
 import { ReadModel  } from './reads';
 import { EnsembleFileModel } from './ensemblefile';
 import { TaxonomyModel } from './taxonomy';
 import { IRemoteFile , RemoteFileModel } from './remotefile';
 import { WevoteClassificationPatchModel, IWevoteClassificationPatch } from './wevote';
-import { TaxonomyAbundanceProfileModel, ITaxonomyAbundanceProfileModel } from './taxprofile';
+import { TaxonomyAbundanceProfileModel, ITaxonomyAbundanceProfile } from './taxprofile';
 import { RepositoryBase, csvJSON } from './model';
 import { IUserModel } from './user';
 import * as mongoose from 'mongoose';
+import * as common from '../common/common';
 
-
-export enum EStatus {
-    NOT_STARTED , 
-    IN_PROGRESS ,
-    SUCCSESS ,
-    FAILURE
+export interface IConfig extends  common.IConfig, mongoose.Document {
+    algorithms: IAlgorithm[];
 }
 
-export interface IStatus extends mongoose.Document {
-    code: EStatus,
-    message: string,
-    percentage: number
-}
-
-
-export interface IConfig extends mongoose.Document {
-    algorithms: IAlgorithmModel[];
-    minNumAgreed: number;
-    minScore: number;
-    penalty: number;
-}
-
-export interface IResults extends mongoose.Document {
+export interface IResults extends common.IResults, mongoose.Document {
     wevoteClassification: mongoose.Types.ObjectId,
     taxonomyAbundanceProfile: mongoose.Types.ObjectId
 }
 
-export interface IUsageScenario extends mongoose.Document {
-    value: string , 
-    usage: string , 
-    hint?: string
+export interface IUsageScenario extends common.IUsageScenario, mongoose.Document {
+
 }
 
-export interface IExperimentModel extends mongoose.Document {
+export interface IExperimentModel extends common.IExperiment, mongoose.Document {
     user: mongoose.Types.ObjectId;
-    isPrivate: boolean;
-    email: string;
-    description: string;
-    reads: IRemoteFile;
-    taxonomy: IRemoteFile;
-    ensemble: IRemoteFile;
     config: IConfig;
-    status: IStatus;
     results?: IResults;
     usageScenario: IUsageScenario;
-    createdAt?: Date;
-    modifiedAt?: Date;
 }
 
 const configSchema = new mongoose.Schema({
@@ -83,11 +55,11 @@ const configSchema = new mongoose.Schema({
 export const statusSchema = new mongoose.Schema({
     code: {
         type: Number,
-        default: EStatus.NOT_STARTED
+        default: common.EStatus.NOT_STARTED
     },
     message: {
         type: String,
-        default: EStatus[ EStatus.NOT_STARTED ]
+        default: common.EStatus[ common.EStatus.NOT_STARTED ]
     },
     percentage: {
         type: Number,
@@ -212,7 +184,7 @@ export class ExperimentModel {
                         reads: _reads,
                         ensemble: _ensemble,
                         taxonomy: _taxonomy,
-                        status: <IStatus> { code: EStatus.NOT_STARTED , message: EStatus[EStatus.NOT_STARTED] },
+                        status: <common.IStatus> { code: common.EStatus.NOT_STARTED , message: common.EStatus[common.EStatus.NOT_STARTED] },
                         config: _config
                     }, (err: any, exp: any) => {
                         if (err) {

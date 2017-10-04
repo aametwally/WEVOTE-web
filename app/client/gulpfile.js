@@ -44,12 +44,16 @@ gulp.task('usemin', ['ts', 'jshint'], function () {
         .pipe(gulp.dest('../build/public'));
 });
 
-gulp.task('ts', function () {
+// gulp.task('copy', function () {
+//     return gulp.src('../common/*ts')
+//         .pipe(gulp.dest('common'));
+// });
+
+gulp.task('ts' , function () {
     return tsClientProject.src()
         .pipe(tsClientProject())
         .js.pipe(gulp.dest("../build/public"));
 });
-
 
 // Images
 gulp.task('imagemin', function () {
@@ -67,7 +71,7 @@ gulp.task('copyfonts', function () {
 });
 
 gulp.task('clean', function (cb) {
-    return del(['../build/public'],{force:true},cb);
+    return del(['../build/public', 'common'],{force:true},cb);
 });
 
 gulp.task('default', ['clean'], function () {
