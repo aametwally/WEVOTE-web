@@ -218,7 +218,7 @@ declare namespace metaviz {
         header: string[];
         entries: E[];
     }
-    class IWevoteTableController {
+    class WevoteTableController {
         static readonly $inject: any;
         private _scope;
         constructor(scope: ITableScope<IWevoteTableEntry>);
@@ -344,6 +344,28 @@ declare namespace metaviz {
         updateBreadcrumbs: (nodeArray: any, percentageString: any, vis: IAbundanceSubburstHTMLElement) => void;
         private drawLegend;
         private toggleLegend;
+        constructor();
+        static factory(): ng.IDirectiveFactory;
+    }
+    class WevoteTableDirective implements ng.IDirective {
+        restrict: string;
+        replace: boolean;
+        static readonly directiveName: string;
+        private static readonly _inject;
+        controller: any;
+        scope: {
+            results: string;
+            config: string;
+            header: string;
+            entries: string;
+        };
+        bindToController: {
+            results: string;
+            config: string;
+            header: string;
+            entries: string;
+        };
+        link: (scope: ITableScope<IWevoteTableEntry>, element: angular.IAugmentedJQuery, attrs: angular.IAttributes, ngModel: any) => void;
         constructor();
         static factory(): ng.IDirectiveFactory;
     }

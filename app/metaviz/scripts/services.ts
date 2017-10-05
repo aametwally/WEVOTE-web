@@ -84,8 +84,6 @@ namespace metaviz {
                     initial: range.initial + i * step + margin,
                     final: range.initial + (i + 1) * step - margin
                 });
-            console.log(range);
-            console.log(ranges);
             if (perm) {
                 const idxBool = new Array<Boolean>(n).fill(false);
                 const permutedRanges = new Array<IPair>(n);

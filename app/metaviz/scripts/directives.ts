@@ -12,7 +12,7 @@ namespace metaviz {
 
         private static readonly _inject: string[] = [];
         public link = (scope: IHellloWorldDirectiveScope, element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => {
-            element.text('Hello World');
+            element.text('Hello World3');
         };
 
         constructor() {
@@ -539,6 +539,161 @@ namespace metaviz {
         }
     }
 
+    export class WevoteTableDirective implements ng.IDirective {
+
+        restrict: string = 'E';
+        public replace: boolean = true;
+        public static readonly directiveName: string = 'mvWevoteTable';
+        private static readonly _inject: string[] = [];
+
+        public controller = WevoteTableController.$inject;
+        public scope = {
+            results: '=results',
+            config: '=config',
+            header: '=header',
+            entries: '=entries'
+        };
+        public bindToController = {
+            results: '=',
+            config: '=',
+            header: '=',
+            entries: '='
+        };
+
+        public link = (scope: ITableScope<IWevoteTableEntry>,
+            element: ng.IAugmentedJQuery, attrs: ng.IAttributes, ngModel: any) => {
+            const container = d3.select(element[0]).append('div').attr('class','row row-content');
+            const sliderDiv = container.append('div').attr('class', 'col-xs-1');
+            const heatmapDiv = container.append('div').attr('class', 'col-xs-11');
+            const slider = sliderDiv.append('p').html('<br/><br/><br/><br/><br/><br/><br/><br/><br/>').append('div')
+            const sliderController = (<any>$( <any>slider.node()));
+            sliderController.slider({
+                orientation: "vertical",
+                range: "min",
+                disabled: true,
+                min: 0,
+                max: 100,
+                value: 0,
+                slide: function( event:any, ui:any ) {
+                  console.log('slider moved:');
+                }
+            });
+            const heatmap = heatmapDiv.append('div');
+
+            // scope.$watch('entries', (entries: Array<IWevoteTableEntry>) => {
+            // if (entries && scope.header) {
+            const someData: Array<IWevoteTableEntry> = [
+                {
+                    seqId: 'AAAAA',
+                    votes: [{ id: 0 }, { id: 0 }, { id: 0 }],
+                    resolvedTaxon: { id: 0 },
+                    score: 0.5
+                },
+                {
+                    seqId: 'BBBB',
+                    votes: [{ id: 0 }, { id: 0 }, { id: 0 }],
+                    resolvedTaxon: { id: 0 },
+                    score: 2
+                }
+            ];
+            for (let i = 0; i < 50; i++) {
+                someData.push({
+                    seqId: someData[0].seqId + `${i}`,
+                    votes: someData[0].votes,
+                    resolvedTaxon: someData[0].resolvedTaxon,
+                    score: someData[0].score
+                });
+            }
+
+            const xValues = ['ALG0', 'ALG1', 'ALG2', 'resolvedTaxon', 'score'];
+            const yValues = someData.map((entry: IWevoteTableEntry) => { return entry.seqId; });
+            const zValues = someData.map((entry: IWevoteTableEntry) => {
+                return [0, 0, 0, 0, entry.score];
+            });
+            const txt = someData.map((entry: IWevoteTableEntry) => {
+                return entry.votes.map((tax: ITaxInfo) => { return `${tax.id}`; })
+                    .concat([`${entry.resolvedTaxon.id}`, `${entry.score}`]);
+            });
+
+            const colorscaleValue = [
+                [0, '#3D9970'],
+                [1, '#001f3f']
+            ];
+
+            const data = [{
+                x: xValues,
+                y: yValues,
+                z: zValues,
+                type: 'heatmap',
+                colorscale: colorscaleValue,
+                showscale: false
+            }];
+
+            let layout = {
+                title: 'Annotated Heatmap',
+                annotations: new Array<any>(),
+                xaxis: {
+                    fixedrange: true,
+                    visible: true,
+                    type: 'category',
+                    ticks: '',
+                    side: 'top'
+                },
+                yaxis: {
+                    rangeslider: {},
+                    fixedrange: true,
+                    visible: true,
+                    range: [0, 15],
+                    type: 'category',
+                    ticks: '',
+                    ticksuffix: ' ',
+                    width: 700,
+                    height: 700,
+                    autosize: false
+                }
+            };
+
+            for (let i = 0; i < yValues.length; i++)
+                for (let j = 0; j < xValues.length; j++) {
+                    const currentValue = zValues[i][j];
+                    const result = {
+                        xref: 'x1',
+                        yref: 'y1',
+                        x: xValues[j],
+                        y: yValues[i],
+                        text: txt[i][j],
+                        font: {
+                            family: 'Arial',
+                            size: 12,
+                            color: (currentValue != 0.0) ? 'white' : 'black'
+                        },
+                        showarrow: false
+                    };
+                    layout.annotations.push(result);
+                }
+
+            Plotly.newPlot(<any>heatmap.node(), <any>data, <any>layout, { scrollZoom: true });
+            sliderController.slider({
+                disabled: false
+            });
+            // }
+
+            // }, false);
+        };
+
+        constructor() {
+        }
+
+
+        public static factory(): ng.IDirectiveFactory {
+            let d = () => {
+                return new WevoteTableDirective();
+            };
+            d.$inject = WevoteTableDirective._inject;
+            return d;
+        }
+    }
+
 
     metavizApp
         .directive(HelloWorldDirective.directiveName,
@@ -549,5 +704,7 @@ namespace metaviz {
         AlgorithmsVennDiagramDirective.factory())
         .directive(AbundanceSunburstDirective.directiveName,
         AbundanceSunburstDirective.factory())
+        .directive(WevoteTableDirective.directiveName,
+        WevoteTableDirective.factory())
         ;
 }

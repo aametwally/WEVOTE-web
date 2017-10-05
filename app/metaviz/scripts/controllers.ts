@@ -332,8 +332,8 @@ namespace metaviz {
         entries: E[]
     }
 
-    export class IWevoteTableController {
-        static readonly $inject: any = ['$scope', IWevoteTableController];
+    export class WevoteTableController {
+        static readonly $inject: any = ['$scope', WevoteTableController];
         private _scope: ITableScope<IWevoteTableEntry>;
 
         constructor(scope: ITableScope<IWevoteTableEntry>) {
@@ -372,7 +372,7 @@ namespace metaviz {
 
         protected processResults = (abundance: Array<common.ITaxonomyAbundance>,
             config: common.IConfig) => {
-            this._scope.header = wevoteTableHeader(config);
+            this._scope.header = abundanceTableHeader;
             this._scope.entries = abundance.map( (taxAbundance: common.ITaxonomyAbundance)=>{
                 return <IAbundanceTableEntry>{
                     taxon: {id:taxAbundance.taxon} , 
@@ -387,5 +387,6 @@ namespace metaviz {
         .controller('DonutChartController', DonutChartController.$inject)
         .controller('VennDiagramController', VennDiagramController.$inject)
         .controller('AbundanceSunburstController', AbundanceSunburstController.$inject)
+        .controller('WevoteTableController',WevoteTableController.$inject)
         ;
 }
