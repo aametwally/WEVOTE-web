@@ -19,19 +19,12 @@ namespace rest
 {
 class WevoteRestHandler : public RestHandler
 {
-    Q_OBJECT
 public:
     WEVOTE_DLL explicit WevoteRestHandler( const http::uri &uri ,
                                            const TaxonomyBuilder &taxonomy );
 
 private:
     WevoteRestHandler();
-
-Q_SIGNALS:
-    void doneClassification_SIGNAL( WevoteSubmitEnsemble classified );
-
-private:
-Q_SLOT void doneClassification_SLOT( WevoteSubmitEnsemble classified );
 
 protected:
     void _addRoutes() override;

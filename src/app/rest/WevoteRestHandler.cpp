@@ -11,15 +11,7 @@ WevoteRestHandler::WevoteRestHandler( const uri &uri ,
     : RestHandler( uri ), _taxonomy( taxonomy ) , _classifier( _taxonomy ) ,
       _jobCounter( 0 )
 {
-    static auto _ = qRegisterMetaType<WevoteSubmitEnsemble>("WevoteSubmitEnsemble");
-    connect( this , SIGNAL(doneClassification_SIGNAL(WevoteSubmitEnsemble)) ,
-             this , SLOT(doneClassification_SLOT(WevoteSubmitEnsemble)));
-}
 
-
-
-void WevoteRestHandler::doneClassification_SLOT( WevoteSubmitEnsemble classified )
-{
 }
 
 void WevoteRestHandler::_addRoutes()

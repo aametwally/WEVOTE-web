@@ -3,6 +3,7 @@
 
 #include <atomic>
 
+#include <QObject>
 #include <QMetaEnum>
 
 #include "WevoteJSON.hpp"
@@ -278,6 +279,4 @@ private:
 
     std::shared_ptr< Data > _d;
 };
-
-
 #endif // WEVOTERESTMESSAGES_HPP
