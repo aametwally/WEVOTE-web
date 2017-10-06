@@ -365,6 +365,8 @@ declare namespace metaviz {
             header: string;
             entries: string;
         };
+        readonly heatmapMaxEntries: number;
+        private downloadWevolteClassification;
         link: (scope: ITableScope<IWevoteTableEntry>, element: angular.IAugmentedJQuery, attrs: angular.IAttributes, ngModel: any) => void;
         constructor();
         static factory(): ng.IDirectiveFactory;

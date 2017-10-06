@@ -3,25 +3,26 @@
         <div ng-show="!showExperiment" class="{{experimentError? 'alert alert-danger' :'alert alert-warning'}}" role="alert">{{experimentMessage}}</div>
         <div ng-show="showExperiment">
             <ul class="nav nav-pills">
-                <li role="presentation" class="active"><a data-toggle="tab" onclick="event.preventDefault()" id="phyltree-a" href="#phyltree">Phylogeny Tree</a></li>
-                <li role="presentation"><a data-toggle="tab" onclick="event.preventDefault()" id="phyltable-a" href="#phyltable">Table</a></li>
+                <li role="presentation" class="active"><a data-toggle="tab" onclick="event.preventDefault()" id="wevotetable-a" href="#wevotetable">WEVOTE</a></li>
                 <li role="presentation"><a data-toggle="tab" onclick="event.preventDefault()" id="vennalg-a" href="#vennalg">Algorithms Agreement</a></li>
                 <li role="presentation"><a data-toggle="tab" onclick="event.preventDefault()" id="abundance-a" href="#abundance">Abundance</a></li>
             </ul>
 
             <div class="tab-content" id="resultstabs">
-                <div id="phyltree" class="tab-pane fade in active">
-                    <h3>Phylogeny Tree</h3>
-                    <mv-helloworld></mv-helloworld>
-                    <mv-wevote-table></mv-wevote-table>
+                <div id="wevotetable" class="tab-pane fade in active">
+                    <h3>WEVOTE Details</h3>
+                    <div ng-controller="WevoteTableController">
+                        <mv-wevote-table results="results" config="config"></mv-wevote-table>
+                    </div>
                 </div>
 
                 <div id="vennalg" class="tab-pane fade">
                     <h3>Algorithms Agreement</h3>
                     <h4> Algorithms agreement on all reads: {{results.statistics.readsCount}} reads</h4>
                     <mv-algorithms-venn wevote-contribution="false" results="results" config="config"></mv-algorithms-venn>
-                    <h4> Algorithms agreement only on reads without absolute agreement, where WEVOTE comes in action: {{results.statistics.nonAbsoluteAgreement}} reads.
-                        ({{ (100*results.statistics.nonAbsoluteAgreement/results.statistics.readsCount).toFixed(2)}}%) </h4> 
+                    <h4> Algorithms agreement only on reads without absolute agreement, where WEVOTE comes in action: {{results.statistics.nonAbsoluteAgreement}}
+                        reads. ({{ (100*results.statistics.nonAbsoluteAgreement/results.statistics.readsCount).toFixed(2)}}%)
+                        </h4>
                     <mv-algorithms-venn wevote-contribution="true" results="results" config="config"></mv-algorithms-venn>
                 </div>
 
@@ -32,22 +33,6 @@
                     </div>
                 </div>
 
-                <div id="phyltable" class="tab-pane fade">
-                    <h3>Phylogeny Table</h3>
-
-                    <div class="col-xs-12">
-                        <mv-donutchart></mv-donutchart>
-                    </div>
-
-                    <div class="col-xs-12">
-                        <mv-donutchart></mv-donutchart>
-                    </div>
-
-                    <div class="col-xs-12">
-                        <mv-donutchart></mv-donutchart>
-                    </div>
-
-                </div>
             </div>
         </div>
     </div>

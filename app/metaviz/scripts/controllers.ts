@@ -335,7 +335,6 @@ namespace metaviz {
     export class WevoteTableController {
         static readonly $inject: any = ['$scope', WevoteTableController];
         private _scope: ITableScope<IWevoteTableEntry>;
-
         constructor(scope: ITableScope<IWevoteTableEntry>) {
             this._scope = scope;
             this._scope.$watch('results', (results: IResults) => {

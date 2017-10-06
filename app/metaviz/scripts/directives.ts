@@ -560,125 +560,207 @@ namespace metaviz {
             entries: '='
         };
 
+        readonly heatmapMaxEntries = 15;
+
+        private downloadWevolteClassification = (header: string[], data: IWevoteTableEntry[], seperator: string = ',') => {
+            const textual: string = [header.join(seperator)].concat(data.map((entry: IWevoteTableEntry) => {
+                return [entry.seqId]
+                    .concat(entry.votes.map((e: ITaxInfo) => { return `${e.id}`; }))
+                    .concat([`${entry.resolvedTaxon.id}`, `${entry.score}`]).join(seperator);
+            })).join("\n");
+
+            const a = window.document.createElement('a');
+            a.href = window.URL.createObjectURL(new Blob([textual], { type: 'text/csv' }));
+            a.download = `wevote_classification.${(seperator === ',') ? 'csv' : 'txt'}`;
+            // Append anchor to body.
+            document.body.appendChild(a);
+            a.click();
+            // Remove anchor from body
+            document.body.removeChild(a);
+        };
+
         public link = (scope: ITableScope<IWevoteTableEntry>,
             element: ng.IAugmentedJQuery, attrs: ng.IAttributes, ngModel: any) => {
-            const container = d3.select(element[0]).append('div').attr('class','row row-content');
-            const sliderDiv = container.append('div').attr('class', 'col-xs-1');
-            const heatmapDiv = container.append('div').attr('class', 'col-xs-11');
-            const slider = sliderDiv.append('p').html('<br/><br/><br/><br/><br/><br/><br/><br/><br/>').append('div')
-            const sliderController = (<any>$( <any>slider.node()));
-            sliderController.slider({
-                orientation: "vertical",
-                range: "min",
-                disabled: true,
-                min: 0,
-                max: 100,
-                value: 0,
-                slide: function( event:any, ui:any ) {
-                  console.log('slider moved:');
-                }
+
+            const container = d3.select(element[0]).append('div').attr('class', 'row tab-content');
+            const downloadsContainer = container.append('div').attr('class', 'row').append('div').attr('class', 'col-xs-12');
+            const tableContainer = container.append('div').attr('class', 'row');
+            const pagingDiv = tableContainer.append('div').attr('class', 'col-xs-1');
+            const heatmapDiv = tableContainer.append('div').attr('class', 'col-xs-11');
+            pagingDiv.append('p').html('<br/><br/><br/><br/><br/><br/><br/><br/>');
+            const btnUp = pagingDiv.append('button');
+            pagingDiv.append('p').html('<br/>');
+            const btnDn = pagingDiv.append('button');
+
+            [btnUp, btnDn].forEach((btn: any) => {
+                btn.attr('type', 'button');
+                btn.attr('class', 'btn btn-warning btn-xs');
             });
+            btnUp.append('i').attr('class', 'fa fa-arrow-circle-up');
+            btnDn.append('i').attr('class', 'fa fa-arrow-circle-down');
+            const btnUpController = <any>$(<any>btnUp.node());
+            const btnDnController = <any>$(<any>btnDn.node());
+
             const heatmap = heatmapDiv.append('div');
-
-            // scope.$watch('entries', (entries: Array<IWevoteTableEntry>) => {
-            // if (entries && scope.header) {
-            const someData: Array<IWevoteTableEntry> = [
-                {
-                    seqId: 'AAAAA',
-                    votes: [{ id: 0 }, { id: 0 }, { id: 0 }],
-                    resolvedTaxon: { id: 0 },
-                    score: 0.5
-                },
-                {
-                    seqId: 'BBBB',
-                    votes: [{ id: 0 }, { id: 0 }, { id: 0 }],
-                    resolvedTaxon: { id: 0 },
-                    score: 2
-                }
-            ];
-            for (let i = 0; i < 50; i++) {
-                someData.push({
-                    seqId: someData[0].seqId + `${i}`,
-                    votes: someData[0].votes,
-                    resolvedTaxon: someData[0].resolvedTaxon,
-                    score: someData[0].score
-                });
-            }
-
-            const xValues = ['ALG0', 'ALG1', 'ALG2', 'resolvedTaxon', 'score'];
-            const yValues = someData.map((entry: IWevoteTableEntry) => { return entry.seqId; });
-            const zValues = someData.map((entry: IWevoteTableEntry) => {
-                return [0, 0, 0, 0, entry.score];
-            });
-            const txt = someData.map((entry: IWevoteTableEntry) => {
-                return entry.votes.map((tax: ITaxInfo) => { return `${tax.id}`; })
-                    .concat([`${entry.resolvedTaxon.id}`, `${entry.score}`]);
-            });
-
-            const colorscaleValue = [
-                [0, '#3D9970'],
-                [1, '#001f3f']
-            ];
-
-            const data = [{
-                x: xValues,
-                y: yValues,
-                z: zValues,
-                type: 'heatmap',
-                colorscale: colorscaleValue,
-                showscale: false
-            }];
-
-            let layout = {
-                title: 'Annotated Heatmap',
-                annotations: new Array<any>(),
-                xaxis: {
-                    fixedrange: true,
-                    visible: true,
-                    type: 'category',
-                    ticks: '',
-                    side: 'top'
-                },
-                yaxis: {
-                    rangeslider: {},
-                    fixedrange: true,
-                    visible: true,
-                    range: [0, 15],
-                    type: 'category',
-                    ticks: '',
-                    ticksuffix: ' ',
-                    width: 700,
-                    height: 700,
-                    autosize: false
-                }
-            };
-
-            for (let i = 0; i < yValues.length; i++)
-                for (let j = 0; j < xValues.length; j++) {
-                    const currentValue = zValues[i][j];
-                    const result = {
-                        xref: 'x1',
-                        yref: 'y1',
-                        x: xValues[j],
-                        y: yValues[i],
-                        text: txt[i][j],
-                        font: {
-                            family: 'Arial',
-                            size: 12,
-                            color: (currentValue != 0.0) ? 'white' : 'black'
+            const heatmapElement = <any>heatmap.node();
+            scope.$watch('entries', (entries: Array<IWevoteTableEntry>) => {
+                if (entries && scope.header) {
+                    const someData: Array<IWevoteTableEntry> = [
+                        {
+                            seqId: 'AAAAA',
+                            votes: [{ id: 0 }, { id: 0 }, { id: 0 }],
+                            resolvedTaxon: { id: 0 },
+                            score: 0.5
                         },
-                        showarrow: false
+                        {
+                            seqId: 'BBBB',
+                            votes: [{ id: 0 }, { id: 0 }, { id: 0 }],
+                            resolvedTaxon: { id: 0 },
+                            score: 2
+                        }
+                    ];
+                    for (let i = 0; i < 50; i++) {
+                        someData.push({
+                            seqId: someData[0].seqId + `${i}`,
+                            votes: someData[0].votes,
+                            resolvedTaxon: someData[0].resolvedTaxon,
+                            score: someData[0].score
+                        });
+                    }
+
+                    const xValues = ['ALG0', 'ALG1', 'ALG2', 'resolvedTaxon', 'score'];
+                    const yValues = someData.map((entry: IWevoteTableEntry) => { return entry.seqId; });
+                    const zValues = someData.map((entry: IWevoteTableEntry) => {
+                        return [0, 0, 0, 0, entry.score];
+                    });
+                    const txt = someData.map((entry: IWevoteTableEntry) => {
+                        return entry.votes.map((tax: ITaxInfo) => { return `${tax.id}`; })
+                            .concat([`${entry.resolvedTaxon.id}`, `${entry.score}`]);
+                    });
+
+                    const colorscaleValue = [
+                        [0, '#3D9970'],
+                        [1, '#001f3f']
+                    ];
+
+                    const data = [{
+                        x: xValues,
+                        y: yValues,
+                        z: zValues,
+                        type: 'heatmap',
+                        colorscale: colorscaleValue,
+                        showscale: false
+                    }];
+
+                    let layout = {
+                        title: 'WEVOTE Classification',
+                        annotations: new Array<any>(),
+                        xaxis: {
+                            fixedrange: true,
+                            visible: true,
+                            type: 'category',
+                            ticks: '',
+                            side: 'top'
+                        },
+                        yaxis: {
+                            fixedrange: true,
+                            visible: true,
+                            range: [0, this.heatmapMaxEntries],
+                            type: 'category',
+                            ticks: '',
+                            ticksuffix: ' ',
+                            width: 700,
+                            height: 700,
+                            autosize: false
+                        }
                     };
-                    layout.annotations.push(result);
+
+                    type Range = [Plotly.Datum, Plotly.Datum];
+
+                    for (let i = 0; i < yValues.length; i++)
+                        for (let j = 0; j < xValues.length; j++) {
+                            const currentValue = zValues[i][j];
+                            const result = {
+                                xref: 'x1',
+                                yref: 'y1',
+                                x: xValues[j],
+                                y: yValues[i],
+                                text: txt[i][j],
+                                font: {
+                                    family: 'Arial',
+                                    size: 12,
+                                    color: (currentValue != 0.0) ? 'white' : 'black'
+                                },
+                                showarrow: false
+                            };
+                            layout.annotations.push(result);
+                        }
+
+                    const pagesCount = Math.ceil(yValues.length / this.heatmapMaxEntries);
+                    const pages = new Array<Array<number>>();
+                    for (let i = 0; i < pagesCount; i++)
+                        pages.push([i * this.heatmapMaxEntries, (i + 1) * this.heatmapMaxEntries]);
+
+                    let currentPage = 0;
+                    const changePage = (delta: number) => {
+                        currentPage += delta;
+                        if (currentPage < 0) {
+                            currentPage = 0;
+                            return;
+                        }
+                        if (currentPage >= pagesCount) {
+                            currentPage = pagesCount - 1;
+                            return;
+                        }
+                        const range: any = [pages[currentPage][0], pages[currentPage][1]];
+
+                        const _data = {
+                            x: xValues,
+                            y: yValues.slice(pages[currentPage][0], pages[currentPage][1]),
+                            z: zValues.slice(pages[currentPage][0], pages[currentPage][1]),
+                            type: 'heatmap',
+                            colorscale: colorscaleValue,
+                            showscale: false
+                        }
+                        const _layout = {
+                            title: `WEVOTE Classification (${currentPage}/${pagesCount - 1})`,
+                            annotations: layout.annotations.slice(
+                                pages[currentPage][0] * xValues.length,
+                                pages[currentPage][1] * xValues.length),
+                            xaxis: layout.xaxis,
+                            yaxis: layout.yaxis
+                        };
+                        let initialized = false;
+                        if (!initialized) {
+                            initialized = true;
+                            Plotly.newPlot(heatmapElement, <any>[_data], <any>_layout);
+                        }
+                        else {
+                            // Plotly.update( heatmapElement, <any>[_data] , <any>_layout);
+                            Plotly.deleteTraces(heatmapElement, 0);
+                            Plotly.addTraces(heatmapElement, <any>[_data]);
+                        }
+
+                    };
+                    btnUpController.click(() => { changePage(1); });
+                    btnDnController.click(() => { changePage(-1); });
+                    const downloads = downloadsContainer.append('p');
+                    downloads.append('b').text(' Download WEVOTE classification: ');
+                    const downloadCSVBtn = downloads.append('button')
+                        .attr('class', 'btn btn-primary btn-xs');
+                    const downloadTabBtn = downloads.append('button')
+                        .attr('class', 'btn btn-primary btn-xs');
+                    downloadCSVBtn.text('csv');
+                    downloadTabBtn.text('tab-delimeted');
+                    $(<any>downloadCSVBtn.node()).click(() => {
+                        this.downloadWevolteClassification(['SeqId'].concat(xValues), someData);
+                    });
+                    $(<any>downloadTabBtn.node()).click(() => {
+                        this.downloadWevolteClassification(['SeqId'].concat(xValues), someData, "\t");
+                    });
+                    changePage(0);
                 }
-
-            Plotly.newPlot(<any>heatmap.node(), <any>data, <any>layout, { scrollZoom: true });
-            sliderController.slider({
-                disabled: false
-            });
-            // }
-
-            // }, false);
+            }, false);
         };
 
         constructor() {
