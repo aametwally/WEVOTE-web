@@ -693,7 +693,7 @@ namespace metaviz {
                             showscale: false
                         }
                         const _layout = {
-                            title: `WEVOTE Classification (${currentPage+1}/${pagesCount})`,
+                            title: `WEVOTE Classification (${currentPage + 1}/${pagesCount})`,
                             annotations: layout.annotations.slice(
                                 pages[currentPage][0] * xValues.length,
                                 pages[currentPage][1] * xValues.length),
@@ -747,6 +747,206 @@ namespace metaviz {
     }
 
 
+    export class AbundanceTableDirective implements ng.IDirective {
+        restrict: string = 'E';
+        public replace: boolean = false;
+        public static readonly directiveName: string = 'mvAbundanceTable';
+        private static readonly _inject: string[] = [];
+
+        public controller = AbundanceTableController.$inject;
+        public scope = {
+            results: '=results',
+            config: '=config'
+        };
+        public bindToController = {
+            results: '=',
+            config: '=',
+            header: '=',
+            entries: '='
+        };
+
+        readonly heatmapMaxEntries = 10;
+
+        private downloadAbundance = (header: string[], data: IAbundanceTableEntry[], seperator: string = ',') => {
+            const textual: string = [header.concat([
+                'superkingdom', 'kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species'
+            ]).join(seperator)].concat(data.map((entry: IAbundanceTableEntry) => {
+                return [entry.taxon.id, entry.count,
+                entry.taxline.superkingdom,
+                entry.taxline.kingdom,
+                entry.taxline.phylum,
+                entry.taxline.class,
+                entry.taxline.order,
+                entry.taxline.family,
+                entry.taxline.genus,
+                entry.taxline.species].join(seperator);
+            })).join("\n");
+
+            const a = window.document.createElement('a');
+            a.href = window.URL.createObjectURL(new Blob([textual], { type: 'text/csv' }));
+            a.download = `abundance.${(seperator === ',') ? 'csv' : 'txt'}`;
+            // Append anchor to body.
+            document.body.appendChild(a);
+            a.click();
+            // Remove anchor from body
+            document.body.removeChild(a);
+        };
+
+        public link = (scope: ITableScope<IAbundanceTableEntry>,
+            element: ng.IAugmentedJQuery, attrs: ng.IAttributes, ngModel: any) => {
+
+            const container = d3.select(element[0]).append('div').attr('class', 'row tab-content');
+            const downloadsContainer = container.append('div').attr('class', 'row').append('div').attr('class', 'col-xs-12');
+            const tableContainer = container.append('div').attr('class', 'row');
+            const pagingDiv = tableContainer.append('div').attr('class', 'col-xs-1');
+            const heatmapDiv = tableContainer.append('div').attr('class', 'col-xs-11')
+                .style('width', '700px')
+                .style('height', '800px');
+            pagingDiv.append('p').html('<br/><br/><br/><br/><br/><br/><br/><br/>');
+            const btnUp = pagingDiv.append('button');
+            pagingDiv.append('p').html('<br/>');
+            const btnDn = pagingDiv.append('button');
+
+            [btnUp, btnDn].forEach((btn: any) => {
+                btn.attr('type', 'button');
+                btn.attr('class', 'btn btn-warning btn-xs');
+            });
+            btnUp.append('i').attr('class', 'fa fa-arrow-circle-up');
+            btnDn.append('i').attr('class', 'fa fa-arrow-circle-down');
+            const btnUpController = <any>$(<any>btnUp.node());
+            const btnDnController = <any>$(<any>btnDn.node());
+
+            const heatmap = heatmapDiv.append('div');
+            const heatmapElement = <any>heatmap.node();
+            scope.$watch('entries', (entries: Array<IAbundanceTableEntry>) => {
+                if (entries && scope.header) {
+                    const xValues = scope.header.slice(1);
+                    const yValues = entries.map((entry: IAbundanceTableEntry) => { return entry.taxon.id; });
+                    const zValues = entries.map((entry: IAbundanceTableEntry) => {
+                        return [entry.count];
+                    });
+                    const txt = entries.map((entry: IAbundanceTableEntry) => {
+                        return [`${entry.count}`];
+                    });
+
+                    let layout = {
+                        annotations: new Array<any>(),
+                        xaxis: {
+                            visible: true,
+                            type: 'category',
+                            ticks: '',
+                            side: 'top'
+                        },
+                        yaxis: {
+                            visible: true,
+                            type: 'category',
+                            ticks: '',
+                            ticksuffix: ' '
+                        },
+                        autosize: true
+                    };
+
+                    type Range = [Plotly.Datum, Plotly.Datum];
+
+                    for (let i = 0; i < yValues.length; i++)
+                        for (let j = 0; j < xValues.length; j++) {
+                            const currentValue = zValues[i][j];
+                            const result = {
+                                xref: 'x1',
+                                yref: 'y1',
+                                x: xValues[j],
+                                y: yValues[i],
+                                text: txt[i][j],
+                                font: {
+                                    family: 'Arial',
+                                    size: 12,
+                                    color: 'white'
+                                },
+                                showarrow: false
+                            };
+                            layout.annotations.push(result);
+                        }
+
+                    const pagesCount = Math.ceil(yValues.length / this.heatmapMaxEntries);
+                    const pages = new Array<Array<number>>();
+                    for (let i = 0; i < pagesCount; i++)
+                        pages.push([i * this.heatmapMaxEntries, (i + 1) * this.heatmapMaxEntries]);
+
+                    let currentPage = 0;
+                    const changePage = (delta: number) => {
+                        currentPage += delta;
+                        if (currentPage < 0) {
+                            currentPage = 0;
+                            return;
+                        }
+                        if (currentPage >= pagesCount) {
+                            currentPage = pagesCount - 1;
+                            return;
+                        }
+                        const range: any = [pages[currentPage][0], pages[currentPage][1]];
+
+                        const _data = {
+                            x: xValues,
+                            y: yValues.slice(pages[currentPage][0], pages[currentPage][1]),
+                            z: zValues.slice(pages[currentPage][0], pages[currentPage][1]),
+                            type: 'heatmap',
+                            colorscale: 'Viridis',
+                            showscale: true
+                        }
+                        const _layout = {
+                            title: `Abundance (${currentPage + 1}/${pagesCount})`,
+                            annotations: layout.annotations.slice(
+                                pages[currentPage][0] * xValues.length,
+                                pages[currentPage][1] * xValues.length),
+                            xaxis: layout.xaxis,
+                            yaxis: layout.yaxis
+                        };
+                        let initialized = false;
+                        if (!initialized) {
+                            initialized = true;
+                            Plotly.newPlot(heatmapElement, <any>[_data], <any>_layout);
+                        }
+                        else {
+                            // Plotly.update( heatmapElement, <any>[_data] , <any>_layout);
+                            Plotly.deleteTraces(heatmapElement, 0);
+                            Plotly.addTraces(heatmapElement, <any>[_data]);
+                        }
+
+                    };
+                    btnUpController.click(() => { changePage(1); });
+                    btnDnController.click(() => { changePage(-1); });
+                    const downloads = downloadsContainer.append('p');
+                    downloads.append('b').text(' Download Abundance: ');
+                    const downloadCSVBtn = downloads.append('button')
+                        .attr('class', 'btn btn-primary btn-xs');
+                    const downloadTabBtn = downloads.append('button')
+                        .attr('class', 'btn btn-primary btn-xs');
+                    downloadCSVBtn.text('csv');
+                    downloadTabBtn.text('tab-delimeted');
+                    $(<any>downloadCSVBtn.node()).click(() => {
+                        this.downloadAbundance(scope.header, entries);
+                    });
+                    $(<any>downloadTabBtn.node()).click(() => {
+                        this.downloadAbundance(scope.header, entries, "\t");
+                    });
+                    changePage(0);
+                }
+            }, false);
+        };
+
+        constructor() {
+        }
+
+
+        public static factory(): ng.IDirectiveFactory {
+            let d = () => {
+                return new AbundanceTableDirective();
+            };
+            d.$inject = AbundanceTableDirective._inject;
+            return d;
+        }
+    }
+
     metavizApp
         .directive(HelloWorldDirective.directiveName,
         HelloWorldDirective.factory())
@@ -758,5 +958,7 @@ namespace metaviz {
         AbundanceSunburstDirective.factory())
         .directive(WevoteTableDirective.directiveName,
         WevoteTableDirective.factory())
+        .directive(AbundanceTableDirective.directiveName,
+            AbundanceTableDirective.factory())
         ;
 }

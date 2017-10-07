@@ -311,7 +311,7 @@ namespace metaviz {
             return alg.name;
         })).concat(['resolved tax', 'score']);
     };
-    export const abundanceTableHeader = ['tax', 'count'];
+    export const abundanceTableHeader = ['tax.id', 'count'];
 
     export interface IWevoteTableEntry {
         seqId: string,
@@ -322,7 +322,8 @@ namespace metaviz {
 
     export interface IAbundanceTableEntry {
         taxon: ITaxInfo,
-        count: number
+        count: number,
+        taxline: common.ITaxLine
     }
 
     export interface ITableScope< E > extends ng.IScope {
@@ -357,8 +358,8 @@ namespace metaviz {
         }
     }
 
-    export class IAbundanceTableController {
-        static readonly $inject: any = ['$scope', IAbundanceTableController];
+    export class AbundanceTableController {
+        static readonly $inject: any = ['$scope', AbundanceTableController];
         private _scope: ITableScope<IAbundanceTableEntry>;
 
         constructor(scope: ITableScope<IAbundanceTableEntry>) {
@@ -375,7 +376,8 @@ namespace metaviz {
             this._scope.entries = abundance.map( (taxAbundance: common.ITaxonomyAbundance)=>{
                 return <IAbundanceTableEntry>{
                     taxon: {id:taxAbundance.taxon} , 
-                    count : taxAbundance.count
+                    count : taxAbundance.count , 
+                    taxline: taxAbundance.taxline
                 };
             });
         }
@@ -387,5 +389,7 @@ namespace metaviz {
         .controller('VennDiagramController', VennDiagramController.$inject)
         .controller('AbundanceSunburstController', AbundanceSunburstController.$inject)
         .controller('WevoteTableController',WevoteTableController.$inject)
+        .controller('AbundanceTableController',AbundanceTableController.$inject)
+        
         ;
 }

@@ -22,15 +22,20 @@
                     <mv-algorithms-venn wevote-contribution="false" results="results" config="config"></mv-algorithms-venn>
                     <h4> Algorithms agreement only on reads without absolute agreement, where WEVOTE comes in action: {{results.statistics.nonAbsoluteAgreement}}
                         reads. ({{ (100*results.statistics.nonAbsoluteAgreement/results.statistics.readsCount).toFixed(2)}}%)
-                        </h4>
+                    </h4>
                     <mv-algorithms-venn wevote-contribution="true" results="results" config="config"></mv-algorithms-venn>
                 </div>
 
                 <div id="abundance" class="tab-pane fade">
-                    <h3>Abundance</h3>
+                    <h3>Abundance Overview</h3>
                     <div ng-controller="AbundanceSunburstController">
                         <mv-abundance-sunburst hierarchy="hierarchy"></mv-abundance-sunburst>
                     </div>
+                    <h3>Abundance Details</h3>
+                    <div ng-controller="AbundanceTableController">
+                        <mv-abundance-table results="results" config="config"></mv-abundance-table>
+                    </div>
+
                 </div>
 
             </div>

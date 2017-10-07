@@ -211,6 +211,7 @@ declare namespace metaviz {
     interface IAbundanceTableEntry {
         taxon: ITaxInfo;
         count: number;
+        taxline: common.ITaxLine;
     }
     interface ITableScope<E> extends ng.IScope {
         results: IResults;
@@ -224,7 +225,7 @@ declare namespace metaviz {
         constructor(scope: ITableScope<IWevoteTableEntry>);
         protected processResults: (wevoteClassification: common.IWevoteClassification[], config: common.IConfig) => void;
     }
-    class IAbundanceTableController {
+    class AbundanceTableController {
         static readonly $inject: any;
         private _scope;
         constructor(scope: ITableScope<IAbundanceTableEntry>);
@@ -366,6 +367,28 @@ declare namespace metaviz {
         readonly heatmapMaxEntries: number;
         private downloadWevolteClassification;
         link: (scope: ITableScope<IWevoteTableEntry>, element: angular.IAugmentedJQuery, attrs: angular.IAttributes, ngModel: any) => void;
+        constructor();
+        static factory(): ng.IDirectiveFactory;
+    }
+    class AbundanceTableDirective implements ng.IDirective {
+        restrict: string;
+        replace: boolean;
+        static readonly directiveName: string;
+        private static readonly _inject;
+        controller: any;
+        scope: {
+            results: string;
+            config: string;
+        };
+        bindToController: {
+            results: string;
+            config: string;
+            header: string;
+            entries: string;
+        };
+        readonly heatmapMaxEntries: number;
+        private downloadAbundance;
+        link: (scope: ITableScope<IAbundanceTableEntry>, element: angular.IAugmentedJQuery, attrs: angular.IAttributes, ngModel: any) => void;
         constructor();
         static factory(): ng.IDirectiveFactory;
     }
