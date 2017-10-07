@@ -558,7 +558,7 @@ namespace metaviz {
             entries: '='
         };
 
-        readonly heatmapMaxEntries = 30;
+        readonly heatmapMaxEntries = 20;
 
         private downloadWevolteClassification = (header: string[], data: IWevoteTableEntry[], seperator: string = ',') => {
             const textual: string = [header.join(seperator)].concat(data.map((entry: IWevoteTableEntry) => {
