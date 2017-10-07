@@ -356,8 +356,6 @@ declare namespace metaviz {
         scope: {
             results: string;
             config: string;
-            header: string;
-            entries: string;
         };
         bindToController: {
             results: string;

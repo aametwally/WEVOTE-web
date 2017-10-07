@@ -542,16 +542,14 @@ namespace metaviz {
     export class WevoteTableDirective implements ng.IDirective {
 
         restrict: string = 'E';
-        public replace: boolean = true;
+        public replace: boolean = false;
         public static readonly directiveName: string = 'mvWevoteTable';
         private static readonly _inject: string[] = [];
 
         public controller = WevoteTableController.$inject;
         public scope = {
             results: '=results',
-            config: '=config',
-            header: '=header',
-            entries: '=entries'
+            config: '=config'
         };
         public bindToController = {
             results: '=',
@@ -560,7 +558,7 @@ namespace metaviz {
             entries: '='
         };
 
-        readonly heatmapMaxEntries = 15;
+        readonly heatmapMaxEntries = 30;
 
         private downloadWevolteClassification = (header: string[], data: IWevoteTableEntry[], seperator: string = ',') => {
             const textual: string = [header.join(seperator)].concat(data.map((entry: IWevoteTableEntry) => {
@@ -586,7 +584,9 @@ namespace metaviz {
             const downloadsContainer = container.append('div').attr('class', 'row').append('div').attr('class', 'col-xs-12');
             const tableContainer = container.append('div').attr('class', 'row');
             const pagingDiv = tableContainer.append('div').attr('class', 'col-xs-1');
-            const heatmapDiv = tableContainer.append('div').attr('class', 'col-xs-11');
+            const heatmapDiv = tableContainer.append('div').attr('class', 'col-xs-11')
+                .style('width', '700px')
+                .style('height', '800px');
             pagingDiv.append('p').html('<br/><br/><br/><br/><br/><br/><br/><br/>');
             const btnUp = pagingDiv.append('button');
             pagingDiv.append('p').html('<br/>');
@@ -605,37 +605,14 @@ namespace metaviz {
             const heatmapElement = <any>heatmap.node();
             scope.$watch('entries', (entries: Array<IWevoteTableEntry>) => {
                 if (entries && scope.header) {
-                    const someData: Array<IWevoteTableEntry> = [
-                        {
-                            seqId: 'AAAAA',
-                            votes: [{ id: 0 }, { id: 0 }, { id: 0 }],
-                            resolvedTaxon: { id: 0 },
-                            score: 0.5
-                        },
-                        {
-                            seqId: 'BBBB',
-                            votes: [{ id: 0 }, { id: 0 }, { id: 0 }],
-                            resolvedTaxon: { id: 0 },
-                            score: 2
-                        }
-                    ];
-                    for (let i = 0; i < 50; i++) {
-                        someData.push({
-                            seqId: someData[0].seqId + `${i}`,
-                            votes: someData[0].votes,
-                            resolvedTaxon: someData[0].resolvedTaxon,
-                            score: someData[0].score
-                        });
-                    }
-
-                    const xValues = ['ALG0', 'ALG1', 'ALG2', 'resolvedTaxon', 'score'];
-                    const yValues = someData.map((entry: IWevoteTableEntry) => { return entry.seqId; });
-                    const zValues = someData.map((entry: IWevoteTableEntry) => {
+                    const xValues = scope.header.slice(1);
+                    const yValues = entries.map((entry: IWevoteTableEntry) => { return entry.seqId; });
+                    const zValues = entries.map((entry: IWevoteTableEntry) => {
                         return [0, 0, 0, 0, entry.score];
                     });
-                    const txt = someData.map((entry: IWevoteTableEntry) => {
+                    const txt = entries.map((entry: IWevoteTableEntry) => {
                         return entry.votes.map((tax: ITaxInfo) => { return `${tax.id}`; })
-                            .concat([`${entry.resolvedTaxon.id}`, `${entry.score}`]);
+                            .concat([`${entry.resolvedTaxon.id}`, `${entry.score.toFixed(2)}`]);
                     });
 
                     const colorscaleValue = [
@@ -648,31 +625,24 @@ namespace metaviz {
                         y: yValues,
                         z: zValues,
                         type: 'heatmap',
-                        colorscale: colorscaleValue,
-                        showscale: false
+                        colorscale: colorscaleValue
                     }];
 
                     let layout = {
-                        title: 'WEVOTE Classification',
                         annotations: new Array<any>(),
                         xaxis: {
-                            fixedrange: true,
                             visible: true,
                             type: 'category',
                             ticks: '',
                             side: 'top'
                         },
                         yaxis: {
-                            fixedrange: true,
                             visible: true,
-                            range: [0, this.heatmapMaxEntries],
                             type: 'category',
                             ticks: '',
-                            ticksuffix: ' ',
-                            width: 700,
-                            height: 700,
-                            autosize: false
-                        }
+                            ticksuffix: ' '
+                        },
+                        autosize: true
                     };
 
                     type Range = [Plotly.Datum, Plotly.Datum];
@@ -723,7 +693,7 @@ namespace metaviz {
                             showscale: false
                         }
                         const _layout = {
-                            title: `WEVOTE Classification (${currentPage}/${pagesCount - 1})`,
+                            title: `WEVOTE Classification (${currentPage+1}/${pagesCount})`,
                             annotations: layout.annotations.slice(
                                 pages[currentPage][0] * xValues.length,
                                 pages[currentPage][1] * xValues.length),
@@ -753,10 +723,10 @@ namespace metaviz {
                     downloadCSVBtn.text('csv');
                     downloadTabBtn.text('tab-delimeted');
                     $(<any>downloadCSVBtn.node()).click(() => {
-                        this.downloadWevolteClassification(['SeqId'].concat(xValues), someData);
+                        this.downloadWevolteClassification(['SeqId'].concat(xValues), entries);
                     });
                     $(<any>downloadTabBtn.node()).click(() => {
-                        this.downloadWevolteClassification(['SeqId'].concat(xValues), someData, "\t");
+                        this.downloadWevolteClassification(['SeqId'].concat(xValues), entries, "\t");
                     });
                     changePage(0);
                 }
