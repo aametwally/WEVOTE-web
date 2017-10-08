@@ -38,12 +38,10 @@ public:
     WEVOTE_DLL static http::uri asURI( const std::string hostname ,
                                        int port ,
                                        const std::string relativePath );
-    WEVOTE_DLL void addClient(const http::uri &uri);
-    WEVOTE_DLL void addClient(const RemoteAddress &address);
 protected:
     virtual void _addRoutes();
     void _addRoute(Method method , const string_t path , HandlerType handler );
-    http::client::http_client &_getClient( const RemoteAddress &address );
+    client::http_client _getClient( const RemoteAddress &address );
 private:
     RestHandler();
     void _route(Method method, http_request message) const;
@@ -59,7 +57,6 @@ private:
 
 
     std::map< Method , std::map< utility::string_t , HandlerType >> _routings;
-    std::map< http::uri , http::client::http_client > _clients;
     experimental::listener::http_listener _listener;
 };
 

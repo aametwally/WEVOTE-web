@@ -50,19 +50,9 @@ uri RestHandler::asURI(const std::string hostname, int port, const std::string r
     return uriBuilder.to_uri();
 }
 
-void RestHandler::addClient(const http::uri &uri)
+client::http_client RestHandler::_getClient( const RemoteAddress &address )
 {
-    _clients.emplace( uri , uri );
-}
-
-void RestHandler::addClient(const RemoteAddress &address)
-{
-    addClient( asURI( address ));
-}
-
-client::http_client &RestHandler::_getClient( const RemoteAddress &address )
-{
-    return _clients.at( asURI( address ));
+    return { asURI( address )};
 }
 
 void RestHandler::_addRoutes()
