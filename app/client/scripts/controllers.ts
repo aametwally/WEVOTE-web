@@ -168,6 +168,7 @@ module wevote {
                 if (!this._scope.formError) {
                     this._scope.experiment.usageScenario = this.getUsageScenarioOrReturn(this.usageScenarios[0]);
                     this._scope.experiment.config.algorithms = this.getUsedAlgorithms();
+                    console.log('submitting..');
                     this.ExperimentService.submit(this._scope.experiment);
                     this._scope.experiment = JSON.parse(JSON.stringify(this.emptyExperiment));
                     this._scope.inputForm.form.$setPristine();

@@ -63,7 +63,8 @@ export class ExperimentRouter extends BaseRoute {
                             })
                         });
                     });
-                })
+                });
+                return;
             })
             ;
 

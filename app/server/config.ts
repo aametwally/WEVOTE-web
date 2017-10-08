@@ -3,7 +3,7 @@ export let config = {
     'mongoUrl' : 'mongodb://127.0.0.1:27017/wevote' , 
     'host' : '0.0.0.0',
     'localhost' : '127.0.0.1',
-    'port' : 3000 , 
+    'port' : 3001 , 
     'uploadDir': __dirname + '/uploads',
     'cppWevoteUrl': '127.0.0.1' ,
     'cppWevotePort': 34568  ,
