@@ -6,7 +6,6 @@
 .row-content {
     margin: 0px auto;
     padding: 50px 0px;
-    border-bottom: 1px ridge;
     min-height: 400px;
 }
 
@@ -86,9 +85,6 @@ body {
 }
 
 .tab-content {
-    border-bottom: 1px solid #dddddd;
-    border-left: 1px solid #dddddd;
-    border-right: 1px solid #dddddd;
     padding: 10px;
 }
 

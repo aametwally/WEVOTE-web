@@ -218,9 +218,6 @@ namespace metaviz {
         chart: any,
         explanation: any,
         percentage: any,
-        sidebar: any,
-        togglelegend: any,
-        legend: any,
         svg: any,
         trail: any,
         endlabel: any
@@ -244,21 +241,11 @@ namespace metaviz {
         readonly b = {
             w: 135, h: 30, s: 3, t: 10
         };
-
         readonly maxVisibleTrailAncestry = 5;
 
-        // Mapping of step names to colors.
-        readonly colors = {
-            "home": "#5687d1",
-            "product": "#7b615c",
-            "search": "#de783b",
-            "account": "#6ab975",
-            "other": "#a173d1",
-            "end": "#5687d1"
-        };
         // Dimensions of sunburst.
 
-        private readonly _w = 750;
+        private readonly _w = 700;
         private readonly _h = 600;
         private readonly _radius = Math.min(this._w, this._h) / 2;
 
@@ -267,16 +254,30 @@ namespace metaviz {
             scope.totalSize = 0;
 
             let vis: IAbundanceSubburstHTMLElement = <any>{};
-            vis.main = d3.select(element[0]).append('div').attr('class', 'sunburst-main');
-            vis.sequence = vis.main.append('div').attr('class', 'sunburst-sequence');
+            const row = d3.select(element[0]).append('div').attr('class', 'row tab-content');
+            vis.main = row.append('div').attr('class', 'row sunburst-main');
+            vis.sequence = vis.main.append('div').attr('style',
+                `
+width: ${this._w}px;
+height: 70px;
+`
+            );
             vis.chart = vis.main.append('div').attr('class', 'sunburst-chart');
-            vis.explanation = vis.chart.append('div').attr('class', 'sunburst-explanation').attr('style', 'visibility: hidden;');
+            vis.explanation = vis.chart.append('div')
+                .attr('style',
+                `
+position: absolute;
+text-align: center;
+color: #666;
+sz-index: -1;
+visibility: hidden;
+width:${140}px; 
+top: ${this._h / 2 - 70 }px;
+left: ${this._w / 2 - 70}px;
+`
+                );
             vis.percentage = vis.explanation.append('span').attr('class', 'sunburst-percentage');
-            vis.explanation.append('p').html('<br/> Abundance in sample');
-            vis.sidebar = d3.select(element[0]).append('div').attr('class', 'sunburst-sidebar');
-            vis.togglelegend = vis.sidebar.append('input').attr('type', 'checkbox');
-            vis.sidebar.append('p').html(' Legend<br/>');
-            vis.legend = vis.sidebar.append('div').attr('class', 'sunburst-legend').attr('style', "visibility: hidden;");
+            vis.explanation.append('p').html('<br> Abundance');
 
             vis.svg = vis.chart.append('svg')
                 .attr("width", this._w)
@@ -295,12 +296,8 @@ namespace metaviz {
 
             scope.$watch('hierarchy', (hierarchy: any) => {
                 if (hierarchy) {
-
                     // Basic setup of page elements.
                     this.initializeBreadcrumbTrail(vis);
-                    this.drawLegend(vis);
-                    vis.togglelegend.on("click", this.toggleLegend(vis));
-
                     // Bounding circle underneath the sunburst, to make it easier to detect
                     // when the mouse leaves the parent g.
                     vis.svg.append('circle')
@@ -481,54 +478,8 @@ namespace metaviz {
                 .style("visibility", "");
         }
 
-        private drawLegend = (vis: IAbundanceSubburstHTMLElement) => {
-
-            // Dimensions of legend item: width, height, spacing, radius of rounded rect.
-            const li = {
-                w: 75, h: 30, s: 3, r: 3
-            };
-
-            vis.legend.append("svg:svg")
-                .attr("width", li.w)
-                .attr("height", d3.keys(this.colors).length * (li.h + li.s));
-
-            let g = vis.legend.selectAll("g")
-                .data(d3.entries(this.colors))
-                .enter().append("svg:g")
-                .attr("transform", function (d: any, i: any) {
-                    return "translate(0," + i * (li.h + li.s) + ")";
-                });
-
-            g.append("svg:rect")
-                .attr("rx", li.r)
-                .attr("ry", li.r)
-                .attr("width", li.w)
-                .attr("height", li.h)
-                .style("fill", function (d: any) { return d.value; });
-
-            g.append("svg:text")
-                .attr("x", li.w / 2)
-                .attr("y", li.h / 2)
-                .attr("dy", "0.35em")
-                .attr("text-anchor", "middle")
-                .text(function (d: any) { return d.key; });
-        }
-
-        private toggleLegend = (vis: IAbundanceSubburstHTMLElement) => {
-            let cb = () => {
-                if (vis.legend.style("visibility") == "hidden") {
-                    vis.legend.style("visibility", "");
-                } else {
-                    vis.legend.style("visibility", "hidden");
-                }
-            }
-            return cb;
-        }
-
-
         constructor() {
         }
-
 
         public static factory(): ng.IDirectiveFactory {
             let d = () => {
@@ -587,9 +538,9 @@ namespace metaviz {
             const heatmapDiv = tableContainer.append('div').attr('class', 'col-xs-11')
                 .style('width', '700px')
                 .style('height', '800px');
-            pagingDiv.append('p').html('<br/><br/><br/><br/><br/><br/><br/><br/>');
+            pagingDiv.append('p').html('<br><br><br><br><br><br><br><br>');
             const btnUp = pagingDiv.append('button');
-            pagingDiv.append('p').html('<br/>');
+            pagingDiv.append('p').html('<br>');
             const btnDn = pagingDiv.append('button');
 
             [btnUp, btnDn].forEach((btn: any) => {
@@ -615,35 +566,51 @@ namespace metaviz {
                             .concat([`${entry.resolvedTaxon.id}`, `${entry.score.toFixed(2)}`]);
                     });
 
-                    const colorscaleValue = [
-                        [0, '#3D9970'],
-                        [1, '#001f3f']
-                    ];
-
-                    const data = [{
+                    const data: any = {
                         x: xValues,
                         y: yValues,
                         z: zValues,
+                        text: entries.map((entry: IWevoteTableEntry) => {
+                            return entry.votes.map((tax: ITaxInfo, index: number) => {
+                                return `
+seq.id: ${entry.seqId}<br>
+${xValues[index]}: ${entry.resolvedTaxon.id}<br>
+`;
+                            }).concat([
+                                `
+seq.id: ${entry.seqId}<br>
+WEVOTE: ${entry.resolvedTaxon.id}<br>
+score: ${entry.score.toFixed(2)}
+`, `
+seq.id: ${entry.seqId}<br>
+score: ${entry.score.toFixed(2)}
+`
+                            ]);
+                        }),
+                        hoverinfo: 'text',
                         type: 'heatmap',
-                        colorscale: colorscaleValue
-                    }];
+                        colorscale: 'Viridis'
+                    };
 
-                    let layout = {
-                        annotations: new Array<any>(),
+                    let layout: any = {
                         xaxis: {
                             visible: true,
                             type: 'category',
                             ticks: '',
-                            side: 'top'
+                            side: 'top',
+                            autosize: false,
+                            fixedrange: true
                         },
                         yaxis: {
                             visible: true,
                             type: 'category',
                             ticks: '',
-                            ticksuffix: ' '
-                        },
-                        autosize: true
+                            ticksuffix: ' ',
+                            autosize: false,
+                            fixedrange: true
+                        }
                     };
+                    let annotations = new Array<any>();
 
                     type Range = [Plotly.Datum, Plotly.Datum];
 
@@ -659,11 +626,11 @@ namespace metaviz {
                                 font: {
                                     family: 'Arial',
                                     size: 12,
-                                    color: (currentValue != 0.0) ? 'white' : 'black'
+                                    color: 'white'
                                 },
                                 showarrow: false
                             };
-                            layout.annotations.push(result);
+                            annotations.push(result);
                         }
 
                     const pagesCount = Math.ceil(yValues.length / this.heatmapMaxEntries);
@@ -683,32 +650,22 @@ namespace metaviz {
                             return;
                         }
                         const range: any = [pages[currentPage][0], pages[currentPage][1]];
+                        data.y = yValues.slice(pages[currentPage][0], pages[currentPage][1]);
+                        data.z = zValues.slice(pages[currentPage][0], pages[currentPage][1]);
 
-                        const _data = {
-                            x: xValues,
-                            y: yValues.slice(pages[currentPage][0], pages[currentPage][1]),
-                            z: zValues.slice(pages[currentPage][0], pages[currentPage][1]),
-                            type: 'heatmap',
-                            colorscale: colorscaleValue,
-                            showscale: false
-                        }
-                        const _layout = {
-                            title: `WEVOTE Classification (${currentPage + 1}/${pagesCount})`,
-                            annotations: layout.annotations.slice(
-                                pages[currentPage][0] * xValues.length,
-                                pages[currentPage][1] * xValues.length),
-                            xaxis: layout.xaxis,
-                            yaxis: layout.yaxis
-                        };
+                        layout.title = `WEVOTE Classification (${currentPage + 1}/${pagesCount})`;
+                        layout.annotations = annotations.slice(
+                            pages[currentPage][0] * xValues.length,
+                            pages[currentPage][1] * xValues.length);
+
                         let initialized = false;
                         if (!initialized) {
                             initialized = true;
-                            Plotly.newPlot(heatmapElement, <any>[_data], <any>_layout);
+                            Plotly.newPlot(heatmapElement, <any>[data], <any>layout);
                         }
                         else {
-                            // Plotly.update( heatmapElement, <any>[_data] , <any>_layout);
                             Plotly.deleteTraces(heatmapElement, 0);
-                            Plotly.addTraces(heatmapElement, <any>[_data]);
+                            Plotly.addTraces(heatmapElement, <any>[data]);
                         }
 
                     };
@@ -823,28 +780,55 @@ namespace metaviz {
                     const xValues = scope.header.slice(1);
                     const yValues = entries.map((entry: IAbundanceTableEntry) => { return entry.taxon.id; });
                     const zValues = entries.map((entry: IAbundanceTableEntry) => {
-                        return [entry.count];
+                        return [Math.log(entry.count)];
                     });
                     const txt = entries.map((entry: IAbundanceTableEntry) => {
                         return [`${entry.count}`];
                     });
 
-                    let layout = {
+                    let layout: any = {
                         annotations: new Array<any>(),
                         xaxis: {
                             visible: true,
                             type: 'category',
                             ticks: '',
-                            side: 'top'
+                            side: 'top',
+                            fixedrange: true,
+                            autosize: false
                         },
                         yaxis: {
                             visible: true,
                             type: 'category',
                             ticks: '',
-                            ticksuffix: ' '
-                        },
-                        autosize: true
+                            ticksuffix: ' ',
+                            fixedrange: true,
+                            autosize: false
+                        }
                     };
+
+                    const data = {
+                        x: xValues,
+                        y: yValues,
+                        z: zValues,
+                        text: entries.map((entry: IAbundanceTableEntry) => {
+                            const line = [
+                                entry.taxline.superkingdom,
+                                entry.taxline.kingdom,
+                                entry.taxline.phylum,
+                                entry.taxline.class,
+                                entry.taxline.order,
+                                entry.taxline.family,
+                                entry.taxline.genus,
+                                entry.taxline.species
+                            ].filter((s: string) => { return s != ''; })
+                                .join('; ');
+                            return (line.length < 105) ? [line] : ['.. ' + line.slice(line.length - 105)];
+                        }),
+                        hoverinfo: 'text',
+                        type: 'heatmap',
+                        colorscale: 'Viridis',
+                        showscale: false
+                    }
 
                     type Range = [Plotly.Datum, Plotly.Datum];
 
@@ -885,32 +869,16 @@ namespace metaviz {
                         }
                         const range: any = [pages[currentPage][0], pages[currentPage][1]];
 
-                        const _data = {
-                            x: xValues,
-                            y: yValues.slice(pages[currentPage][0], pages[currentPage][1]),
-                            z: zValues.slice(pages[currentPage][0], pages[currentPage][1]),
-                            type: 'heatmap',
-                            colorscale: 'Viridis',
-                            showscale: true
-                        }
-                        const _layout = {
-                            title: `Abundance (${currentPage + 1}/${pagesCount})`,
-                            annotations: layout.annotations.slice(
-                                pages[currentPage][0] * xValues.length,
-                                pages[currentPage][1] * xValues.length),
-                            xaxis: layout.xaxis,
-                            yaxis: layout.yaxis
-                        };
+
+                        layout.title = `Abundance (${currentPage + 1}/${pagesCount})`;
+                        layout.yaxis.range = range;
                         let initialized = false;
                         if (!initialized) {
                             initialized = true;
-                            Plotly.newPlot(heatmapElement, <any>[_data], <any>_layout);
+                            Plotly.newPlot(heatmapElement, <any>[data], <any>layout);
                         }
-                        else {
-                            // Plotly.update( heatmapElement, <any>[_data] , <any>_layout);
-                            Plotly.deleteTraces(heatmapElement, 0);
-                            Plotly.addTraces(heatmapElement, <any>[_data]);
-                        }
+                        else Plotly.relayout(heatmapElement, <any>layout);
+
 
                     };
                     btnUpController.click(() => { changePage(1); });
@@ -959,6 +927,6 @@ namespace metaviz {
         .directive(WevoteTableDirective.directiveName,
         WevoteTableDirective.factory())
         .directive(AbundanceTableDirective.directiveName,
-            AbundanceTableDirective.factory())
+        AbundanceTableDirective.factory())
         ;
 }

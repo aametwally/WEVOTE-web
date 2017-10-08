@@ -304,9 +304,6 @@ declare namespace metaviz {
         chart: any;
         explanation: any;
         percentage: any;
-        sidebar: any;
-        togglelegend: any;
-        legend: any;
         svg: any;
         trail: any;
         endlabel: any;
@@ -326,14 +323,6 @@ declare namespace metaviz {
             t: number;
         };
         readonly maxVisibleTrailAncestry: number;
-        readonly colors: {
-            "home": string;
-            "product": string;
-            "search": string;
-            "account": string;
-            "other": string;
-            "end": string;
-        };
         private readonly _w;
         private readonly _h;
         private readonly _radius;
@@ -343,8 +332,6 @@ declare namespace metaviz {
         private initializeBreadcrumbTrail;
         private breadcrumbPoints;
         updateBreadcrumbs: (nodeArray: any, percentageString: any, vis: IAbundanceSubburstHTMLElement) => void;
-        private drawLegend;
-        private toggleLegend;
         constructor();
         static factory(): ng.IDirectiveFactory;
     }

@@ -26,32 +26,12 @@ svg {
 /**
 * Sunburst Diagram
 **/
-mv-abundance-sunburst
-{
-  width: 900px;
-  height:600px;
-}
-
 .sunburst-main {
   /*float: left;*/
   width: 750px;
 }
 
-.sunburst-sidebar {
-  float: right;
-  width: 100px;
-}
-
-.sunburst-sequence {
-  width: 600px;
-  height: 70px;
-}
-
-.sunburst-legend {
-  padding: 10px 0 0 3px;
-}
-
-.sunburst-sequence text, .sunburst-legend text {
+.sunburst-sequence text{
   font-weight: 500;
   fill: black;
 }
@@ -62,16 +42,6 @@ mv-abundance-sunburst
 
 .sunburst-chart path {
   stroke: #fff;
-}
-
-.sunburst-explanation {
-  position: absolute;
-  top: 260px;
-  left: 305px;
-  width: 140px;
-  text-align: center;
-  color: #666;
-  z-index: -1;
 }
 
 .sunburst-percentage {
