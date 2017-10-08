@@ -129,16 +129,10 @@ export class WevoteClassificationPatchModel {
                 patch: <any>unclassifiedReads
             };
 
-            const resultsRoute =
-                {
-                    host: config.host,
-                    port: config.port,
-                }
-
             const submission: common.IWevoteSubmitEnsemble = {
                 jobID: experiment._id,
                 resultsRoute: {
-                    host: config.host,
+                    host: config.localhost,
                     port: config.port,
                     relativePath: '/experiment/classification'
                 },

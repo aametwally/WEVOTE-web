@@ -214,7 +214,7 @@ export class ExperimentRouter extends BaseRoute {
                         {
                             resultsRoute:
                             {
-                                host: config.host,
+                                host: config.localhost,
                                 port: config.port,
                                 relativePath: '/experiment/classification'
                             },
