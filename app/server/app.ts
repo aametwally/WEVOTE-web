@@ -26,9 +26,10 @@ import { IStatus, EStatus, IWevoteSubmitEnsemble } from './common/common';
 export class Server {
     private _app: Express.Application;
 
-    public static bootstrap(port: any): Express.Application {
+    public static bootstrap(port: string , host: string): Express.Application {
         let server = new Server();
         server._app.set('port', port);
+        server._app.set('host', host );
         return server._app;
     }
 

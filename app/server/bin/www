@@ -13,12 +13,12 @@ var config = require('../config').config;
  * Get port from environment and store in Express.
  */
 var port = normalizePort( config.port || process.env.PORT);
-
+var host = config.host || '0.0.0.0';
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app.Server.bootstrap(port));
+var server = http.createServer(app.Server.bootstrap(port,host));
 
 /**
  * Listen on provided port, on all network interfaces.
