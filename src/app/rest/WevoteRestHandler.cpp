@@ -49,9 +49,12 @@ void WevoteRestHandler::_receiveWevoteEnsemble(http_request message)
             LOG_DEBUG("Submitting..");
             LOG_DEBUG("serializing classified reads..");
             json::value classified = io::Objectifier::objectFrom( data );
-            const RemoteAddress address = data.getResultsRoute();
-            _transmitJSON( address , classified );
             LOG_DEBUG("[DONE] serializing classified reads [job:%d] .." , _jobCounter.load());
+
+            const RemoteAddress address = data.getResultsRoute();
+            LOG_DEBUG("Transmitting..");
+            _transmitJSON( address , classified );
+            LOG_DEBUG("[DONE] Transmitting[job:%d] .." , _jobCounter.load());
             _jobCounter++;
             LOG_DEBUG("[DONE] Submiting job:%d..",_jobCounter.load());
         });
@@ -65,26 +68,24 @@ void WevoteRestHandler::_receiveWevoteEnsemble(http_request message)
 }
 
 void WevoteRestHandler::_transmitJSON( const RemoteAddress &address,
-                                       const json::value &data )
+                                       const json::value data )
 {
-
     http::http_request request( methods::POST );
     request.set_body( data );
-
-    pplx::task<void> task = _getClient( address ).request(request)
-            .then([](http_response response)-> pplx::task<json::value>{
-            return response.extract_json();
-            ;})
-            .then([](pplx::task<json::value> previousTask){
-        try{
-            const json::value & v = previousTask.get();
-            LOG_DEBUG("%s" , USTR( v.serialize()));
-        } catch(const http_exception &e){
-            LOG_DEBUG("%s", e.what());
-        }
-    });
     try{
-        task.wait();
+        _getClient( address ).request(request)
+                 .then([](http_response response)-> pplx::task<json::value>{
+                 return response.extract_json();
+                 ;})
+                 .then([](pplx::task<json::value> previousTask){
+             try{
+                 const json::value & v = previousTask.get();
+                 LOG_DEBUG("%s" , USTR( v.serialize()));
+             } catch(const std::exception &e){
+                 LOG_DEBUG("%s", e.what());
+             }
+         })
+        .wait();
     } catch(std::exception &e){
         LOG_DEBUG("%s",e.what());
     }

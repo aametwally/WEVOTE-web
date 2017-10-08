@@ -31,7 +31,7 @@ protected:
 private:
     void _receiveWevoteEnsemble(http_request message);
     void _transmitJSON( const RemoteAddress &address,
-                        const json::value &data );
+                        const json::value data );
 private:
     const TaxonomyBuilder &_taxonomy;
     const WevoteClassifier _classifier;
