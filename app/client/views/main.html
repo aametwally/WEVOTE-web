@@ -1,9 +1,10 @@
 <div class="container" ng-controller="MainController">
     <div class="row row-content">
         <div class="col-xs-12 col-lg-5">
+            <div id="submission-message">
+            </div>
             <div ng-controller="InputController">
-                <div ng-if="!showInput" class="{{error? 'alert alert-danger' :'alert alert-warning'}}"
-                     role="alert">{{message}}</div>
+                <div ng-if="!showInput" class="{{error? 'alert alert-danger' :'alert alert-warning'}}" role="alert">{{message}}</div>
                 <div ng-if="showInput" ng-include="'views/input.html'"></div>
             </div>
         </div>

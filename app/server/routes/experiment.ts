@@ -64,7 +64,6 @@ export class ExperimentRouter extends BaseRoute {
                         });
                     });
                 });
-                return;
             })
             ;
 
@@ -124,7 +123,7 @@ export class ExperimentRouter extends BaseRoute {
                     let id = exp._id;
                     res.writeHead(200, { 'Content-Type': 'text/plain' });
                     ExperimentRouter._handleExperiment(exp);
-                    return;
+                    return res.end();
                 });
             })
 
@@ -133,7 +132,7 @@ export class ExperimentRouter extends BaseRoute {
                     if (err) return next(err);
                     const username = req.decoded.username;
                     const userExperiments = experiments.filter((exp: any) => {
-                        return exp.user.username === username;
+                        return exp.user && exp.user.username === username;
                     });
                     return res.json(userExperiments);
                 }, [

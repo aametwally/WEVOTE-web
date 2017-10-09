@@ -330,9 +330,18 @@ module wevote {
             return instance;
         }
 
-        public submit(formdata: any): any {
+        public submit(formdata: any, cbS?: Function, cbF?: Function): any {
             return this._resource(this._baseURL + "experiment")
-                .save({}, formdata);
+                .save({},
+                formdata,
+                () => {
+                    if (cbS) cbS();
+                    console.log('experiment submitted!');
+                },
+                () => {
+                    if (cbF) cbF();
+                    console.log('experiment not submitted!');
+                });
         }
 
         public retrieve = (cbS: Function, cbF: Function) => {

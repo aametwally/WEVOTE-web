@@ -10,10 +10,10 @@ module wevote {
         message: string,
     }
     export class MainController {
-        static readonly $inject: any = ['$scope', 'HelloService', MainController];
+        static readonly $inject: any = ['$scope', '$state' , 'HelloService', MainController];
         private _scope: MainControllerScope;
         private _hello: metaviz.HelloFactory;
-        constructor($scope: ng.IScope, hello: metaviz.HelloFactory) {
+        constructor($scope: ng.IScope, $state: ng.ui.IState , hello: metaviz.HelloFactory) {
             this._scope = <MainControllerScope>$scope;
             this._hello = hello;
             this._hello.hello();
@@ -35,6 +35,7 @@ module wevote {
     }
 
     interface InputControllerScope extends ng.IScope {
+        state: ng.ui.IStateService,
         availableDatabaseLoaded: boolean,
         supportedAlgorithmsLoaded: boolean,
         availableDatabase: any,
@@ -66,7 +67,7 @@ module wevote {
     }
     export class InputController {
 
-        static readonly $inject = ['$scope', 'SimulatedReadsService',
+        static readonly $inject = ['$scope','$state' , 'SimulatedReadsService',
             'AlgorithmsService', 'ExperimentService', InputController];
 
         private _scope: InputControllerScope;
@@ -128,7 +129,7 @@ module wevote {
                 onServer: true,
                 uri: "",
                 data: "",
-                size: 0 ,
+                size: 0,
                 count: 0
             },
             config: {
@@ -139,11 +140,11 @@ module wevote {
             }
         };
 
-        constructor($scope: ng.IScope, private SimulatedReadsService: any,
+        constructor($scope: ng.IScope, $state: ng.ui.IStateService , private SimulatedReadsService: any,
             private AlgorithmsService: any, private ExperimentService: any) {
             this._scope = <InputControllerScope>$scope;
             this._scope.inputForm = {};
-
+            this._scope.state = $state;
             this._scope.formError = false;
             this._scope.formErrorMessage = '';
 
@@ -168,8 +169,42 @@ module wevote {
                 if (!this._scope.formError) {
                     this._scope.experiment.usageScenario = this.getUsageScenarioOrReturn(this.usageScenarios[0]);
                     this._scope.experiment.config.algorithms = this.getUsedAlgorithms();
-                    console.log('submitting..');
-                    this.ExperimentService.submit(this._scope.experiment);
+                    this.ExperimentService.submit(
+                        this._scope.experiment,
+                        () => {
+                            $('#submission-message').empty();
+                            $('#submission-message').append(
+                                `<div class="alert alert-success alert-dismissible show" role="alert"> 
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            Experiment is <strong>successfully!</strong> submitted!<br>
+                            You can track you experiment progress from 'Track Experiments' dash board.
+                            </div>`
+                            );
+
+                            $('#submission-message').get(0).scrollIntoView();
+                            this._scope.$on('$stateChangeStart', () => {
+                                $('#submission-message').empty();
+                            });
+                        },
+                        () => {
+                            $('#submission-message').empty();
+                            $('#submission-message').append(
+                                `<div class="alert alert-danger alert-dismissible show" role="alert"> 
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>                                
+                            Experiment is <strong>not</strong> submitted!<br>
+                            You may need to login or check the connection to the server.
+                            </div>`
+                            );
+                            $('#submission-message').get(0).scrollIntoView();
+                            this._scope.$on('$stateChangeStart', () => {
+                                $('#submission-message').empty();
+                            });
+
+                        });
                     this._scope.experiment = JSON.parse(JSON.stringify(this.emptyExperiment));
                     this._scope.inputForm.form.$setPristine();
                     this._scope.inputForm.form.$setUntouched();
@@ -769,7 +804,7 @@ module wevote {
             this._scope.results = {
                 wevoteClassification: response.results.wevoteClassification.patch,
                 numToolsUsed: response.results.wevoteClassification.numToolsUsed,
-                abundance : response.results.taxonomyAbundanceProfile.abundance ,
+                abundance: response.results.taxonomyAbundanceProfile.abundance,
                 statistics: { readsCount: 0, nonAbsoluteAgreement: 0 }
             };
             this._scope.showExperiment = true;
