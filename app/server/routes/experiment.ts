@@ -18,9 +18,10 @@ import { verifyOrdinaryUser } from './verify';
 import { UploadRouter } from './upload';
 import * as fs from 'fs';
 import * as http from 'http';
-import { config } from '../config'
+import * as nodemailer from 'nodemailer';
+const config = require('../config');
 import * as mongoose from 'mongoose';
-import {IWevoteSubmitEnsemble} from '../common/common';
+import { IWevoteSubmitEnsemble } from '../common/common';
 
 export class ExperimentRouter extends BaseRoute {
     constructor() {
@@ -59,7 +60,8 @@ export class ExperimentRouter extends BaseRoute {
                         experiment.save((err: any, exp: IExperimentModel) => {
                             TaxonomyAbundanceProfileModel.makeTaxonomyProfile(exp._id, (id: mongoose.Types.ObjectId) => {
                                 res.writeHead(200, { 'Content-Type': 'text/plain' });
-                                return res.end();
+                                res.end();
+                                return ExperimentRouter._sendEmail(exp);
                             })
                         });
                     });
@@ -251,5 +253,47 @@ export class ExperimentRouter extends BaseRoute {
 
                 } break;
         }
+    }
+
+    private static _sendEmail(exp: IExperimentModel) {
+        ExperimentModel.repo.findById(exp._id,
+            (err: any, experiment: IExperimentModel) => {
+                if (err) {
+                    console.log('Experiment couldn`t be loaded:', err);
+                    return
+                }
+
+                const user: IUserModel = <any>experiment.user;
+                const transporter = nodemailer.createTransport({
+                    service: 'Gmail',
+                    auth: {
+                        user: config.wevoteGmail,
+                        pass: config.wevoteGmailPassword
+                    }
+                });
+
+                const mailContent: string =
+                    `
+                    A WEVOTE experiment, posted by your account ${user.username}, is now completed.
+                    You can download or visualize your results, after logging in, at
+                    <a href="${config.url}:${config.port}/#!/results/${exp._id}">this link</a><br>
+                    Experiment description: ${exp.description} <br>
+                    Thanks for using WEVOTE classifier!
+                    `;
+                var mailOptions = {
+                    from: config.wevoteEmail, 
+                    to: exp.email, 
+                    subject: `[WEVOTE Experiment finished] ${exp.description.slice(0,100)+'..'}`, // Subject line
+                    html: mailContent 
+                };
+                transporter.sendMail(mailOptions, function(error, info){
+                    if(error){
+                        console.log(error);
+                    }else{
+                        console.log('Message sent: ' + info.response);
+                    };
+                });
+            }, [{ path: 'user' }]);
+
     }
 }

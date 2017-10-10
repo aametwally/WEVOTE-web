@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 import { ITaxonomyAbundance } from './taxprofile';
 import { IExperimentModel, statusSchema } from './experiment';
-import { config } from '../config';
+const config = require('../config');
 import * as common from '../common/common';
 
 export interface IWevoteClassification extends common.IWevoteClassification, mongoose.Document {

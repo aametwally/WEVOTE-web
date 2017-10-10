@@ -21,7 +21,9 @@ var gulp = require('gulp'),
     del = require('del'),
     tsc = require('gulp-typescript'),
     tsClientProject = tsc.createProject('tsconfig.json'),
-    sourcemaps = require('gulp-sourcemaps')
+    sourcemaps = require('gulp-sourcemaps'),
+    replace = require('gulp-replace'),
+    serverConfig = require('../server/config');
 ;
 
 
@@ -44,12 +46,17 @@ gulp.task('usemin', ['ts', 'jshint'], function () {
         .pipe(gulp.dest('../build/public'));
 });
 
-// gulp.task('copy', function () {
-//     return gulp.src('../common/*ts')
-//         .pipe(gulp.dest('common'));
-// });
+gulp.task('config', function () {
+    return gulp.src(['./env.js'])
+        .pipe(replace('ENV_WEVOTE_BASE_URL', function (match) {
+            // Replaces instances of "foo" with "oof" 
+            return (process.env.WEVOTE_BASE_URL) ?
+                `'${process.env.WEVOTE_BASE_URL}'`: `'${serverConfig.url}:${serverConfig.port}/'` ;
+        }))
+        .pipe(gulp.dest('../build/public'));
+});
 
-gulp.task('ts' , function () {
+gulp.task('ts', function () {
     return tsClientProject.src()
         .pipe(tsClientProject())
         .js.pipe(gulp.dest("../build/public"));
@@ -58,9 +65,9 @@ gulp.task('ts' , function () {
 // Images
 gulp.task('imagemin', function () {
     return del(['../build/public/images']), gulp.src('images/**/*')
-        .pipe(cache(imagemin({optimizationLevel: 3, progressive: true, interlaced: true})))
+        .pipe(cache(imagemin({ optimizationLevel: 3, progressive: true, interlaced: true })))
         .pipe(gulp.dest('../build/public/images'))
-        .pipe(notify({message: 'Images task complete'}));
+        .pipe(notify({ message: 'Images task complete' }));
 });
 
 gulp.task('copyfonts', function () {
@@ -71,11 +78,11 @@ gulp.task('copyfonts', function () {
 });
 
 gulp.task('clean', function (cb) {
-    return del(['../build/public', 'common'],{force:true},cb);
+    return del(['../build/public', 'common'], { force: true }, cb);
 });
 
 gulp.task('default', ['clean'], function () {
-    gulp.start('ts', 'usemin', 'imagemin', 'copyfonts');
+    gulp.start('ts', 'config', 'usemin', 'imagemin', 'copyfonts');
 });
 
 // Watch

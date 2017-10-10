@@ -7,7 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('wevote:server');
 var http = require('http');
-var config = require('../config').config;
+var config = require('../config');
 
 /**
  * Get port from environment and store in Express.

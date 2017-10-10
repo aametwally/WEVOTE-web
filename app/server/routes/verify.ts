@@ -1,6 +1,6 @@
 import { UserModel } from '../models/user';
 import * as jwt from 'jsonwebtoken';// used to create, sign, and verify tokens
-import { config } from '../config';
+const config = require('../config');
 import { Request, Response, NextFunction } from 'express';
 
 export let getToken = function (user: any) {

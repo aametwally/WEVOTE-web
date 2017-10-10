@@ -6,7 +6,8 @@ var gulp = require('gulp'),
     del = require('del'),
     tsc = require('gulp-typescript'),
     tsServerProject = tsc.createProject('tsconfig.json'),
-    sourcemaps = require('gulp-sourcemaps');
+    sourcemaps = require('gulp-sourcemaps'),
+    config = require('./config');
 
 
 gulp.task('common', function () {
@@ -14,7 +15,12 @@ gulp.task('common', function () {
         .pipe(gulp.dest('common'));
 });
 
-gulp.task('ts', ['common'], function () {
+gulp.task('config', function () {
+    process.env.ENV_WEVOTE_BASE_URL = config.url;
+});
+
+
+gulp.task('ts', ['common','config'], function () {
     var tsResults = tsServerProject.src()
         .pipe(tsServerProject());
     return tsResults.js.pipe(gulp.dest("../build")),
@@ -28,13 +34,13 @@ gulp.task('clean', function (cb) {
         del(['../build/routes'], {
             force: true
         }, cb),
-        del(['../build/app.js', 'common'], {
+        del(['../build/*.js', 'common'], {
             force: true
         }, cb);
 });
 
 gulp.task('copy', function () {
-    gulp.src('models/*.{json,csv}*')
+    return gulp.src('models/*.{json,csv}*')
         .pipe(gulp.dest('../build/models'));
 });
 

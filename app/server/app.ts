@@ -9,6 +9,8 @@ import * as cookieParser from 'cookie-parser';
 import * as mongoose from 'mongoose';
 import errorHandler = require("errorhandler");
 import * as passport from 'passport';
+import * as cors from 'cors';
+
 // routers
 import { UserRouter } from './routes/user';
 import { ReadsRouter } from './routes/reads';
@@ -21,7 +23,7 @@ import { init } from './models/initdb';
 import { UserModel } from './models/user';
 import { WevoteClassificationPatchModel } from './models/wevote';
 import { IExperimentModel } from './models/experiment';
-import { config } from './config'
+const config = require('./config');
 import { IStatus, EStatus, IWevoteSubmitEnsemble } from './common/common';
 export class Server {
     private _app: Express.Application;
@@ -107,6 +109,7 @@ export class Server {
         this._app.use(logger('dev'));
         this._app.use(bodyParser.json({ limit: '50mb', strict: false }));
         this._app.use(bodyParser.urlencoded({ extended: false }));
+        this._app.use( cors());
         this._app.use(cookieParser());
     }
 

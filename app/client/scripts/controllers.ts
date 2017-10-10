@@ -169,6 +169,7 @@ module wevote {
                 if (!this._scope.formError) {
                     this._scope.experiment.usageScenario = this.getUsageScenarioOrReturn(this.usageScenarios[0]);
                     this._scope.experiment.config.algorithms = this.getUsedAlgorithms();
+                    const email = `${this._scope.experiment.email}`;
                     this.ExperimentService.submit(
                         this._scope.experiment,
                         () => {
@@ -179,7 +180,9 @@ module wevote {
                                 <span aria-hidden="true">&times;</span>
                                 </button>
                             Experiment is <strong>successfully!</strong> submitted!<br>
-                            You can track you experiment progress from 'Track Experiments' dash board.
+                            You can track you experiment progress from 'Track Experiments' dash board.<br>
+                            Anyway, after experiment finished, you will be received a notification at your email: ${email}.
+                            You may need to check the junk mail. 
                             </div>`
                             );
 

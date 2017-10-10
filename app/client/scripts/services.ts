@@ -47,7 +47,7 @@ module wevote {
     }
     export class AuthFactory {
 
-        static readonly $inject = ['$resource', '$http', 'LocalStorageService', '$rootScope', '$window', 'baseURL', 'ngDialog', AuthFactory.factory()];
+        static readonly $inject = ['$resource', '$http', 'LocalStorageService', '$rootScope', '$window', '__env', 'ngDialog', AuthFactory.factory()];
         private static readonly TOKEN_KEY: string = 'Token';
         private _isAuthenticated: boolean = false;
         private _credentials: ICredentials;
@@ -56,7 +56,6 @@ module wevote {
         private _localStorage: LocalStorageFactory;
         private _rootScope: ng.IRootScopeService;
         private _window: ng.IWindowService;
-        private readonly _baseURL: string;
         private _ngDialog: ng.dialog.IDialogService;
 
         constructor(
@@ -65,7 +64,7 @@ module wevote {
             $localStorage: LocalStorageFactory,
             $rootScope: ng.IRootScopeService,
             $window: ng.IWindowService,
-            readonly baseURL: string,
+            readonly __env: any,
             ngDialog: ng.dialog.IDialogService
         ) {
             this._resource = $resource;
@@ -73,7 +72,7 @@ module wevote {
             this._localStorage = $localStorage;
             this._rootScope = $rootScope;
             this._window = $window;
-            this._baseURL = baseURL;
+            this.__env = __env;
             this._ngDialog = ngDialog;
             this._credentials = { username: '', authToken: '' };
             this.loadUserCredentials();
@@ -84,9 +83,9 @@ module wevote {
                 $localStorage: LocalStorageFactory,
                 $rootScope: ng.IRootScopeService,
                 $window: ng.IWindowService,
-                baseURL: string,
+                __env: any,
                 ngDialog: ng.dialog.IDialogService) =>
-                new AuthFactory($resource, $http, $localStorage, $rootScope, $window, baseURL, ngDialog);
+                new AuthFactory($resource, $http, $localStorage, $rootScope, $window, __env, ngDialog);
             return instance;
         }
 
@@ -120,7 +119,7 @@ module wevote {
         }
 
         public login = (loginData: any, callbackSuccess?: any, callbackFail?: any) => {
-            this._resource(this.baseURL + "users/login")
+            this._resource(this.__env.baseUrl + "users/login")
                 .save(loginData,
                 (response: any) => {
                     this.storeUserCredentials({
@@ -149,14 +148,14 @@ module wevote {
         };
 
         public logout = () => {
-            this._resource(this.baseURL + "users/logout")
+            this._resource(this.__env.baseUrl + "users/logout")
                 .get((response: any) => { });
             this.destroyUserCredentials();
         };
 
         public register = (registerData: any, callbackSuccess?: any, callbackFail?: any) => {
 
-            this._resource(this.baseURL + "users/register")
+            this._resource(this.__env.baseUrl + "users/register")
                 .save(registerData,
                 (response: any) => {
                     this.login({
@@ -273,11 +272,9 @@ module wevote {
     }
 
     abstract class DataRetriever {
-        protected _baseURL: string;
         protected _resource: ng.resource.IResourceService;
 
-        constructor(private baseURL: string, private $resource: ng.resource.IResourceService) {
-            this._baseURL = baseURL;
+        constructor(protected readonly __env: any, private $resource: ng.resource.IResourceService) {
             this._resource = $resource;
         }
 
@@ -285,17 +282,17 @@ module wevote {
     }
 
     export class SimulatedReadsFactory extends DataRetriever {
-        static readonly $inject = ['baseURL', '$resource', SimulatedReadsFactory.factory()];
+        static readonly $inject = ['__env', '$resource', SimulatedReadsFactory.factory()];
 
         static factory() {
-            let instance = (baseURL: string, $resource: ng.resource.IResourceService) =>
-                new SimulatedReadsFactory(baseURL, $resource);
+            let instance = (__env: any, $resource: ng.resource.IResourceService) =>
+                new SimulatedReadsFactory(__env , $resource);
             return instance;
         }
 
         public retrieve = (cbS: Function, cbF: Function) => {
-            console.log("retrieving simulated reads");
-            return this._resource(this._baseURL + "reads", null, {
+            console.log("retrieving simulated reads",this.__env.baseUrl + "reads" );
+            return this._resource(this.__env.baseUrl + "reads", null, {
                 'update': {
                     method: 'PUT'
                 }
@@ -304,16 +301,16 @@ module wevote {
     }
 
     export class AlgorithmsFactory extends DataRetriever {
-        static readonly $inject = ['baseURL', '$resource', AlgorithmsFactory.factory()];
+        static readonly $inject = ['__env', '$resource', AlgorithmsFactory.factory()];
 
         static factory() {
-            let instance = (baseURL: string, $resource: ng.resource.IResourceService) =>
-                new AlgorithmsFactory(baseURL, $resource);
+            let instance = (__env:any , $resource: ng.resource.IResourceService) =>
+                new AlgorithmsFactory(__env, $resource);
             return instance;
         }
 
         public retrieve = (cbS: Function, cbF: Function) => {
-            return this._resource(this._baseURL + "algorithm", null, {
+            return this._resource(this.__env.baseUrl + "algorithm", null, {
                 'update': {
                     method: 'PUT'
                 }
@@ -322,16 +319,16 @@ module wevote {
     }
 
     export class ExperimentFactory extends DataRetriever {
-        static readonly $inject = ['baseURL', '$resource', ExperimentFactory.factory()];
+        static readonly $inject = ['__env', '$resource', ExperimentFactory.factory()];
 
         static factory() {
-            let instance = (baseURL: string, $resource: ng.resource.IResourceService) =>
-                new ExperimentFactory(baseURL, $resource);
+            let instance = (__env: any, $resource: ng.resource.IResourceService) =>
+                new ExperimentFactory(__env, $resource);
             return instance;
         }
 
         public submit(formdata: any, cbS?: Function, cbF?: Function): any {
-            return this._resource(this._baseURL + "experiment")
+            return this._resource(this.__env.baseUrl + "experiment")
                 .save({},
                 formdata,
                 () => {
@@ -345,7 +342,7 @@ module wevote {
         }
 
         public retrieve = (cbS: Function, cbF: Function) => {
-            return this._resource(this._baseURL + "experiment", null, {
+            return this._resource(this.__env.baseUrl + "experiment", null, {
                 'update': {
                     method: 'PUT'
                 }
@@ -353,7 +350,7 @@ module wevote {
         }
 
         public getExperiment = (id: string, cbS: Function, cbF: Function) => {
-            return this._resource(this._baseURL + 'experiment/:expId',
+            return this._resource(this.__env.baseUrl + 'experiment/:expId',
                 { expId: id }, {
                     'update': {
                         method: 'PUT'
@@ -363,26 +360,26 @@ module wevote {
     }
 
     export class UserFactory extends DataRetriever {
-        static readonly $inject = ['baseURL', '$resource', UserFactory.factory()];
+        static readonly $inject = ['__env', '$resource', UserFactory.factory()];
 
         static factory() {
-            let instance = (baseURL: string, $resource: ng.resource.IResourceService) =>
-                new UserFactory(baseURL, $resource);
+            let instance = (__env: any, $resource: ng.resource.IResourceService) =>
+                new UserFactory(__env, $resource);
             return instance;
         }
 
         public register = (data: any, cbS: Function, cbF: Function) => {
-            return this._resource(this._baseURL + "users/register")
+            return this._resource(this.__env.baseUrl + "users/register")
                 .save({}, data, cbS, cbF);
         }
 
         public login = (data: any, cbS: Function, cbF: Function) => {
-            return this._resource(this._baseURL + "users/login")
+            return this._resource(this.__env.baseUrl + "users/login")
                 .save({}, data, cbS, cbF);
         }
 
         public retrieve = (cbS: Function, cbF: Function) => {
-            return this._resource(this._baseURL + "users", null, {
+            return this._resource(this.__env.baseUrl + "users", null, {
                 'update': {
                     method: 'PUT'
                 }
@@ -391,7 +388,6 @@ module wevote {
     }
 
     wevoteApp
-        .constant("baseURL", "http://localhost:3001/")
         .factory('LocalStorageService', LocalStorageFactory.$inject)
         .factory('AuthService', AuthFactory.$inject)
         .factory('FileUploaderService', FileUploaderFactory.$inject)
@@ -401,3 +397,4 @@ module wevote {
         .factory('UserService', UserFactory.$inject)
         ;
 }
+

@@ -1,11 +1,20 @@
 module wevote {
     "use strict";
+    var env = {};
+
+    // Import variables if present (from env.js)
+    if (window) {
+        console.log(window);
+        (<any>Object).assign(env, (<any>window).__env);
+    }
+
+
     export let wevoteApp =
-        angular.module('wevote', ['ui.router', 'ngResource', 'angularFileUpload','ui.bootstrap.popover', 'ui.bootstrap.tpls' , 'ngDialog' , 'metaviz'])
+        angular.module('wevote', ['ui.router', 'ngResource', 'angularFileUpload', 'ui.bootstrap.popover', 'ui.bootstrap.tpls', 'ngDialog', 'metaviz'])
             .config(['$stateProvider', '$urlRouterProvider',
                 function ($stateProvider: ng.ui.IStateProvider, $urlRouterProvider: ng.ui.IUrlRouterProvider) {
                     $stateProvider
-                    // route for the home page
+                        // route for the home page
                         .state('app', {
                             url: '/',
                             views: {
@@ -22,7 +31,7 @@ module wevote {
                             }
                         })
 
-                        .state('app.results' , {
+                        .state('app.results', {
                             url: 'results/:expId',
                             views: {
                                 'content@': {
@@ -49,12 +58,12 @@ module wevote {
                             }
                         })
 
-                    ;
+                        ;
                     $urlRouterProvider.otherwise('/');
                 }])
 
+            .constant('__env', env)
 
-
-    ;
+        ;
 
 }

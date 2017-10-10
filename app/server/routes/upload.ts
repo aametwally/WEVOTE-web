@@ -2,7 +2,7 @@ import { BaseRoute } from "./route";
 import { Request, Response, NextFunction } from 'express';
 import * as fs from 'fs';
 import * as multer from 'multer';
-import { config } from '../config'
+const config = require('../config');
 
 export class UploadRouter extends BaseRoute {
     static readonly uploadsDir = config.uploadDir;
