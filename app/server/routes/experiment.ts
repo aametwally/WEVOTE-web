@@ -281,7 +281,7 @@ export class ExperimentRouter extends BaseRoute {
                     Thanks for using WEVOTE classifier!
                     `;
                 var mailOptions = {
-                    from: `WEVOTE Team <${config.wevoteEmail}>`, 
+                    from: `WEVOTE Team <${config.wevoteGmail}>`, 
                     to: exp.email, 
                     subject: `[WEVOTE Experiment finished] ${exp.description.slice(0,100)+'..'}`, // Subject line
                     html: mailContent 
