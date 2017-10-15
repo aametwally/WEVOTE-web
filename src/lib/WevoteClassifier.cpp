@@ -9,9 +9,12 @@ WevoteClassifier::WevoteClassifier( const TaxonomyBuilder &taxonomy )
 
 }
 
-void WevoteClassifier::classify(
+std::vector< double >
+WevoteClassifier::classify(
         std::vector<ReadInfo> &reads,
-        int minNumAgreed, int penalty, int threads) const
+        int minNumAgreed, int penalty,
+        DistanceFunctionType distanceFunction ,
+        int threads  ) const
 {
     LOG_INFO("Preprocessing reads..");
     preprocessReads( reads );
@@ -108,11 +111,25 @@ void WevoteClassifier::classify(
             read.numToolsAgreed=0;
             read.score=0;
         }
+        read.distances = _computeDistance( read );
+        read.cost = distanceFunction( read.distances );
     }
+
+    std::vector< double > netDistance;
+    for( auto i = 0 ; i < reads.front().numToolsUsed ; ++i )
+    {
+        std::vector< double > distances;
+        std::transform( reads.cbegin() , reads.cend() ,
+                        std::back_inserter( distances ) ,
+                        [i]( const ReadInfo &read ){ return read.distances.at( i );});
+        netDistance.push_back( euclideanDistance()( distances ));
+    }
+
     double end = omp_get_wtime();
     double total=end-start;
     LOG_INFO("[DONE] Classification (%d threads)..",threads);
     LOG_INFO("WEVOTE classification executed in=%f" , total );
+    return netDistance;
 }
 
 std::pair< std::vector< ReadInfo > ,  std::vector< std::string >>
@@ -140,7 +157,7 @@ void WevoteClassifier::writeResults(
 
 std::pair<std::vector<ReadInfo>, std::vector<std::string> >
 WevoteClassifier::getClassifiedReads( const std::string &filename  ,
-        bool csv )
+                                      bool csv )
 {
     const std::string delim = (csv)? ",": "\t";
     const std::vector< std::string > lines = io::getFileLines( filename );
@@ -167,6 +184,36 @@ void WevoteClassifier::preprocessReads( std::vector<ReadInfo> &reads ) const
                                                read.annotation.cend() ,
                                                []( uint32_t taxid ){
                 return ReadInfo::isAnnotation( taxid ); });
+}
+
+WevoteClassifier::DistanceFunctionType WevoteClassifier::manhattanDistance()
+{
+    return []( const std::vector< double > &distances )
+    {
+        assert( std::all_of( distances.cbegin() , distances.cend() , []( double e ){return e >= 0 ;}));
+        return std::accumulate( distances.cbegin() , distances.cend() , double(0) , []( double acc , double e )->double{
+            return acc + e;
+        });
+    };
+}
+
+WevoteClassifier::DistanceFunctionType WevoteClassifier::euclideanDistance()
+{
+    return []( const std::vector< double > &distances )
+    {
+        return std::sqrt( std::accumulate( distances.cbegin() , distances.cend() , 0 ,
+                                           []( double acc , double e )->double{
+            return acc + e * e;
+        }));
+    };
+}
+
+std::vector<double> WevoteClassifier::_computeDistance( const ReadInfo &read ) const
+{
+    std::vector< double > distances;
+    for( uint32_t tax : read.annotation )
+        distances.push_back( _taxonomy.distance( read.resolvedTaxon , tax ));
+    return distances;
 }
 
 }

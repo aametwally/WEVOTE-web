@@ -238,8 +238,8 @@ public:
         }
         catch( ... )
         {
-            LOG_WARNING("Trying to get type: <%s> from <%s>", typeid(T).name(),
-                        USTR(_object.serialize()));
+//            LOG_WARNING("Trying to get type: <%s> from <%s>", typeid(T).name(),
+//                        USTR(_object.serialize()));
         }
     }
 private:

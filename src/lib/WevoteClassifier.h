@@ -9,9 +9,13 @@
 
 namespace wevote
 {
+
+
 class WEVOTE_DLL WevoteClassifier
 {
 public:
+    using DistanceFunctionType = std::function<double(const std::vector<double>&)>;
+
     /**
      * @brief WevoteClassifier
      * @param taxonomy
@@ -22,10 +26,11 @@ public:
      * @brief classify
      * @param reads
      */
-    void classify( std::vector< ReadInfo > &reads ,
-                   int minNumAgreed ,
-                   int penalty ,
-                   int threads = 1) const;
+    std::vector<double> classify( std::vector< ReadInfo > &reads ,
+                                  int minNumAgreed ,
+                                  int penalty ,
+                                  DistanceFunctionType distanceFunction = manhattanDistance() ,
+                                  int threads = 1 ) const;
 
     /**
      * @brief getReads
@@ -57,6 +62,20 @@ public:
      * @param reads
      */
     void preprocessReads( std::vector< ReadInfo > &reads ) const;
+
+    /**
+     * @brief manhattanDistance
+     * @return
+     */
+    static DistanceFunctionType manhattanDistance();
+
+    /**
+     * @brief euclideanDistance
+     * @return
+     */
+    static DistanceFunctionType euclideanDistance();
+private:
+    std::vector< double > _computeDistance( const ReadInfo &read ) const;
 
 private:
     const TaxonomyBuilder &_taxonomy;

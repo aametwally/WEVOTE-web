@@ -32,8 +32,9 @@ void WevoteRestHandler::_receiveWevoteEnsemble(http_request message)
             WevoteSubmitEnsemble data =
                     io::DeObjectifier::fromObject< WevoteSubmitEnsemble >( value );
 
-            _classifier.classify( data.getReads() , data.getMinNumAgreed() ,
-                                  data.getPenalty());
+            data.getDistances() =
+                    _classifier.classify( data.getReads() , data.getMinNumAgreed() ,
+                                          data.getPenalty());
 
             uint32_t undefined =
                     std::count_if( data.getReads().cbegin() , data.getReads().cend() ,
@@ -41,7 +42,7 @@ void WevoteRestHandler::_receiveWevoteEnsemble(http_request message)
             {
                 return read.resolvedTaxon == wevote::ReadInfo::noAnnotation;
             });
-                    LOG_INFO("Unresolved taxan=%d/%d",undefined,data.getReads().size());
+            LOG_INFO("Unresolved taxan=%d/%d",undefined,data.getReads().size());
 
             data.getStatus().setPercentage( 100.0 );
             data.getStatus().setCode( Status::StatusCode::SUCCESS );
@@ -74,17 +75,17 @@ void WevoteRestHandler::_transmitJSON( const RemoteAddress &address,
     request.set_body( data );
     try{
         _getClient( address ).request(request)
-                 .then([](http_response response)-> pplx::task<json::value>{
-                 return response.extract_json();
-                 ;})
-                 .then([](pplx::task<json::value> previousTask){
-             try{
-                 const json::value & v = previousTask.get();
-                 LOG_DEBUG("%s" , USTR( v.serialize()));
-             } catch(const std::exception &e){
-                 LOG_DEBUG("%s", e.what());
-             }
-         })
+                .then([](http_response response)-> pplx::task<json::value>{
+            return response.extract_json();
+            ;})
+        .then([](pplx::task<json::value> previousTask){
+            try{
+                const json::value & v = previousTask.get();
+                LOG_DEBUG("%s" , USTR( v.serialize()));
+            } catch(const std::exception &e){
+                LOG_DEBUG("%s", e.what());
+            }
+        })
         .wait();
     } catch(std::exception &e){
         LOG_DEBUG("%s",e.what());

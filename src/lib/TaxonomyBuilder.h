@@ -16,6 +16,8 @@ struct TaxonomyPrivate;
 class TaxonomyBuilder
 {
 public:
+    static constexpr int maxDegree = RANKS_SIZE * 2;
+public:
     /**
      * @brief TaxonomyBuilder
      * @param nodesFilename
@@ -67,12 +69,30 @@ public:
     WEVOTE_DLL uint32_t lca(uint32_t a, uint32_t b) const;
 
     /**
+     * @brief distance
+     * Get Distance (degree) between two nodes.
+     * @param a
+     * @param b
+     * @return
+     * Degree (distance) between two nodes. If any node is undefined,
+     * `ReadInfo::maxDistance` is returned.
+     */
+    WEVOTE_DLL int distance(uint32_t a, uint32_t b) const;
+
+    /**
      * @brief getAncestry
      * Get all ancestry of a taxon.
      * @param taxon
      * @return
      */
-    WEVOTE_DLL std::set<uint32_t> getAncestry(uint32_t taxon) const;
+    WEVOTE_DLL std::set< uint32_t > getAncestry(uint32_t taxon) const;
+
+    /**
+     * @brief getAncestry
+     * @param taxon
+     * @return
+     */
+    WEVOTE_DLL std::vector< uint32_t > getButtomUpAncestry(uint32_t taxon) const;
 
     /**
      * @brief resolveTree

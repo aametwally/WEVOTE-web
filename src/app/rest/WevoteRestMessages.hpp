@@ -196,6 +196,7 @@ public:
         properties.objectify( meta( Meta::Score  ) , _d->score );
         properties.objectify( meta( Meta::Penalty  ) , _d->penalty );
         properties.objectify( meta( Meta::MinNumAgreed  ) , _d->minNumAgreed );
+        properties.objectify( meta( Meta::Distances ) , _d->distances.cbegin() , _d->distances.cend());
     }
 
     const RemoteAddress &getResultsRoute() const
@@ -227,6 +228,12 @@ public:
     {
         return _d->minNumAgreed;
     }
+
+    std::vector< double > &getDistances()
+    {
+        return _d->distances;
+    }
+
 private:
     enum class Meta
     {
@@ -236,7 +243,8 @@ private:
         Reads ,
         Score ,
         Penalty ,
-        MinNumAgreed
+        MinNumAgreed ,
+        Distances
     };
 
     struct Data
@@ -245,6 +253,7 @@ private:
         RemoteAddress resultsRoute;
         Status status;
         std::vector< wevote::ReadInfo > reads;
+        std::vector< double > distances;
         double score;
         double penalty;
         double minNumAgreed;
@@ -261,6 +270,7 @@ private:
         properties.deObjectify( meta( Meta::Score  ) , _d->score );
         properties.deObjectify( meta( Meta::Penalty  ) , _d->penalty );
         properties.deObjectify( meta( Meta::MinNumAgreed  ) , _d->minNumAgreed );
+        properties.deObjectifyArray( meta( Meta::Distances ) , _d->distances );
     }
 
     static const std::map< Meta , std::string > &_metaMap()
@@ -272,7 +282,8 @@ private:
             { Meta::Reads , "reads" } ,
             { Meta::Score , "score" } ,
             { Meta::Penalty , "penalty" } ,
-            { Meta::MinNumAgreed , "minNumAgreed"}
+            { Meta::MinNumAgreed , "minNumAgreed"} ,
+            { Meta::Distances , "distances" }
         };
         return m;
     }

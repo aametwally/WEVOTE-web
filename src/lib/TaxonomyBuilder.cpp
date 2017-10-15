@@ -97,22 +97,60 @@ uint32_t TaxonomyBuilder::correctTaxan( uint32_t taxid ) const
     return taxid;
 }
 
+int TaxonomyBuilder::distance( uint32_t a , uint32_t b ) const
+{
+    if (a == ReadInfo::noAnnotation || b == ReadInfo::noAnnotation )
+        return maxDegree;
+
+    const std::vector< uint32_t > aPath = getButtomUpAncestry( a );
+    try
+    {
+        uint32_t bBranch = 0 ;
+        while (b != ReadInfo::noAnnotation)
+        {
+            auto findIt = std::find( aPath.cbegin() , aPath.cend() , b );
+            if ( findIt != aPath.cend( ))
+                return std::distance( aPath.cbegin() , findIt ) + bBranch;
+            b = _data->standardMap.at( b );
+            ++bBranch;
+        }
+    }catch( const std::out_of_range & )
+    {
+        return maxDegree;
+        LOG_DEBUG("A taxon is undefined in the database");
+    }
+    return maxDegree;
+}
+
+std::vector<uint32_t> TaxonomyBuilder::getButtomUpAncestry(uint32_t taxon) const
+{
+    std::vector<uint32_t> path;
+    try
+    {
+        while ( taxon != ReadInfo::noAnnotation )
+        {
+            path.push_back( taxon );
+            taxon = _data->standardMap.at( taxon );
+        }
+    }catch( const std::out_of_range & )
+    {
+        //        LOG_DEBUG("The taxon = %d is undefined in the database", taxon );
+    }
+    return path;
+}
+
 uint32_t TaxonomyBuilder::lca( uint32_t a, uint32_t b ) const
 {
     if (a == 0 || b == 0)
         return a ? a : b;
 
-    std::set<uint32_t> aPath;
+    const std::set< uint32_t > aPath = getAncestry( a );
     try
     {
-        while (a > 0)
-        {
-            aPath.insert(a);
-            a = _data->standardMap.at( a );
-        }
         while (b > 0)
         {
-            if (aPath.count(b) > 0)
+            auto findIt = aPath.find( b );
+            if ( findIt != aPath.cend())
                 return b;
             b = _data->standardMap.at( b );
         }
@@ -123,7 +161,7 @@ uint32_t TaxonomyBuilder::lca( uint32_t a, uint32_t b ) const
     return 1;
 }
 
-std::set<uint32_t> TaxonomyBuilder::getAncestry( uint32_t taxon ) const
+std::set< uint32_t > TaxonomyBuilder::getAncestry( uint32_t taxon ) const
 {
     std::set<uint32_t> path;
     try
@@ -248,7 +286,7 @@ TaxonomyBuilder::buildFullTaxIdMap( const std::string &filename )
         sscanf( line.c_str() , "%d\t|\t%d", &nodeId, &parentId);
         pmap[nodeId] = parentId;
     }
-    pmap[1] = 0;
+    pmap[1] = ReadInfo::noAnnotation;
     return pmap;
 }
 
@@ -266,7 +304,7 @@ std::map<uint32_t, std::string> TaxonomyBuilder::buildFullRankMap(const std::str
         pmap[nodeId] = rank;
     }
 
-    pmap[1] = Rank::rankLabels[0];
+    pmap[1] = Rank::rankLabels.at( ReadInfo::noAnnotation );
     return pmap;
 }
 

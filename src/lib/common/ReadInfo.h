@@ -22,13 +22,15 @@ public:
         NumToolsReported ,
         NumToolsUsed ,
         Score ,
+        Distances ,
+        Cost,
         Offset
     };
 
     ReadInfo()
         : seqID(""),resolvedTaxon(0),
           numToolsAgreed(0),numToolsReported(0),
-          numToolsUsed(0) , score(0)
+          numToolsUsed(0) , score(0) , cost( 0.0 )
     {}
 
     static std::string classifiedHeader( bool csv , const std::vector< std::string > &tools )
@@ -41,6 +43,15 @@ public:
         {
             if( m == Meta::Votes )
                 headerLayout.insert( headerLayout.cend() , tools.cbegin() , tools.cend());
+            else if( m == Meta::Distances )
+                std::transform( tools.cbegin() , tools.cend() ,
+                                std::back_inserter( headerLayout ) ,
+                                []( const std::string &tool ){
+                    std::stringstream ss;
+                    ss << "dist(" << tool << ")";
+                    return ss.str();
+                });
+
             else
                 headerLayout.push_back( _meta( m ));
         }
@@ -56,11 +67,15 @@ public:
            << numToolsUsed << delim
            << numToolsReported << delim
            << numToolsAgreed<< delim
-           << score << delim
            << io::join(
                   io::asStringsVector( annotation.cbegin() ,
                                        annotation.cend()) , delim) << delim
-           << resolvedTaxon << "\n";
+           << resolvedTaxon  << delim
+           << io::join(
+                  io::asStringsVector( distances.cbegin() ,
+                                       distances.cend()) , delim ) <<  delim
+           << cost << delim
+           << score << "\n";
         return ss.str();
     }
 
@@ -117,12 +132,11 @@ public:
     static std::pair< std::vector< ReadInfo > ,  std::vector< std::string >>
     parseClassifiedReads( LineIt firstIt , LineIt lastIt , std::string delim = "," )
     {
-        const auto minFieldsCount = static_cast< size_t >( Meta::Offset );
         auto validateInput = [&]()
         {
             const auto tokens = io::split( *firstIt , delim );
             const size_t count = tokens.size();
-            return count >= minFieldsCount &&
+            return count >= static_cast< size_t >( Meta::Offset ) &&
                     std::all_of( firstIt , lastIt ,
                                  [count,&delim]( const std::string &line )
             {
@@ -133,7 +147,6 @@ public:
         WEVOTE_ASSERT( validateInput() , "Inconsistent input file!");
 
         std::vector< std::string > tools;
-
         // Skip header.
         if( isHeader(*firstIt , delim ))
         {
@@ -143,7 +156,7 @@ public:
         else
         {
             const auto tokens = io::split( *firstIt , delim );
-            const auto toolsCount = tokens.size() - static_cast< std::size_t >( Meta::Offset ) + 1;
+            const auto toolsCount = std::stoi( tokens.at( static_cast<size_t>( Meta::NumToolsUsed )));
             for( auto i = 0 ; i < toolsCount ; i++ )
                 tools.push_back( "ALG"  + io::toString< std::string >( i ));
         }
@@ -153,21 +166,27 @@ public:
                        [&classifiedReads,&delim]( const std::string &line )
         {
             const std::vector< std::string > tokens =  io::split( line , delim );
-            auto tokensIt = tokens.begin();
+            auto tokensIt = tokens.cbegin();
             ReadInfo classifiedRead;
             classifiedRead.seqID = *tokensIt++;
             classifiedRead.numToolsUsed = std::stoi( *(tokensIt++));
             classifiedRead.numToolsReported = std::stoi( *(tokensIt++));
             classifiedRead.numToolsAgreed = std::stoi( *(tokensIt++));
             classifiedRead.score = std::stod( *(tokensIt++));
-            std::vector< std::string > annotations(tokensIt , std::prev( tokens.end()));
-            std::transform( annotations.cbegin() , annotations.cend() ,
-                            std::inserter( classifiedRead.annotation ,
-                                           classifiedRead.annotation.end()),
+            std::transform( tokensIt , std::next( tokensIt, classifiedRead.numToolsUsed ) ,
+                            std::back_inserter( classifiedRead.annotation ),
                             []( const std::string &annStr ){
                 return std::stoi( annStr );
             });
-            classifiedRead.resolvedTaxon = std::stoi( tokens.back());
+            std::advance( tokensIt , classifiedRead.numToolsUsed );
+            classifiedRead.resolvedTaxon = std::stoi( *(tokensIt++));
+            std::transform( tokensIt , std::next( tokensIt, classifiedRead.numToolsUsed ) ,
+                            std::back_inserter( classifiedRead.distances ) ,
+                            []( const std::string &distance ){
+                return std::stod( distance );
+            });
+            std::advance( tokensIt , classifiedRead.numToolsUsed );
+            classifiedRead.cost = std::stod( *tokensIt );
             classifiedReads.push_back( classifiedRead );
         });
         return std::make_pair< std::vector< ReadInfo > , std::vector< std::string > >(
@@ -192,9 +211,8 @@ public:
     extractToolsFromClassifiedHeader( const std::string &header , std::string delim = ",")
     {
         const auto tokens = io::split( header , delim );
-        const auto headerSize = tokens.size();
         const auto toolsOffset = static_cast< std::size_t >( Meta::Votes );
-        const auto toolsCount = headerSize - static_cast< std::size_t >( Meta::Offset ) + 1;
+        const auto toolsCount = std::stoi( tokens.at( static_cast< std::size_t >( Meta::NumToolsUsed )));
         return std::vector< std::string >( tokens.cbegin() + toolsOffset ,
                                            tokens.cbegin() + toolsOffset + toolsCount );
     }
@@ -211,6 +229,8 @@ public:
         properties.objectify( meta( Meta::Score  ) , score );
         properties.objectify( meta( Meta::Votes  ) , annotation.cbegin() , annotation.cend());
         properties.objectify( meta( Meta::ResolvedTaxon  ) , resolvedTaxon );
+        properties.objectify( meta( Meta::Distances ) , distances.cbegin() , distances.cend());
+        properties.objectify( meta( Meta::Cost ) , cost );
     }
 
     std::string seqID;
@@ -220,6 +240,8 @@ public:
     uint32_t numToolsReported;
     uint32_t numToolsUsed;
     double score;
+    std::vector< double > distances;
+    double cost;
     WEVOTE_DLL static bool isAnnotation( uint32_t taxid );
     WEVOTE_DLL static constexpr uint32_t noAnnotation = NO_ANNOTATIOIN;
 
@@ -235,6 +257,8 @@ protected:
         properties.deObjectify( meta( Meta::Score  ) , score );
         properties.deObjectifyArray( meta( Meta::Votes  ) , annotation );
         properties.deObjectify( meta( Meta::ResolvedTaxon  ) , resolvedTaxon );
+        properties.deObjectifyArray( meta( Meta::Distances ) , distances );
+        properties.deObjectify( meta( Meta::Cost ) , cost );
     }
 
     static const std::map< Meta , std::string> &_metaMap()
@@ -247,7 +271,9 @@ protected:
             { Meta::ResolvedTaxon , "resolvedTaxon" } ,
             { Meta::Score , "score" } ,
             { Meta::SeqId , "seqId" } ,
-            { Meta::Votes , "votes" }
+            { Meta::Votes , "votes" } ,
+            { Meta::Distances , "distances" },
+            { Meta::Cost , "cost" }
         };
         return mmap;
     }
@@ -258,7 +284,7 @@ protected:
         return
         {
             Meta::SeqId , Meta::NumToolsUsed , Meta::NumToolsReported , Meta::NumToolsAgreed ,
-                    Meta::Score , Meta::Votes , Meta::ResolvedTaxon
+                    Meta::Votes , Meta::ResolvedTaxon , Meta::Distances , Meta::Cost , Meta::Score
         };
     }
 
