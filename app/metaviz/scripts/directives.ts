@@ -516,8 +516,8 @@ left: ${this._w / 2 - 70}px;
                 return [entry.seqId]
                     .concat(<any>entry.votes)
                     .concat(<any>[entry.resolvedTaxon])
-                    .concat(<any>entry.distances) 
-                    .concat(<any>[ entry.cost , entry.score ]).join(seperator);
+                    .concat(<any>entry.distances)
+                    .concat(<any>[entry.cost, entry.score]).join(seperator);
             })).join("\n");
 
             const a = window.document.createElement('a');
@@ -573,13 +573,13 @@ left: ${this._w / 2 - 70}px;
                     const zValues = entries.map((entry: IWevoteTableEntry) => {
                         const zRow = entry.votes.map((v: number) => { return 0; })
                             .concat(0)
-                            .concat((<any>entry).distances.map((d:number)=>{return -d;}))
+                            .concat((<any>entry).distances.map((d: number) => { return -d; }))
                             .concat([-(<any>entry).cost, (<any>entry).score]);
 
                         for (let i = 0; i < minMax.length; ++i) {
                             let col = 0;
-                            const values = zRow.slice( entry.votes.length + 1 );
-                            for (let value of values ) {
+                            const values = zRow.slice(entry.votes.length + 1);
+                            for (let value of values) {
                                 if (value > minMax[col].max)
                                     minMax[col].max = value;
                                 if (value < minMax[col].min)
@@ -589,53 +589,52 @@ left: ${this._w / 2 - 70}px;
                         }
                         return zRow;
                     });
-                    
+
                     const offset = (<any>entries[0]).votes.length + 1;
-                    zValues.forEach((row: number[],index:number) => {
-                        for (let i = offset; i < row.length ; ++i)
-                            zValues[index][i] = (row[i] - minMax[i-offset].min) / (minMax[i-offset].max - minMax[i-offset].min);
+                    zValues.forEach((row: number[], index: number) => {
+                        for (let i = offset; i < row.length; ++i)
+                            zValues[index][i] = (row[i] - minMax[i - offset].min) / (minMax[i - offset].max - minMax[i - offset].min);
                     });
 
-                    const txt = entries.map((entry: IWevoteTableEntry) => {
+                    const label = entries.map((entry: IWevoteTableEntry) => {
                         return entry.votes.map((tax: number) => { return `${tax}`; })
                             .concat([`${entry.resolvedTaxon}`])
-                            .concat( (<any>entry).distances.map((d: number) => { return `${d.toFixed(2)}`; }))
+                            .concat((<any>entry).distances.map((d: number) => { return `${d.toFixed(2)}`; }))
                             .concat([`${(<any>entry).cost.toFixed(2)}`, `${(<any>entry).score.toFixed(2)}`]);
                     });
 
-                    const data: any = {
-                        x: xValues,
-                        y: yValues,
-                        z: zValues,
-                        text: entries.map((entry: IWevoteTableEntry) => {
-                            return entry.votes.map((tax: number, index: number) => {
-                                return `
+                    const hoverText = entries.map((entry: IWevoteTableEntry) => {
+                        return entry.votes.map((tax: number, index: number) => {
+                            return `
 seq: ${entry.seqId}<br>
 ${xValues[index]}: ${tax}<br>
 `;
-                            }).concat([
-                                `
+                        }).concat([
+                            `
 seq: ${entry.seqId}<br>
 WEVOTE: ${entry.resolvedTaxon}<br>
 score: ${(<any>entry).score.toFixed(2)}
 `
-                            ]).concat((<any>entry).distances.map((d: number, index: number) => {
-                                return `
+                        ]).concat((<any>entry).distances.map((d: number, index: number) => {
+                            return `
 seq: ${entry.seqId}<br>
-${xValues[entry.votes.length + index]}: ${d.toFixed(2)}<br>
+${xValues[entry.votes.length + 1 + index]}: ${d.toFixed(2)}<br>
 `
-                            })).concat([
-                                `
+                        })).concat([
+                            `
 seq: ${entry.seqId}<br>
 cost: ${(<any>entry).cost.toFixed(2)} 
 `                               ,
 
-                                `
+                            `
 seq: ${entry.seqId}<br>
 score: ${(<any>entry).score.toFixed(2)} 
 `
-                            ]);
-                        }),
+                        ]);
+                    });
+
+                    const data: any = {
+                        x: xValues,
                         hoverinfo: 'text',
                         type: 'heatmap',
                         colorscale: 'Viridis',
@@ -672,7 +671,7 @@ score: ${(<any>entry).score.toFixed(2)}
                                 yref: 'y1',
                                 x: xValues[j],
                                 y: yValues[i],
-                                text: txt[i][j],
+                                text: label[i][j],
                                 font: {
                                     family: 'Arial',
                                     size: 12,
@@ -702,6 +701,7 @@ score: ${(<any>entry).score.toFixed(2)}
                         const range: any = [pages[currentPage][0], pages[currentPage][1]];
                         data.y = yValues.slice(pages[currentPage][0], pages[currentPage][1]);
                         data.z = zValues.slice(pages[currentPage][0], pages[currentPage][1]);
+                        data.text = hoverText.slice(pages[currentPage][0], pages[currentPage][1]);
 
                         layout.title = `WEVOTE Classification (${currentPage + 1}/${pagesCount})`;
                         layout.annotations = annotations.slice(
