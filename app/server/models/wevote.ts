@@ -11,11 +11,13 @@ import * as common from '../common/common';
 
 export interface IWevoteClassification extends common.IWevoteClassification, mongoose.Document {
     votes: mongoose.Types.Array<number>,
+    distances: mongoose.Types.Array<number>
 }
 
 export interface IWevoteClassificationPatch extends common.IWevoteClassificationPatch, mongoose.Document {
     experiment: mongoose.Types.ObjectId,
     patch: mongoose.Types.Array<IWevoteClassification>
+    distances: mongoose.Types.Array<number>
 }
 
 export const wevoteClassificationSchema = new mongoose.Schema({
@@ -41,6 +43,12 @@ export const wevoteClassificationSchema = new mongoose.Schema({
     },
     score: {
         type: Number
+    },
+    distances: {
+        type: [Number]
+    },
+    cost :{
+        type: Number
     }
 });
 
@@ -58,6 +66,9 @@ export class WevoteClassificationPatchModel {
         },
         status: {
             type: statusSchema
+        },
+        distances:{
+            type: [Number]
         }
 
     });
@@ -124,11 +135,6 @@ export class WevoteClassificationPatchModel {
             if (err) throw err;
             let unclassifiedReads = WevoteClassificationPatchModel.parseUnclassifiedEnsemble(data);
 
-            const wevotePatch = <IWevoteClassificationPatch>{
-                experiment: experiment._id,
-                patch: <any>unclassifiedReads
-            };
-
             const submission: common.IWevoteSubmitEnsemble = {
                 jobID: experiment._id,
                 resultsRoute: {
@@ -140,7 +146,8 @@ export class WevoteClassificationPatchModel {
                 reads: unclassifiedReads,
                 score: experiment.config.minScore,
                 penalty: experiment.config.penalty,
-                minNumAgreed: experiment.config.minNumAgreed
+                minNumAgreed: experiment.config.minNumAgreed,
+                distances: <any>[]
             };
             cb(submission);
         });

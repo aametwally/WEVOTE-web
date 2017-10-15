@@ -57,6 +57,7 @@ declare namespace common {
         score: number;
         penalty: number;
         minNumAgreed: number;
+        distances: number[];
     }
     interface IWevoteClassification {
         seqId: string;
@@ -66,10 +67,13 @@ declare namespace common {
         numToolsAgreed?: number;
         numToolsUsed?: number;
         score?: number;
+        distances?: number[];
+        cost?: number;
     }
     interface IWevoteClassificationPatch {
         experiment: any;
         patch: IWevoteClassification[];
+        distances: number[];
         status: IStatus;
     }
     interface IAlgorithm {
@@ -83,8 +87,8 @@ declare namespace common {
         penalty: number;
     }
     interface IResults {
-        wevoteClassification: IWevoteClassificationPatch;
-        taxonomyAbundanceProfile: ITaxonomyAbundanceProfile;
+        wevoteClassification: any;
+        taxonomyAbundanceProfile: any;
     }
     interface IUsageScenario {
         value: string;
@@ -194,24 +198,12 @@ declare namespace metaviz {
         private hierarchyAsObject(tree);
         private buildHierarchy;
     }
-    interface ITaxInfo {
-        id: number;
-        name?: string;
-        link?: string;
-    }
     type WevoteTableHeaderFunction = (config: common.IConfig) => string[];
     const wevoteTableHeader: WevoteTableHeaderFunction;
     const abundanceTableHeader: string[];
-    interface IWevoteTableEntry {
-        seqId: string;
-        votes: ITaxInfo[];
-        resolvedTaxon: ITaxInfo;
-        score: number;
+    interface IWevoteTableEntry extends common.IWevoteClassification {
     }
-    interface IAbundanceTableEntry {
-        taxon: ITaxInfo;
-        count: number;
-        taxline: common.ITaxLine;
+    interface IAbundanceTableEntry extends common.ITaxonomyAbundance {
     }
     interface ITableScope<E> extends ng.IScope {
         results: IResults;

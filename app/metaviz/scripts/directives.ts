@@ -272,7 +272,7 @@ color: #666;
 sz-index: -1;
 visibility: hidden;
 width:${140}px; 
-top: ${this._h / 2 - 70 }px;
+top: ${this._h / 2 - 70}px;
 left: ${this._w / 2 - 70}px;
 `
                 );
@@ -514,8 +514,10 @@ left: ${this._w / 2 - 70}px;
         private downloadWevolteClassification = (header: string[], data: IWevoteTableEntry[], seperator: string = ',') => {
             const textual: string = [header.join(seperator)].concat(data.map((entry: IWevoteTableEntry) => {
                 return [entry.seqId]
-                    .concat(entry.votes.map((e: ITaxInfo) => { return `${e.id}`; }))
-                    .concat([`${entry.resolvedTaxon.id}`, `${entry.score}`]).join(seperator);
+                    .concat(<any>entry.votes)
+                    .concat(<any>[entry.resolvedTaxon])
+                    .concat(<any>entry.distances) 
+                    .concat(<any>[ entry.cost , entry.score ]).join(seperator);
             })).join("\n");
 
             const a = window.document.createElement('a');
@@ -555,15 +557,50 @@ left: ${this._w / 2 - 70}px;
             const heatmap = heatmapDiv.append('div');
             const heatmapElement = <any>heatmap.node();
             scope.$watch('entries', (entries: Array<IWevoteTableEntry>) => {
+                interface IMinMax {
+                    max: number,
+                    min: number
+                };
+
                 if (entries && scope.header) {
+                    const minMax = new Array<IMinMax>();
+                    for (let i = 0; i < (<any>entries[0]).distances.length + 2; ++i)
+                        minMax.push({ max: -Infinity, min: Infinity });
+
+
                     const xValues = scope.header.slice(1);
                     const yValues = entries.map((entry: IWevoteTableEntry) => { return entry.seqId; });
                     const zValues = entries.map((entry: IWevoteTableEntry) => {
-                        return [0, 0, 0, 0, entry.score];
+                        const zRow = entry.votes.map((v: number) => { return 0; })
+                            .concat(0)
+                            .concat((<any>entry).distances.map((d:number)=>{return -d;}))
+                            .concat([-(<any>entry).cost, (<any>entry).score]);
+
+                        for (let i = 0; i < minMax.length; ++i) {
+                            let col = 0;
+                            const values = zRow.slice( entry.votes.length + 1 );
+                            for (let value of values ) {
+                                if (value > minMax[col].max)
+                                    minMax[col].max = value;
+                                if (value < minMax[col].min)
+                                    minMax[col].min = value;
+                                ++col;
+                            }
+                        }
+                        return zRow;
                     });
+                    
+                    const offset = (<any>entries[0]).votes.length + 1;
+                    zValues.forEach((row: number[],index:number) => {
+                        for (let i = offset; i < row.length ; ++i)
+                            zValues[index][i] = (row[i] - minMax[i-offset].min) / (minMax[i-offset].max - minMax[i-offset].min);
+                    });
+
                     const txt = entries.map((entry: IWevoteTableEntry) => {
-                        return entry.votes.map((tax: ITaxInfo) => { return `${tax.id}`; })
-                            .concat([`${entry.resolvedTaxon.id}`, `${entry.score.toFixed(2)}`]);
+                        return entry.votes.map((tax: number) => { return `${tax}`; })
+                            .concat([`${entry.resolvedTaxon}`])
+                            .concat( (<any>entry).distances.map((d: number) => { return `${d.toFixed(2)}`; }))
+                            .concat([`${(<any>entry).cost.toFixed(2)}`, `${(<any>entry).score.toFixed(2)}`]);
                     });
 
                     const data: any = {
@@ -571,25 +608,38 @@ left: ${this._w / 2 - 70}px;
                         y: yValues,
                         z: zValues,
                         text: entries.map((entry: IWevoteTableEntry) => {
-                            return entry.votes.map((tax: ITaxInfo, index: number) => {
+                            return entry.votes.map((tax: number, index: number) => {
                                 return `
-seq.id: ${entry.seqId}<br>
-${xValues[index]}: ${entry.resolvedTaxon.id}<br>
+seq: ${entry.seqId}<br>
+${xValues[index]}: ${tax}<br>
 `;
                             }).concat([
                                 `
-seq.id: ${entry.seqId}<br>
-WEVOTE: ${entry.resolvedTaxon.id}<br>
-score: ${entry.score.toFixed(2)}
-`, `
-seq.id: ${entry.seqId}<br>
-score: ${entry.score.toFixed(2)}
+seq: ${entry.seqId}<br>
+WEVOTE: ${entry.resolvedTaxon}<br>
+score: ${(<any>entry).score.toFixed(2)}
+`
+                            ]).concat((<any>entry).distances.map((d: number, index: number) => {
+                                return `
+seq: ${entry.seqId}<br>
+${xValues[entry.votes.length + index]}: ${d.toFixed(2)}<br>
+`
+                            })).concat([
+                                `
+seq: ${entry.seqId}<br>
+cost: ${(<any>entry).cost.toFixed(2)} 
+`                               ,
+
+                                `
+seq: ${entry.seqId}<br>
+score: ${(<any>entry).score.toFixed(2)} 
 `
                             ]);
                         }),
                         hoverinfo: 'text',
                         type: 'heatmap',
-                        colorscale: 'Viridis'
+                        colorscale: 'Viridis',
+                        showscale: false
                     };
 
                     let layout: any = {
@@ -728,7 +778,7 @@ score: ${entry.score.toFixed(2)}
             const textual: string = [header.concat([
                 'superkingdom', 'kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species'
             ]).join(seperator)].concat(data.map((entry: IAbundanceTableEntry) => {
-                return [entry.taxon.id, entry.count,
+                return [entry.taxon, entry.count,
                 entry.taxline.superkingdom,
                 entry.taxline.kingdom,
                 entry.taxline.phylum,
@@ -778,7 +828,7 @@ score: ${entry.score.toFixed(2)}
             scope.$watch('entries', (entries: Array<IAbundanceTableEntry>) => {
                 if (entries && scope.header) {
                     const xValues = scope.header.slice(1);
-                    const yValues = entries.map((entry: IAbundanceTableEntry) => { return entry.taxon.id; });
+                    const yValues = entries.map((entry: IAbundanceTableEntry) => { return entry.taxon; });
                     const zValues = entries.map((entry: IAbundanceTableEntry) => {
                         return [Math.log(entry.count)];
                     });

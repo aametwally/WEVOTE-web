@@ -60,7 +60,8 @@ export interface IWevoteSubmitEnsemble {
     status: IStatus,
     score: number,
     penalty: number,
-    minNumAgreed: number
+    minNumAgreed: number , 
+    distances: number[]
 }
 
 export interface IWevoteClassification {
@@ -70,12 +71,15 @@ export interface IWevoteClassification {
     numToolsReported?: number,
     numToolsAgreed?: number,
     numToolsUsed?: number,
-    score?: number
+    score?: number ,
+    distances?: number[] ,
+    cost?: number
 }
 
 export interface IWevoteClassificationPatch {
     experiment: any;
     patch: IWevoteClassification[];
+    distances: number[];
     status: IStatus;
 }
 

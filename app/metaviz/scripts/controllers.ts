@@ -295,38 +295,28 @@ namespace metaviz {
         }
     }
 
-
-
-    export interface ITaxInfo {
-        id: number,
-        name?: string,
-        link?: string
-    }
-
     export type WevoteTableHeaderFunction = (config: common.IConfig) => string[];
 
     export const wevoteTableHeader: WevoteTableHeaderFunction = (config: common.IConfig) => {
         const algorithms: common.IAlgorithm[] = config.algorithms;
         return ['seq'].concat(algorithms.map((alg: common.IAlgorithm) => {
             return alg.name;
-        })).concat(['resolved tax', 'score']);
+        })).concat(['WEVOTE'])
+            .concat(algorithms.map((alg: common.IAlgorithm) => {
+                return `dist(${alg.name})`;
+            }))
+            .concat(['cost', 'score']);
     };
     export const abundanceTableHeader = ['tax.id', 'count'];
 
-    export interface IWevoteTableEntry {
-        seqId: string,
-        votes: ITaxInfo[],
-        resolvedTaxon: ITaxInfo,
-        score: number
+    export interface IWevoteTableEntry extends common.IWevoteClassification {
+
     }
 
-    export interface IAbundanceTableEntry {
-        taxon: ITaxInfo,
-        count: number,
-        taxline: common.ITaxLine
+    export interface IAbundanceTableEntry extends common.ITaxonomyAbundance {
     }
 
-    export interface ITableScope< E > extends ng.IScope {
+    export interface ITableScope<E> extends ng.IScope {
         results: IResults,
         config: common.IConfig,
         header: string[],
@@ -347,14 +337,7 @@ namespace metaviz {
         protected processResults = (wevoteClassification: Array<common.IWevoteClassification>,
             config: common.IConfig) => {
             this._scope.header = wevoteTableHeader(config);
-            this._scope.entries = wevoteClassification.map( (wevoteInfo: common.IWevoteClassification)=>{
-                return {
-                    seqId: wevoteInfo.seqId , 
-                    votes: wevoteInfo.votes.map( (taxid:number)=> {return{id:taxid };}) , 
-                    resolvedTaxon: { id: wevoteInfo.resolvedTaxon || 0 } ,
-                    score : wevoteInfo.score || 0
-                } ;
-            });
+            this._scope.entries = wevoteClassification;
         }
     }
 
@@ -373,13 +356,7 @@ namespace metaviz {
         protected processResults = (abundance: Array<common.ITaxonomyAbundance>,
             config: common.IConfig) => {
             this._scope.header = abundanceTableHeader;
-            this._scope.entries = abundance.map( (taxAbundance: common.ITaxonomyAbundance)=>{
-                return <IAbundanceTableEntry>{
-                    taxon: {id:taxAbundance.taxon} , 
-                    count : taxAbundance.count , 
-                    taxline: taxAbundance.taxline
-                };
-            });
+            this._scope.entries = abundance;
         }
     }
 
@@ -388,8 +365,8 @@ namespace metaviz {
         .controller('DonutChartController', DonutChartController.$inject)
         .controller('VennDiagramController', VennDiagramController.$inject)
         .controller('AbundanceSunburstController', AbundanceSunburstController.$inject)
-        .controller('WevoteTableController',WevoteTableController.$inject)
-        .controller('AbundanceTableController',AbundanceTableController.$inject)
-        
+        .controller('WevoteTableController', WevoteTableController.$inject)
+        .controller('AbundanceTableController', AbundanceTableController.$inject)
+
         ;
 }

@@ -1,4 +1,5 @@
 declare namespace common {
+
     export interface ITaxLine {
         taxon: number;
         root: string;
@@ -11,18 +12,18 @@ declare namespace common {
         genus: string;
         species: string;
     }
-
+    
     export interface ITaxonomyAbundance {
         taxon: number;
         count: number;
         taxline: ITaxLine;
     }
-
+    
     export interface ITaxonomyAbundanceProfile {
         experiment: any,
         abundance: ITaxonomyAbundance[];
     }
-
+    
     export interface IUser {
         username: string;
         password: string;
@@ -31,28 +32,28 @@ declare namespace common {
         createdAt: Date;
         modifiedAt: Date;
     }
-
-
+    
+    
     export interface IRemoteAddress {
         host: string,
         port: number,
         relativePath: string
     }
-
-
+    
+    
     export enum EStatus {
         NOT_STARTED,
         IN_PROGRESS,
         SUCCSESS,
         FAILURE
     }
-
+    
     export interface IStatus {
         code: EStatus,
         message: string,
         percentage: number
     }
-
+    
     export interface IWevoteSubmitEnsemble {
         jobID: string,
         resultsRoute: IRemoteAddress,
@@ -60,9 +61,10 @@ declare namespace common {
         status: IStatus,
         score: number,
         penalty: number,
-        minNumAgreed: number
+        minNumAgreed: number , 
+        distances: number[]
     }
-
+    
     export interface IWevoteClassification {
         seqId: string,
         votes: number[],
@@ -70,38 +72,41 @@ declare namespace common {
         numToolsReported?: number,
         numToolsAgreed?: number,
         numToolsUsed?: number,
-        score?: number
+        score?: number ,
+        distances?: number[] ,
+        cost?: number
     }
-
+    
     export interface IWevoteClassificationPatch {
         experiment: any;
         patch: IWevoteClassification[];
+        distances: number[];
         status: IStatus;
     }
-
+    
     export interface IAlgorithm {
         name: string;
         used: boolean;
     }
-
+    
     export interface IConfig {
         algorithms: IAlgorithm[];
         minNumAgreed: number;
         minScore: number;
         penalty: number;
     }
-
+    
     export interface IResults {
-        wevoteClassification: IWevoteClassificationPatch;
-        taxonomyAbundanceProfile: ITaxonomyAbundanceProfile;
+        wevoteClassification: any;
+        taxonomyAbundanceProfile: any;
     }
-
+    
     export interface IUsageScenario {
         value: string;
         usage: string;
         hint?: string;
     }
-
+    
     export interface IRemoteFile {
         name: string,
         description: string,
@@ -112,7 +117,7 @@ declare namespace common {
         tag?: string,
         count?: number
     }
-
+    
     export interface IExperiment {
         user: any;
         isPrivate: boolean;
@@ -127,5 +132,5 @@ declare namespace common {
         usageScenario: IUsageScenario;
         createdAt?: Date;
         modifiedAt?: Date;
-    }
+    }    
 }

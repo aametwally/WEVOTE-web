@@ -225,7 +225,8 @@ export class ExperimentRouter extends BaseRoute {
                             status: <any>{},
                             score: exp.config.minScore,
                             minNumAgreed: exp.config.minNumAgreed,
-                            penalty: exp.config.penalty
+                            penalty: exp.config.penalty , 
+                            distances: <any>[]
                         };
                     const options: http.RequestOptions = {
                         host: config.cppWevoteUrl,
