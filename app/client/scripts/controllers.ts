@@ -45,7 +45,6 @@ module wevote {
         message: string,
         formError: boolean,
         formErrorMessage: string,
-        taxonomyError: boolean,
         usageError: boolean,
         usageErrorMessage: string,
         emailError: boolean,
@@ -61,9 +60,7 @@ module wevote {
         readsUploader: any,
         readsUploaderPostValidation: boolean,
         ensembleUploader: any,
-        ensembleUploaderPostValidation: boolean,
-        taxonomyUploader: any,
-        taxonomyUploaderPostValidation: boolean
+        ensembleUploaderPostValidation: boolean
     }
     export class InputController {
 
@@ -148,12 +145,10 @@ module wevote {
             this._scope.formError = false;
             this._scope.formErrorMessage = '';
 
-            this._scope.taxonomyError = false;
             this._scope.emailError = false;
             this._scope.emailErrorMessage = '';
 
             this._scope.usageScenarios = this.usageScenarios;
-            this._scope.taxonomySources = this.taxonomySources;
 
             this._scope.availableDatabase = [];
             this._scope.selectiveAlgorithms = true;
@@ -219,8 +214,6 @@ module wevote {
             this._scope.readsUploaderPostValidation = true;
             this._scope.ensembleUploader = null;
             this._scope.ensembleUploaderPostValidation = true;
-            this._scope.taxonomyUploader = null;
-            this._scope.taxonomyUploaderPostValidation = true;
 
             // Watchers!
             // this._scope.experiment.usageScenario.value;
@@ -284,32 +277,14 @@ module wevote {
 
             this._scope.$watchGroup(
                 [
-                    'taxonomyError',
                     'emailError',
                     'usageError'
                 ],
                 (newVal: any, oldVal: any, scope: ng.IScope) => {
                     this._scope.formError =
                         this._scope.usageError ||
-                        this._scope.taxonomyError ||
                         this._scope.emailError;
                 });
-            this._scope.$watchGroup(
-                [
-                    'experiment.taxonomySource.value',
-                    'taxonomyUploader.atLeastSingleFileUploaded',
-                    'taxonomyUploaderPostValidation'
-                ],
-                (newVal: any, oldVal: any, scope: ng.IScope) => {
-                    if (this._scope.inputForm.form &&
-                        !this._scope.inputForm.form.taxonomyOptionSelect.$pristine)
-                        this._scope.taxonomyError =
-                            this._scope.experiment.taxonomy.name === 'custom'
-                            && !this._scope.taxonomyUploader.atLeastSingleFileUploaded
-                            && this._scope.taxonomyUploaderPostValidation;
-                    else this._scope.taxonomyError = false;
-                }
-            );
 
             this._scope.$watchGroup(
                 [
@@ -476,42 +451,6 @@ module wevote {
             this._scope.experiment.ensemble.name =
                 JSON.parse(JSON.stringify(fileItem.file.name));
             this._scope.experiment.ensemble.size =
-                JSON.parse(JSON.stringify(fileItem.file.size));
-
-            setTimeout(function () {
-                $("[data-toggle='tooltip']").tooltip({
-                    trigger: 'hover'
-                });
-            }, 500);
-        };
-    }
-
-    export class TaxonomyUploaderController extends UploaderController {
-        static readonly $inject = ['$scope', 'FileUploaderService', TaxonomyUploaderController];
-
-        constructor($scope: ng.IScope, FileUploaderService: any) {
-            super($scope, FileUploaderService)
-            this._uploader = FileUploaderService.getFileUploader(
-                'upload/taxonomy', 'Drop taxonomy file here', 'Custom taxonomy uploader');
-            this._uploader.onSuccessItem = this.onSuccessItemCB;
-            this._uploader.onAfterAddingFile = this.onAfterAddingFileCB;
-            this._scope.uploader = this._uploader;
-        }
-
-        protected onSuccessItemCB = (fileItem: any, response: any, status: any, headers: any) => {
-            // console.info('onSuccessItem', fileItem, response, status, headers);
-            console.log('success', response, headers);
-            this._scope.experiment.taxonomy.uri =
-                JSON.parse(JSON.stringify(headers.filename));
-        };
-
-        protected onAfterAddingFileCB = (fileItem: any) => {
-            console.info('onAfterAddingFile', fileItem);
-            this._scope.uploader.queue = [fileItem];
-
-            this._scope.experiment.taxonomy.name =
-                JSON.parse(JSON.stringify(fileItem.file.name));
-            this._scope.experiment.taxonomy.size =
                 JSON.parse(JSON.stringify(fileItem.file.size));
 
             setTimeout(function () {
@@ -826,7 +765,6 @@ module wevote {
         .controller('MainController', MainController.$inject)
         .controller('InputController', InputController.$inject)
         .controller('ReadsUploaderController', ReadsUploaderController.$inject)
-        .controller('TaxonomyUploaderController', TaxonomyUploaderController.$inject)
         .controller('EnsembleUploaderController', EnsembleUploaderController.$inject)
         .controller('HeaderController', HeaderController.$inject)
         .controller('LoginController', LoginController.$inject)
