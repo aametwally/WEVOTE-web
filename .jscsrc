@@ -1,0 +1,8 @@
+{
+  "preset": "airbnb",
+  "excludeFiles": [
+    "./app/client/gulpfile.js",
+    "./app/server/gulpfile.js",
+    "./app/gulpfile.js"
+  ]
+}

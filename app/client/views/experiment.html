@@ -1,0 +1,90 @@
+<div ng-controller="ExperimentsListController">
+    <div ng-if="!showExperiments" class="{{experimentsError? 'alert alert-danger' :'alert alert-warning'}}" role="alert">{{experimentsMessage}}</div>
+    <div ng-if="showExperiments">
+
+        <div class="row row-content">
+            <div class="col-xs-offset-1 col-xs-11 col-lg-5">
+
+                <div class="panel panel-default panel-submission-form">
+                    <div class="panel-heading" role="tab" id="headingInput">
+                        <h3 class="panel-title">
+                            Track Experiments
+                        </h3>
+                    </div>
+                    <div role="tabpanel" class="tab-pane">
+                        <div class="panel-body data-submission-form table-scrollable">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Configurations</th>
+                                        <th>#Reads</th>
+                                        <th>Progress</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="exp in experiments">
+                                        <td><strong>{{ exp.user['username'] }}</strong></td>
+                                        <td>
+                                            <a ng-attr-id="{{exp._id}}" class="btn btn-primary btn-xs" data-toggle="tooltip" title="Used Algorithms" href='#'>N={{exp.config.algorithms.length}}</a>
+                                            <div ng-attr-id="{{'data-'+exp._id}}" style="display: none">
+                                                <ul class="list-inline">
+                                                    <li ng-repeat="alg in exp.config.algorithms"><span class="label label-warning">{{alg.name}}</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+
+                                            <a ng-attr-id="{{'param-'+exp._id}}" class="btn btn-default btn-xs" data-toggle="tooltip" title="Parameters" href='#'><span class="fa fa-cog"></span></a>
+                                            <div ng-attr-id="{{'param-data-'+exp._id}}" style="display: none">
+                                                <ul class="list-group">
+                                                    <li class="list-group-item">Minimum Score = {{exp.config.minScore}}</li>
+                                                    <li class="list-group-item">Min Number Agreed = {{exp.config.minNumAgreed}}</li>
+                                                    <li class="list-group-item">Penalty = {{exp.config.penalty}}</li>
+                                                </ul>
+                                            </div>
+
+                                            <a ng-attr-id="{{'desc-'+exp._id}}" class="btn btn-default btn-xs" data-toggle="tooltip" title="Description" href='#'><span
+                                    class="glyphicon glyphicon-info-sign"></span></a>
+                                            <div ng-attr-id="{{'desc-data-'+exp._id}}" style="display: none">
+                                                <p class="bg-info">{{exp.description}}</p>
+                                            </div>
+
+                                        </td>
+                                        <td nowrap>{{exp.reads.count | shortNumber}} bp</td>
+                                        <td>
+                                            <div class="progress" style="margin-bottom: 0;">
+                                                <div class="progress-bar" role="progressbar" ng-style="{ 'width': exp.status.percentage + '%' }"></div>
+                                                
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span ng-show='exp.status.message === "SUCCESS"'><i class="glyphicon glyphicon-ok"></i></span>
+                                            <span ng-show='exp.status.message === "NOT_STARTED"'><i class="glyphicon glyphicon-ban-circle"></i></span>
+                                            <span ng-show='exp.status.message === "FAILURE"'><i class="glyphicon glyphicon-remove"></i></span>
+                                        </td>
+                                        <td nowrap>
+                                            <button type="button" class="btn btn-warning btn-xs" data-toggle="tooltip" data-placement="top" title="Cancel" ng-click=""
+                                                ng-disabled="true">
+                                <span class="glyphicon glyphicon-ban-circle"></span>
+                            </button>
+                                            <button type="button" class="btn btn-danger btn-xs" data-toggle="tooltip" data-placement="top" title="Remove" ng-click="">
+                                <span class="glyphicon glyphicon-trash"></span>
+                            </button>
+                                            <button type="button" class="btn btn-primary btn-xs" data-toggle="tooltip" data-placement="top" title="Visualize" ng-click=""
+                                                ui-sref="app.results({expId: exp._id})">
+                                <span class="glyphicon glyphicon-eye-open"></span>
+                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

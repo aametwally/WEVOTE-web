@@ -1,0 +1,49 @@
+.venntooltip {
+    font-size: 14px;
+    position: absolute;
+    text-align: center;
+    width: 150px;
+    height: 85px;
+    background: #333;
+    color: #fff;
+    padding: 2px;
+    border: 0px;
+    border-radius: 8px;
+    opacity: 0;
+}
+
+.venn {
+    float: right;
+}
+
+svg {
+    font-family: 'Roboto';
+    font-weight: 300;
+    font-size: 12px;
+}
+
+
+/**
+* Sunburst Diagram
+**/
+.sunburst-main {
+  /*float: left;*/
+  width: 750px;
+}
+
+.sunburst-sequence text{
+  font-weight: 500;
+  fill: black;
+}
+
+.sunburst-chart {
+  position: relative;
+}
+
+.sunburst-chart path {
+  stroke: #fff;
+}
+
+.sunburst-percentage {
+  font-size: 2.5em;
+}

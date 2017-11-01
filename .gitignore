@@ -1,6 +1,3 @@
-# This file is used to ignore files which are generated
-# ----------------------------------------------------------------------------
-
 *~
 *.autosave
 *.a
@@ -74,3 +71,16 @@ Thumbs.db
 
 build/**
 
+
+.idea/**
+.vscode/**
+app/dist/**
+app/uploads/*
+node_modules/**/*
+bower_components/**/*
+app/build/**
+app/metaviz/dist/**
+app/metaviz/*.js
+app/server/routes/*.js
+app/server/models/*.js
+app/client/scripts/*.js
