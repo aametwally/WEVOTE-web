@@ -1,15 +1,21 @@
 # Table of Contents
-1. [WEVOTE Computational Module:Getting Started](#wevote-computational)
+1. [WEVOTE Computational Module](#wevote-computational)
+    1. [Getting Started](#computational-getting-started)
+    2. [Prerequisites](#computational-prerequisites)
+    3. [Installing, Testing, and Running](#computational-installing)
 2. [WEVOTE Web Module](#wevote-web)
+    1. [Overview](#web-overview)
+    2. [Prerequisites](#web-prerequisites)
+    3. [Building and running the application](#web-installing)
 
 
 
 
 # WEVOTE Computational Module<div id='wevote-computational'></div>
-## Getting Started
+## Getting Started <div id='computational-getting-started'></div>
 This section details steps for installing and running WEVOTE. Current WEVOTE version only supports Linux. If you experience difficulty installing or running the software, please contact (Ahmed Metwally: ametwa2@uic.edu).
 
-### Prerequisites
+## Prerequisites <div id='computational-prerequisites'></div>
 * cpprest: a restfull API c++ library. [Follow this link for installation.](https://github.com/Microsoft/cpprestsdk/wiki)
 * BLASTN, Kraken, TIPP, CLARK, and MetaPhlan installed on the machine. 
 * g++: 
@@ -28,13 +34,13 @@ sudo apt-get install cmake
 
 
 
-## Installing, Testing, and Running
+## Installing, Testing, and Running<div id='computational-installing'></div>
 
 ### Installing Wevote Cpp Applications.
 
 #### Clone the project to your local repository:
 ```
-git clone https://bitbucket.org/asem_abdelaziz/wevote
+git clone https://github.com/aametwally/WEVOTE-web.git
 ```
 
 
@@ -146,27 +152,23 @@ Options:
 
 
 # WEVOTE Web Module <div id='wevote-web'></div>
-## Overview
-This repository provides the web application that backs the WEVOTE taxonomic classification system, [More](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0163527).  
-This repository includes a server, client, visualization applications. All applications are 
+## Overview <div id='web-overview'></div>
+This module provides the web application that backs the WEVOTE taxonomic classification system, [More](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0163527).  
+The module includes a server, client, visualization applications. All applications are 
 purely implemented in TypeScript. The server application is based on Express.js and mongoose 
-libraries and handles all database operations, user sessions, and communication with the WEVOTE computational cpp server [See wevote computational server](https://bitbucket.org/asem_abdelaziz/wevote/overview).  
+libraries and handles all database operations, user sessions, and communication with the WEVOTE computational server [See wevote computational server](#wevote-computational).  
 While the client and visualization applications (the front-end side) is implemented
 using the AngularJS framework and d3.js library.
 
-### Prerequisites
+## Prerequisites <div id='web-prerequisites'></div>
 * Node v6: [installation instructions](https://nodejs.org/en/download/package-manager/).
 * MongoDB: installation instructions [(Linux)](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/) or [(windows)](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/) .  
 * Wevote computational server (server must be running before running wevote-web server): [installation and running instruction](https://bitbucket.org/asem_abdelaziz/wevote/overview)
 </br>
 
-### Building and running the application
-#### Clone the project to your local repository:
-```
-git clone https://bitbucket.org/asem_abdelaziz/wevote-web
-```
+## Building and running the application <div id='web-installing'></div>
 
-#### Change directory to wevote-web, then build wevote-web from scratch:
+#### Change directory to web, then build wevote-web from scratch:
 ```
 cd wevote-web
 npm install
@@ -175,7 +177,7 @@ npm run build
 
 #### Running the application.
 ##### Before running make sure: 
-* The [wevote computational server](https://bitbucket.org/asem_abdelaziz/wevote/overview) is running.
+* The [wevote computational server](#wevote-computational) is running.
 * The MongoDB is running: 
 e.g on linux:
 ```
