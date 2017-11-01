@@ -7,7 +7,7 @@
 
 
 
-# WEVOTE Computational Module
+# [WEVOTE Computational Module](#wevote-computational)
 ## Getting Started
 This section details steps for installing and running WEVOTE. Current WEVOTE version only supports Linux. If you experience difficulty installing or running the software, please contact (Ahmed Metwally: ametwa2@uic.edu).
 
@@ -28,7 +28,7 @@ sudo apt-get install cmake
 * A machine with RAM of at least 75 GB to run Kraken and Clark. You may ignore this prerequisite if you do not use kraken or clark. 
 * R: for generating summary statistics, graphs, and messaging the data to be compatible with Phyloseq package. 
 
-</br>
+
 
 ## Installing, Testing, and Running
 
@@ -147,7 +147,7 @@ Options:
 ```
 
 
-# WEVOTE Web Module
+# [WEVOTE Web Module](#wevote-web)
 ## Overview
 This repository provides the web application that backs the WEVOTE taxonomic classification system, [More](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0163527).  
 This repository includes a server, client, visualization applications. All applications are 
