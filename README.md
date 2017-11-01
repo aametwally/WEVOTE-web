@@ -7,7 +7,7 @@
 
 
 
-# WEVOTE Computational Module<a name="wevote-computational"></a>
+# WEVOTE Computational Module<div id='wevote-computational'></div>
 ## Getting Started
 This section details steps for installing and running WEVOTE. Current WEVOTE version only supports Linux. If you experience difficulty installing or running the software, please contact (Ahmed Metwally: ametwa2@uic.edu).
 
@@ -147,7 +147,7 @@ Options:
 ```
 
 
-# WEVOTE Web Module <a name="wevote-web"></a>
+# WEVOTE Web Module <div id='wevote-web'></div>
 ## Overview
 This repository provides the web application that backs the WEVOTE taxonomic classification system, [More](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0163527).  
 This repository includes a server, client, visualization applications. All applications are 
