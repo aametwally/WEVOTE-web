@@ -1,5 +1,3 @@
-
-
 # Table of Contents
 1. [WEVOTE Computational Module:Getting Started](#wevote-computational)
 2. [WEVOTE Web Module](#wevote-web)
