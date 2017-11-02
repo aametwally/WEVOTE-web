@@ -153,6 +153,7 @@ declare namespace metaviz {
     }
     interface IAbundanceNode {
         name: string;
+        taxon: number;
         size?: number;
         color?: IHCLColor;
         children: Map<string, IAbundanceNode>;
@@ -318,13 +319,14 @@ declare namespace metaviz {
         private readonly _w;
         private readonly _h;
         private readonly _radius;
+        private taxonNCBIPageService;
         link: (scope: IAbundanceSunburstDirectiveScope, element: angular.IAugmentedJQuery, attrs: angular.IAttributes, ngModel: any) => void;
         private mouseover(scope, vis);
         private mouseleave;
         private initializeBreadcrumbTrail;
         private breadcrumbPoints;
         updateBreadcrumbs: (nodeArray: any, percentageString: any, vis: IAbundanceSubburstHTMLElement) => void;
-        constructor();
+        constructor(taxonNCBIPageService: any);
         static factory(): ng.IDirectiveFactory;
     }
     class WevoteTableDirective implements ng.IDirective {
@@ -332,6 +334,7 @@ declare namespace metaviz {
         replace: boolean;
         static readonly directiveName: string;
         private static readonly _inject;
+        private taxonNCBIPageService;
         controller: any;
         scope: {
             results: string;
@@ -346,7 +349,7 @@ declare namespace metaviz {
         readonly heatmapMaxEntries: number;
         private downloadWevolteClassification;
         link: (scope: ITableScope<IWevoteTableEntry>, element: angular.IAugmentedJQuery, attrs: angular.IAttributes, ngModel: any) => void;
-        constructor();
+        constructor(taxonNCBIPageService: any);
         static factory(): ng.IDirectiveFactory;
     }
     class AbundanceTableDirective implements ng.IDirective {
@@ -354,6 +357,7 @@ declare namespace metaviz {
         replace: boolean;
         static readonly directiveName: string;
         private static readonly _inject;
+        private taxonNCBIPageService;
         controller: any;
         scope: {
             results: string;
@@ -368,7 +372,7 @@ declare namespace metaviz {
         readonly heatmapMaxEntries: number;
         private downloadAbundance;
         link: (scope: ITableScope<IAbundanceTableEntry>, element: angular.IAugmentedJQuery, attrs: angular.IAttributes, ngModel: any) => void;
-        constructor();
+        constructor(taxonNCBIPageService: any);
         static factory(): ng.IDirectiveFactory;
     }
 }
@@ -383,6 +387,11 @@ declare namespace metaviz {
         static readonly $inject: (() => HelloFactory)[];
         static factory(): () => HelloFactory;
         hello: () => void;
+    }
+    class NCBITaxonPageFactory {
+        static readonly $inject: (() => NCBITaxonPageFactory)[];
+        static factory(): () => NCBITaxonPageFactory;
+        openTaxonPage: (taxid: number) => void;
     }
     interface IPair {
         initial: number;

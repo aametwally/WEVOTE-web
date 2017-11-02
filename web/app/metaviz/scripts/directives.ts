@@ -232,7 +232,7 @@ namespace metaviz {
         restrict: string = 'E';
         public replace: boolean = false;
         public static readonly directiveName: string = 'mvAbundanceSunburst';
-        private static readonly _inject: string[] = [];
+        private static readonly _inject: string[] = ['NCBITaxonPageService'];
         public scope = {
             hierarchy: '=hierarchy'
         };
@@ -248,6 +248,9 @@ namespace metaviz {
         private readonly _w = 700;
         private readonly _h = 600;
         private readonly _radius = Math.min(this._w, this._h) / 2;
+
+        private taxonNCBIPageService: any;
+
 
         public link = (scope: IAbundanceSunburstDirectiveScope, element: ng.IAugmentedJQuery, attrs: ng.IAttributes, ngModel: any) => {
             // Total size of all segments; we set this later, after loading the data.
@@ -327,6 +330,10 @@ left: ${this._w / 2 - 70}px;
                         })
                         .style("opacity", 1)
                         .on("mouseover", mouseOverCB)
+                        .on("click", (d: any) => {
+                            if (d.data.taxon) this.taxonNCBIPageService.openTaxonPage(d.data.taxon);
+                            else console.log("Debug needed: undefined taxon id.", d.data);
+                        })
                         ;
 
                     // Add the mouseleave handler to the bounding circle.
@@ -478,12 +485,14 @@ left: ${this._w / 2 - 70}px;
                 .style("visibility", "");
         }
 
-        constructor() {
+
+        constructor(taxonNCBIPageService: any) {
+            this.taxonNCBIPageService = taxonNCBIPageService;
         }
 
         public static factory(): ng.IDirectiveFactory {
-            let d = () => {
-                return new AbundanceSunburstDirective();
+            let d = (NCBITaxonPageService: any) => {
+                return new AbundanceSunburstDirective(NCBITaxonPageService);
             };
             d.$inject = AbundanceSunburstDirective._inject;
             return d;
@@ -495,7 +504,8 @@ left: ${this._w / 2 - 70}px;
         restrict: string = 'E';
         public replace: boolean = false;
         public static readonly directiveName: string = 'mvWevoteTable';
-        private static readonly _inject: string[] = [];
+        private static readonly _inject: string[] = ['NCBITaxonPageService'];
+        private taxonNCBIPageService: any;
 
         public controller = WevoteTableController.$inject;
         public scope = {
@@ -569,6 +579,7 @@ left: ${this._w / 2 - 70}px;
 
 
                     const xValues = scope.header.slice(1);
+                    const classifiers: string[] = xValues.slice(0, xValues.indexOf('WEVOTE') + 1);
                     const yValues = entries.map((entry: IWevoteTableEntry) => { return entry.seqId; });
                     const zValues = entries.map((entry: IWevoteTableEntry) => {
                         const zRow = entry.votes.map((v: number) => { return 0; })
@@ -712,6 +723,18 @@ score: ${(<any>entry).score.toFixed(2)}
                         if (!initialized) {
                             initialized = true;
                             Plotly.newPlot(heatmapElement, <any>[data], <any>layout);
+                            heatmapElement.on('plotly_click', (data: any) => {
+                                const line2 = data.points[0].text.trim().split('\n')[1].trim();
+                                const tokens = line2.split(':');
+                                const classifier = tokens[0].trim();
+                                if (classifiers.indexOf(classifier) != -1) {
+                                    const taxid = tokens[1].replace("<br>", "").trim();
+                                    if (taxid > 0) {
+                                        this.taxonNCBIPageService.openTaxonPage(taxid);
+                                    }
+
+                                }
+                            });
                         }
                         else {
                             Plotly.deleteTraces(heatmapElement, 0);
@@ -740,13 +763,13 @@ score: ${(<any>entry).score.toFixed(2)}
             }, false);
         };
 
-        constructor() {
+        constructor(taxonNCBIPageService: any) {
+            this.taxonNCBIPageService = taxonNCBIPageService;
         }
 
-
         public static factory(): ng.IDirectiveFactory {
-            let d = () => {
-                return new WevoteTableDirective();
+            let d = (NCBITaxonPageService: any) => {
+                return new WevoteTableDirective(NCBITaxonPageService);
             };
             d.$inject = WevoteTableDirective._inject;
             return d;
@@ -758,7 +781,8 @@ score: ${(<any>entry).score.toFixed(2)}
         restrict: string = 'E';
         public replace: boolean = false;
         public static readonly directiveName: string = 'mvAbundanceTable';
-        private static readonly _inject: string[] = [];
+        private static readonly _inject: string[] = ['NCBITaxonPageService'];
+        private taxonNCBIPageService: any;
 
         public controller = AbundanceTableController.$inject;
         public scope = {
@@ -926,6 +950,11 @@ score: ${(<any>entry).score.toFixed(2)}
                         if (!initialized) {
                             initialized = true;
                             Plotly.newPlot(heatmapElement, <any>[data], <any>layout);
+                            heatmapElement.on('plotly_click', (data: any) => {
+                                const taxid = data.points[0].y;
+                                if (taxid > 0)
+                                    this.taxonNCBIPageService.openTaxonPage(taxid)
+                            });
                         }
                         else Plotly.relayout(heatmapElement, <any>layout);
 
@@ -952,13 +981,13 @@ score: ${(<any>entry).score.toFixed(2)}
             }, false);
         };
 
-        constructor() {
+        constructor(taxonNCBIPageService: any) {
+            this.taxonNCBIPageService = taxonNCBIPageService;
         }
 
-
         public static factory(): ng.IDirectiveFactory {
-            let d = () => {
-                return new AbundanceTableDirective();
+            let d = (NCBITaxonPageService: any) => {
+                return new AbundanceTableDirective(NCBITaxonPageService);
             };
             d.$inject = AbundanceTableDirective._inject;
             return d;

@@ -17,6 +17,22 @@ namespace metaviz {
         }
     }
 
+    export class NCBITaxonPageFactory {
+        static readonly $inject = [NCBITaxonPageFactory.factory()];
+
+        static factory() {
+            let instance = () =>
+                new NCBITaxonPageFactory();
+            return instance;
+        }
+
+        public openTaxonPage = ( taxid: number ) => {
+            const win = window.open(
+                `https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=${taxid}`, '_blank');
+            win.focus();
+        }
+    }
+
     export interface IPair {
         initial: number,
         final: number
@@ -111,5 +127,6 @@ namespace metaviz {
     metavizApp
         .factory('HelloService', HelloFactory.$inject)
         .factory('TreemapColorSchemeService', TreemapColorSchemeFactory.$inject)
+        .factory('NCBITaxonPageService' , NCBITaxonPageFactory.$inject )
         ;
 }

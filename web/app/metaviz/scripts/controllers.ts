@@ -39,6 +39,7 @@ namespace metaviz {
     }
     export interface IAbundanceNode {
         name: string,
+        taxon: number,
         size?: number,
         color?: IHCLColor,
         children: Map<string, IAbundanceNode>
@@ -241,6 +242,7 @@ namespace metaviz {
         private hierarchyAsObject(tree: IAbundanceNode) {
             const obj = Object.create(null);
             if (tree.name) obj.name = tree.name;
+            if (tree.taxon) obj.taxon = tree.taxon;
             if (tree.size) obj.size = tree.size;
             if (tree.color) obj.color = tree.color;
             if (tree.children) {
@@ -258,6 +260,7 @@ namespace metaviz {
         private buildHierarchy = (taxonomyAbundanceProfile: Array<common.ITaxonomyAbundance>): IAbundanceNode => {
             const tree: IAbundanceNode = {
                 name: "Abundance Tree",
+                taxon: 0,
                 children: new Map<string, IAbundanceNode>()
             }
             for (let taxonomyAbundance of taxonomyAbundanceProfile) {
@@ -282,6 +285,7 @@ namespace metaviz {
                     else {
                         const newSuccessor: IAbundanceNode = {
                             name: level,
+                            taxon: 0,
                             children: new Map<string, IAbundanceNode>()
                         };
 
@@ -289,6 +293,7 @@ namespace metaviz {
                         currentNode = newSuccessor;
                     }
                 }
+                currentNode.taxon = taxonomyAbundance.taxon;
                 currentNode.size = taxonomyAbundance.count;
             }
             return tree;
