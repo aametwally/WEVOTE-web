@@ -156,16 +156,23 @@ std::vector< ReadInfo > WevoteRestHandler::_fullpipeline( const WevoteSubmitEnse
     });
     const std::string cmd = pipelineScript + arguments;
     LOG_DEBUG("Executing:%s",cmd.c_str());
-    std::system( cmd.c_str());
+    int status = std::system( cmd.c_str());
     LOG_DEBUG("[DONE] Executing:%s", cmd.c_str());
-    const std::vector< std::string > unclassifiedReads = io::getFileLines( outputFile );
 
-    auto reads = ReadInfo::parseUnclassifiedReads( unclassifiedReads.cbegin() , unclassifiedReads.cend());
-    // Clean up.
     QFile::remove( QString::fromStdString( queryFile ));
-    QFile::remove( QString::fromStdString( outputFile ));
 
-    return std::move( reads.first );
+    if( status == EXIT_SUCCESS )
+    {
+        const std::vector< std::string > unclassifiedReads = io::getFileLines( outputFile );
+        auto reads = ReadInfo::parseUnclassifiedReads( unclassifiedReads.cbegin() , unclassifiedReads.cend());
+        QFile::remove( QString::fromStdString( outputFile ));
+        return std::move( reads.first );
+    }
+    else
+    {
+        LOG_DEBUG("Failure executing command:%s", cmd.c_str());
+        return {};
+    }
 }
 
 void WevoteRestHandler::_transmitJSON( const WevoteSubmitEnsemble &data )
