@@ -16,6 +16,7 @@
 
 // HPC
 #include <omp.h>
+#include <thread>
 
 // STL Streams
 #include <fstream>

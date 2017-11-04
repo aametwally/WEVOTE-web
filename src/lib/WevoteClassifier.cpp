@@ -147,12 +147,9 @@ void WevoteClassifier::writeResults(
         bool csv )
 {
     /// Export the detailed output in txt format
-    std::ofstream myfile;
-    myfile.open (fileName.c_str());
-    if (!myfile.is_open())
-        LOG_ERROR("Error opening Output file:%s",fileName);
-    myfile << ReadInfo::toString( reads.cbegin() , reads.cend() , tools , csv );
-    myfile.close();
+    io::flushStringToFile(
+                ReadInfo::toString( reads.cbegin() , reads.cend() ,
+                                    tools , csv ) , fileName );
 }
 
 std::pair<std::vector<ReadInfo>, std::vector<std::string> >

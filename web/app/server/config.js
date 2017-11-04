@@ -9,6 +9,7 @@ module.exports = {
     'cppWevoteUrl': '127.0.0.1',
     'cppWevotePort': 34568,
     'cppWevoteClassificationPath': '/wevote/submit/ensemble',
+    'cppWevoteFullPipelinePath': '/wevote/submit/fullpipeline',    
     'wevoteGmail' : 'wevote.taxonomy@gmail.com',
     'wevoteGmailPassword' : 'qeadwrsf'
 }

@@ -1,0 +1,25 @@
+#ifndef CONFIG_H_IN
+#define CONFIG_H_IN
+
+#include <array>
+
+#define WEVOTE_PIPELINE_SCRIPT_NAME "@WEVOTE_PIPELINE_SCRIPT_NAME@"
+#define ABUNDANCE_SCRIPT_NAME "@ABUNDANCE_SCRIPT_NAME@"
+#define WEVOTE_CONFIG_FILE_NAME "@WEVOTE_CONFIG_FILE_NAME@"
+#define DEFAULT_THREADS_COUNT 4
+
+namespace wevote
+{
+namespace config
+{
+const std::array< std::string , 5 > algorithms = {
+    "blastn",
+    "kraken",
+    "tipp",
+    "clark",
+    "metaphlan"
+};
+}
+}
+
+#endif // CONFIG_H_IN

@@ -61,7 +61,7 @@ auto join( SeqIt first , SeqIt last , const SeperatorType &sep )
         result.reserve( std::accumulate( first , last , std::distance( first , last ) ,
                                          []( size_t size , const StringType &s ){ return size + s.size();}));
         return std::accumulate( std::next( first , 1 ) , last ,
-                                 result , binaryJoinString  );
+                                result , binaryJoinString  );
     }
 }
 
@@ -119,6 +119,23 @@ auto getFileLines( const std::string &filePath )
     else std::cout << "Failed to open file:" << filePath << std::endl;
     return lines;
 }
+
+template< typename CharType = char >
+void flushStringToFile( const std::basic_string< CharType > &data , const std::string &filePath )
+{
+    std::basic_ofstream< CharType > myfile;
+    myfile.open (filePath.c_str());
+    if (!myfile.is_open())
+        std::cout << "Error opening Output file:" << filePath << std::endl;
+    else
+    {
+        myfile << data;
+        myfile.close();
+    }
+}
+
+
+
 
 template< class CharType >
 auto split( const std::basic_string< CharType > &s , CharType delim  )

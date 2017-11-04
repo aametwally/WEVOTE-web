@@ -191,7 +191,53 @@ export class ExperimentRouter extends BaseRoute {
             case 'pipelineFromReads':
                 { } break;
             case 'pipelineFromSimulatedReads':
-                { } break;
+                { 
+                    const reads = fs.readFileSync(UploadRouter.uploadsDir + '/' + exp.reads.uri).toString().trim();
+                    // split on newlines...
+                    let sequences = reads.split('\n');
+                    const algorithms: string[] = exp.config.algorithms.map((alg: IAlgorithm) => {
+                        return alg.name;
+                    });
+
+                    const submission: IWevoteSubmitEnsemble =
+                        {
+                            resultsRoute:
+                            {
+                                host: config.localhost,
+                                port: config.port,
+                                relativePath: '/experiment/classification'
+                            },
+                            jobID: exp._id,
+                            reads: [],
+                            sequences: sequences,
+                            algorithms: algorithms ,
+                            status: <any>{},
+                            score: exp.config.minScore,
+                            minNumAgreed: exp.config.minNumAgreed,
+                            penalty: exp.config.penalty , 
+                            distances: <any>[]
+                        };
+                    const options: http.RequestOptions = {
+                        host: config.cppWevoteUrl,
+                        port: config.cppWevotePort,
+                        path: config.cppWevoteFullPipelinePath,
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    };
+                    const httpreq = http.request(options, function (response) {
+                        response.setEncoding('utf8');
+                        response.on('end', function () {
+                            console.log('reads file posted to wevote core server');
+                            response.on('error', function (err: Error) {
+                                console.log('Error:' + err);
+                            });
+                        });
+                    });
+                    httpreq.write(JSON.stringify(submission));
+                    httpreq.end();
+                } break;
             case 'classificationFromEnsemble':
                 {
                     const ensemble = fs.readFileSync(UploadRouter.uploadsDir + '/' + exp.ensemble.uri).toString().trim();
@@ -222,6 +268,8 @@ export class ExperimentRouter extends BaseRoute {
                             },
                             jobID: exp._id,
                             reads: unclassifiedReads,
+                            sequences : [] ,
+                            algorithms: [] ,
                             status: <any>{},
                             score: exp.config.minScore,
                             minNumAgreed: exp.config.minNumAgreed,

@@ -177,6 +177,8 @@ private:
     std::string _relativePath;
 };
 
+
+
 class WevoteSubmitEnsemble : public Serializable< WevoteSubmitEnsemble >
 {
 protected:
@@ -192,7 +194,9 @@ public:
         properties.objectify( meta( Meta::JobID ) , _d->jobID );
         properties.objectify( meta( Meta::ResultsRoute) , _d->resultsRoute );
         properties.objectify( meta( Meta::Status ) , _d->status );
-        properties.objectify( meta( Meta::Reads ) , _d->reads.cbegin() , _d->reads.cend() );
+        properties.objectify( meta( Meta::ReadsInfo ) , _d->readsInfo.cbegin() , _d->readsInfo.cend() );
+        properties.objectify( meta( Meta::Sequences ) , _d->sequences.cbegin() , _d->sequences.cend() );
+        properties.objectify( meta( Meta::Algorithms ) , _d->algorithms.cbegin() , _d->algorithms.cend());
         properties.objectify( meta( Meta::Score  ) , _d->score );
         properties.objectify( meta( Meta::Penalty  ) , _d->penalty );
         properties.objectify( meta( Meta::MinNumAgreed  ) , _d->minNumAgreed );
@@ -204,9 +208,34 @@ public:
         return _d->resultsRoute;
     }
 
-    std::vector< wevote::ReadInfo > &getReads()
+    std::vector< wevote::ReadInfo > &getReadsInfo()
     {
-        return _d->reads;
+        return _d->readsInfo;
+    }
+
+    const std::vector< wevote::ReadInfo > &getReadsInfo() const
+    {
+        return _d->readsInfo;
+    }
+
+    std::vector< std::string > &getSequences()
+    {
+        return _d->sequences;
+    }
+
+    const std::vector< std::string > &getSequences() const
+    {
+        return _d->sequences;
+    }
+
+    const std::vector< std::string > &getAlgorithms() const
+    {
+        return _d->algorithms;
+    }
+
+    std::vector< std::string > &getAlgorithms()
+    {
+        return _d->algorithms;
     }
 
     Status &getStatus()
@@ -240,7 +269,9 @@ private:
         JobID ,
         ResultsRoute,
         Status ,
-        Reads ,
+        ReadsInfo ,
+        Sequences ,
+        Algorithms,
         Score ,
         Penalty ,
         MinNumAgreed ,
@@ -252,7 +283,9 @@ private:
         std::string jobID;
         RemoteAddress resultsRoute;
         Status status;
-        std::vector< wevote::ReadInfo > reads;
+        std::vector< std::string > sequences;
+        std::vector< wevote::ReadInfo > readsInfo;
+        std::vector< std::string > algorithms;
         std::vector< double > distances;
         double score;
         double penalty;
@@ -266,7 +299,9 @@ private:
         properties.deObjectify( meta( Meta::JobID ) , _d->jobID );
         properties.deObjectify( meta( Meta::ResultsRoute) , _d->resultsRoute );
         properties.deObjectify( meta( Meta::Status ) , _d->status );
-        properties.deObjectifyArray( meta( Meta::Reads ) , _d->reads );
+        properties.deObjectifyArray( meta( Meta::ReadsInfo ) , _d->readsInfo );
+        properties.deObjectifyArray( meta( Meta::Sequences ) , _d->sequences );
+        properties.deObjectifyArray( meta( Meta::Algorithms ) , _d->algorithms );
         properties.deObjectify( meta( Meta::Score  ) , _d->score );
         properties.deObjectify( meta( Meta::Penalty  ) , _d->penalty );
         properties.deObjectify( meta( Meta::MinNumAgreed  ) , _d->minNumAgreed );
@@ -279,7 +314,9 @@ private:
             { Meta::JobID , "jobID" } ,
             { Meta::ResultsRoute , "resultsRoute"},
             { Meta::Status , "status" } ,
-            { Meta::Reads , "reads" } ,
+            { Meta::ReadsInfo , "reads" } ,
+            { Meta::Sequences , "sequences" },
+            { Meta::Algorithms , "algorithms" } ,
             { Meta::Score , "score" } ,
             { Meta::Penalty , "penalty" } ,
             { Meta::MinNumAgreed , "minNumAgreed"} ,
