@@ -143,6 +143,7 @@ std::vector< ReadInfo > WevoteRestHandler::_fullpipeline( const WevoteSubmitEnse
     io::flushStringToFile( io::join( submission.getSequences() , "\n" ) , queryFile );
 
     std::string arguments = " --input " + queryFile;
+    arguments += " --output " + outPrefix;
     arguments += " --threads " + std::to_string( threadsCount );
     std::for_each( submission.getAlgorithms().cbegin() , submission.getAlgorithms().cend() ,
                    [&arguments]( const std::string &algorithm ){
