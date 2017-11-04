@@ -144,6 +144,8 @@ export class WevoteClassificationPatchModel {
                 },
                 status: <any>{},
                 reads: unclassifiedReads,
+                sequences: [] ,
+                algorithms: [] ,
                 score: experiment.config.minScore,
                 penalty: experiment.config.penalty,
                 minNumAgreed: experiment.config.minNumAgreed,

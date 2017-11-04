@@ -57,6 +57,8 @@ export interface IWevoteSubmitEnsemble {
     jobID: string,
     resultsRoute: IRemoteAddress,
     reads: IWevoteClassification[],
+    sequences: string[],
+    algorithms: string[],
     status: IStatus,
     score: number,
     penalty: number,
