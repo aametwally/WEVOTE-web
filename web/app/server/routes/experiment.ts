@@ -189,8 +189,6 @@ export class ExperimentRouter extends BaseRoute {
         const usageScenario = exp.usageScenario;
         switch (usageScenario.value) {
             case 'pipelineFromReads':
-                { } break;
-            case 'pipelineFromSimulatedReads':
                 { 
                     const reads = fs.readFileSync(UploadRouter.uploadsDir + '/' + exp.reads.uri).toString().trim();
                     // split on newlines...
@@ -237,6 +235,10 @@ export class ExperimentRouter extends BaseRoute {
                     });
                     httpreq.write(JSON.stringify(submission));
                     httpreq.end();
+                } break;
+            case 'pipelineFromSimulatedReads':
+                { 
+
                 } break;
             case 'classificationFromEnsemble':
                 {

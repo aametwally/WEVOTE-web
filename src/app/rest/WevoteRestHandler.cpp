@@ -79,6 +79,7 @@ void WevoteRestHandler::_receiveUnclassifiedSequences(http_request message)
         message.extract_json()
                 .then([this,message]( web::json::value value )
         {
+            LOG_DEBUG("Full pipeline ..");
             WevoteSubmitEnsemble submission =
                     io::DeObjectifier::fromObject< WevoteSubmitEnsemble >( value );
 
@@ -105,6 +106,7 @@ void WevoteRestHandler::_receiveUnclassifiedSequences(http_request message)
             LOG_DEBUG("[DONE] Transmitting[job:%d] .." , _jobCounter.load());
             _jobCounter++;
             LOG_DEBUG("[DONE] Submiting job:%d..",_jobCounter.load());
+            LOG_DEBUG("[DONE] Full pipeline ..");
         });
     });
 
