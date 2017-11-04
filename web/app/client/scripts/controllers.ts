@@ -75,14 +75,14 @@ module wevote {
             hint: "upload reads file"
         },
         {
-            value: "pipelineFromSimulatedReads",
-            usage: "Full Pipeline",
-            hint: "use simulated reads from the server"
-        },
-        {
             value: "classificationFromEnsemble",
             usage: "Classification",
             hint: "upload a wevote ensemble file"
+        },
+        {
+            value: "abundanceFromClassification",
+            usage: "Community Profiling",
+            hint: "upload wevote classified file"
         }
         ];
 
@@ -223,7 +223,7 @@ module wevote {
                         {
                             this._scope.selectiveAlgorithms = true;
                         } break;
-                    case 'pipelineFromSimulatedReads':
+                    case 'abundanceFromClassification':
                         {
                             this._scope.selectiveAlgorithms = true;
                         } break;
@@ -257,7 +257,7 @@ module wevote {
                                             !this._scope.readsUploader.atLeastSingleFileUploaded;
 
                                 } break;
-                            case 'pipelineFromSimulatedReads':
+                            case 'abundanceFromClassification':
                                 {
 
                                 } break;

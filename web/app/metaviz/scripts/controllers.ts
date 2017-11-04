@@ -307,9 +307,9 @@ namespace metaviz {
         return ['seq'].concat(algorithms.map((alg: common.IAlgorithm) => {
             return alg.name;
         })).concat(['WEVOTE'])
-            .concat(algorithms.map((alg: common.IAlgorithm) => {
-                return `dist(${alg.name})`;
-            }))
+            // .concat(algorithms.map((alg: common.IAlgorithm) => {
+            //     return `dist(${alg.name})`;
+            // }))
             .concat(['cost', 'score']);
     };
     export const abundanceTableHeader = ['tax.id', 'count'];

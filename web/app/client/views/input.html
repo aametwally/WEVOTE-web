@@ -28,18 +28,7 @@
                                             filters="queueLimit, customFilter">
                                         </div>
                                     </div>
-                                    <div class="well well-scrollable" ng-show="experiment.usageScenario.value==='pipelineFromSimulatedReads'">
-                                    <ul class="pull-left list-inline">
-                                        <li class="pull-left" ng-repeat="data in availableDatabase">
-                                            <div class="checkbox">
-                                                <label class="checkbox-inline">
-                                                    <input ng-model="data.selected" type="radio"
-                                                           name="simulatedReads" value="">
-                                                    <span class="label label-warning">{{data.name}}</span>
-                                                </label>
-                                            </div>
-                                        </li>
-                                    </ul>
+                                    
                                 </div>
                                 </div>
                                 
@@ -61,7 +50,7 @@
                                                         <div class="checkbox">
                                                             <label class="checkbox-inline">
                                                                 <input ng-model="algorithm.used" type="checkbox" 
-                                                                ng-disabled='experiment.usageScenario.value === "classificationFromEnsemble"'>
+                                                                ng-disabled='experiment.usageScenario.value != "pipelineFromReads"'>
                                                                 <span class="label label-warning">{{algorithm.name}}</span>
                                                             </label>
                                                         </div>

@@ -526,7 +526,7 @@ left: ${this._w / 2 - 70}px;
                 return [entry.seqId]
                     .concat(<any>entry.votes)
                     .concat(<any>[entry.resolvedTaxon])
-                    .concat(<any>entry.distances)
+                    // .concat(<any>entry.distances)
                     .concat(<any>[entry.cost, entry.score]).join(seperator);
             })).join("\n");
 
@@ -580,11 +580,11 @@ left: ${this._w / 2 - 70}px;
 
                     const xValues = scope.header.slice(1);
                     const classifiers: string[] = xValues.slice(0, xValues.indexOf('WEVOTE') + 1);
-                    const yValues = entries.map((entry: IWevoteTableEntry) => { return entry.seqId; });
+                    const yValues = entries.map((entry: IWevoteTableEntry, index: number) => { return `SeqId:${index}`; });
                     const zValues = entries.map((entry: IWevoteTableEntry) => {
                         const zRow = entry.votes.map((v: number) => { return 0; })
                             .concat(0)
-                            .concat((<any>entry).distances.map((d: number) => { return -d; }))
+                            // .concat((<any>entry).distances.map((d: number) => { return -d; }))
                             .concat([-(<any>entry).cost, (<any>entry).score]);
 
                         for (let i = 0; i < minMax.length; ++i) {
@@ -610,7 +610,7 @@ left: ${this._w / 2 - 70}px;
                     const label = entries.map((entry: IWevoteTableEntry) => {
                         return entry.votes.map((tax: number) => { return `${tax}`; })
                             .concat([`${entry.resolvedTaxon}`])
-                            .concat((<any>entry).distances.map((d: number) => { return `${d.toFixed(2)}`; }))
+                            // .concat((<any>entry).distances.map((d: number) => { return `${d.toFixed(2)}`; }))
                             .concat([`${(<any>entry).cost.toFixed(2)}`, `${(<any>entry).score.toFixed(2)}`]);
                     });
 
@@ -626,12 +626,14 @@ seq: ${entry.seqId}<br>
 WEVOTE: ${entry.resolvedTaxon}<br>
 score: ${(<any>entry).score.toFixed(2)}
 `
-                        ]).concat((<any>entry).distances.map((d: number, index: number) => {
-                            return `
-seq: ${entry.seqId}<br>
-${xValues[entry.votes.length + 1 + index]}: ${d.toFixed(2)}<br>
-`
-                        })).concat([
+                        ])
+//                         .concat((<any>entry).distances.map((d: number, index: number) => {
+//                             return `
+// seq: ${entry.seqId}<br>
+// ${xValues[entry.votes.length + 1 + index]}: ${d.toFixed(2)}<br>
+// `
+//                         }))
+                        .concat([
                             `
 seq: ${entry.seqId}<br>
 cost: ${(<any>entry).cost.toFixed(2)} 
