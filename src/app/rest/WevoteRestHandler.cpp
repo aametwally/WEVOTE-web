@@ -125,7 +125,7 @@ void WevoteRestHandler::_receiveClassifiedSequences( http_request message )
 std::vector< ReadInfo > WevoteRestHandler::_fullpipeline( const WevoteSubmitEnsemble &submission )
 {
     const std::string id = std::to_string( _getId());
-    const std::string seperator{ 1 , QDir::separator().toLatin1() };
+    const std::string seperator = "/";
     const std::string executableDirectory =
             qApp->applicationDirPath().toStdString();
     const std::string pipelineScript =
