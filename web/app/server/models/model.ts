@@ -106,9 +106,9 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
         if (populateElements)
             return this._model.findOne(cond)
                 .populate(populateElements)
-                .exec(callback);
+                .exec( <any> callback);
         else
-            return this._model.findOne(cond, callback);
+            return this._model.findOne(cond, <any>callback);
     }
 
     find(cond: Object, fields?: Object, options?: Object, callback?: (err: any, res: T[]) => void,
@@ -116,7 +116,7 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
         if (populateElements)
             return this._model.find(cond, options)
                 .populate(populateElements)
-                .exec(callback);
+                .exec(<any>callback);
         else
             return this._model.find(cond, options, callback);
     }
