@@ -42,11 +42,11 @@ private:
     std::vector< ReadInfo > _fullpipeline( const WevoteSubmitEnsemble &submission );
     void _transmitJSON( const WevoteSubmitEnsemble &data );
 
-    uint64_t _getId();
+    uint _getId();
 private:
     const TaxonomyBuilder &_taxonomy;
     const WevoteClassifier _classifier;
-    static std::atomic< uint64_t > _jobCounter;
+    static std::atomic_uint _jobCounter;
 };
 
 }

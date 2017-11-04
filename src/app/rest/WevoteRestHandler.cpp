@@ -5,7 +5,7 @@ namespace wevote
 namespace rest
 {
 
-std::atomic< uint64_t > WevoteRestHandler::_jobCounter{0};
+std::atomic_uint WevoteRestHandler::_jobCounter{0};
 WevoteRestHandler::WevoteRestHandler( const uri &uri ,
                                       const TaxonomyBuilder &taxonomy )
     : RestHandler( uri ), _taxonomy( taxonomy ) , _classifier( _taxonomy )
@@ -198,7 +198,7 @@ void WevoteRestHandler::_transmitJSON( const WevoteSubmitEnsemble &data )
     }
 }
 
-uint64_t WevoteRestHandler::_getId()
+uint WevoteRestHandler::_getId()
 {
     return _jobCounter++;
 }
