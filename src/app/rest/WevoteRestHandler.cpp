@@ -137,7 +137,7 @@ std::vector< ReadInfo > WevoteRestHandler::_fullpipeline( const WevoteSubmitEnse
     const std::string outputFile =
             outPrefix + seperator +  id  + "_out_ensemble.csv";
     const unsigned int threadsCount =
-            (std::thread::hardware_concurrency() == 0 )?
+            (std::thread::hardware_concurrency() < 2 )?
                 DEFAULT_THREADS_COUNT : std::thread::hardware_concurrency();
 
     io::flushStringToFile( io::join( submission.getSequences() , "\n" ) , queryFile );
