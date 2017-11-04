@@ -183,7 +183,7 @@ declare namespace metaviz {
         static readonly $inject: any;
         private _scope;
         constructor(scope: ng.IScope);
-        protected processResults: (wevoteClassification: common.IWevoteClassification[], config: common.IConfig, filter?: ((readClassification: common.IWevoteClassification) => Boolean) | undefined, showWevote?: Boolean) => number;
+        protected processResults: (wevoteClassification: common.IWevoteClassification[], config: common.IConfig, filter?: (readClassification: common.IWevoteClassification) => Boolean, showWevote?: Boolean) => number;
     }
     interface IAbundanceSunburstScope extends ng.IScope {
         results: IResults;
@@ -234,7 +234,7 @@ declare namespace metaviz {
         replace: boolean;
         static readonly directiveName: string;
         private static readonly _inject;
-        link: (scope: IHellloWorldDirectiveScope, element: angular.IAugmentedJQuery, attrs: angular.IAttributes) => void;
+        link: ng.IDirectiveLinkFn;
         constructor();
         static factory(): ng.IDirectiveFactory;
     }

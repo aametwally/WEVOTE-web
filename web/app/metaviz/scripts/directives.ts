@@ -11,7 +11,7 @@ namespace metaviz {
         public static readonly directiveName: string = 'mvHelloworld';
 
         private static readonly _inject: string[] = [];
-        public link = (scope: IHellloWorldDirectiveScope, element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => {
+        public link: ng.IDirectiveLinkFn = (scope: IHellloWorldDirectiveScope, element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => {
             element.text('Hello World3');
         };
 

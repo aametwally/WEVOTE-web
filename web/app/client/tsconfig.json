@@ -12,9 +12,6 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "removeComments": true,
-    "noStrictGenericChecks": true,
-    "skipLibCheck": true,
-    "angularCompilerOptions": { "skipMetadataEmit": true },    
     /* Specify module code generation: 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
     "lib": [
       "dom",
@@ -38,7 +35,7 @@
     // "isolatedModules": true,               /* Transpile each file as a separate module (similar to 'ts.transpileModule'). */
 
     /* Strict Type-Checking Options */
-    "strict": true,
+    // "strict": true,
     /* Enable all strict type-checking options. */
     "noImplicitAny": true,
     /* Raise error on expressions and declarations with an implied 'any' type. */
