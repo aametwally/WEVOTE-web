@@ -43,4 +43,4 @@ target_link_libraries( ${WEVOTE_REST} ${WEVOTE_LIB_LIBRARIES} ${OPENSSL_LIBRARIE
 
 # Install the executable (generate with 'make install' in the bin directory)
 install( TARGETS ${WEVOTE_REST} DESTINATION bin )
-install( PROGRAMS ${WEVOTE_REST_MISC} DESTINATION bin )
+install( PROGRAMS ${ABUNDANCE_SCRIPT_NAME} ${WEVOTE_PIPELINE_SCRIPT_NAME} DESTINATION bin )

@@ -153,7 +153,9 @@ std::vector< ReadInfo > WevoteRestHandler::_fullpipeline( const WevoteSubmitEnse
             arguments += " --" + algorithmLowerCase;
     });
     const std::string cmd = pipelineScript + arguments;
+    LOG_DEBUG("Executing:%s",cmd.c_str());
     std::system( cmd.c_str());
+    LOG_DEBUG("[DONE] Executing:%s", cmd.c_str());
     const std::vector< std::string > unclassifiedReads = io::getFileLines( outputFile );
 
     auto reads = ReadInfo::parseUnclassifiedReads( unclassifiedReads.cbegin() , unclassifiedReads.cend());
