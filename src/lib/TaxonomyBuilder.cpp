@@ -53,6 +53,11 @@ std::string TaxonomyBuilder::getTaxName(uint32_t taxid) const
     }
 }
 
+std::string TaxonomyBuilder::getStandardTaxName(uint32_t taxid) const
+{
+    return getTaxName( correctTaxan( taxid ));
+}
+
 uint32_t TaxonomyBuilder::getStandardParent(uint32_t taxid) const
 {
     try{

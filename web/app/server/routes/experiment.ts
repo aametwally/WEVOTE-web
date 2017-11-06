@@ -38,31 +38,35 @@ export class ExperimentRouter extends BaseRoute {
                         patch: submission.reads,
                         status: submission.status
                     };
+                const abundanceResults: ITaxonomyAbundanceProfile =
+                    <any>{
+                        experiment: expId,
+                        abundance: submission.abundance
+                    }
 
-                WevoteClassificationPatchModel.repo.create(classificationResults, (err: any, resutls: IWevoteClassificationPatch) => {
+                WevoteClassificationPatchModel.repo.create(classificationResults, (err: any, classificationDoc: IWevoteClassificationPatch) => {
                     if (err) {
                         console.log(err);
                         return next(err);
                     }
-                    ExperimentModel.repo.findById(expId, (err: any, experiment: IExperimentModel) => {
-                        if (err) {
-                            console.log(err);
-                            return next(err);
-                        }
+                    TaxonomyAbundanceProfileModel.repo.create(abundanceResults, (err: any, abundanceDoc: ITaxonomyAbundanceProfile) => {
+                        ExperimentModel.repo.findById(expId, (err: any, experiment: IExperimentModel) => {
+                            if (err) {
+                                console.log(err);
+                                return next(err);
+                            }
+                            experiment.status = classificationDoc.status;
 
-                        experiment.status = resutls.status;
+                            experiment.results = <any>{
+                                wevoteClassification: classificationDoc._id,
+                                taxonomyAbundanceProfile: abundanceDoc._id
+                            };
 
-                        if (experiment.results)
-                            experiment.results.wevoteClassification = resutls._id;
-                        else
-                            experiment.results = <any>{ wevoteClassification: resutls._id };
-
-                        experiment.save((err: any, exp: IExperimentModel) => {
-                            TaxonomyAbundanceProfileModel.makeTaxonomyProfile(exp._id, (id: mongoose.Types.ObjectId) => {
+                            experiment.save((err: any, exp: IExperimentModel) => {
                                 res.writeHead(200, { 'Content-Type': 'text/plain' });
                                 res.end();
                                 return ExperimentRouter._sendEmail(exp);
-                            })
+                            });
                         });
                     });
                 });
@@ -189,7 +193,7 @@ export class ExperimentRouter extends BaseRoute {
         const usageScenario = exp.usageScenario;
         switch (usageScenario.value) {
             case 'pipelineFromReads':
-                { 
+                {
                     const reads = fs.readFileSync(UploadRouter.uploadsDir + '/' + exp.reads.uri).toString().trim();
                     // split on newlines...
                     let sequences = reads.split('\n');
@@ -207,12 +211,13 @@ export class ExperimentRouter extends BaseRoute {
                             },
                             jobID: exp._id,
                             reads: [],
+                            abundance: [] ,
                             sequences: sequences,
-                            algorithms: algorithms ,
+                            algorithms: algorithms,
                             status: <any>{},
                             score: exp.config.minScore,
                             minNumAgreed: exp.config.minNumAgreed,
-                            penalty: exp.config.penalty , 
+                            penalty: exp.config.penalty,
                             distances: <any>[]
                         };
                     const options: http.RequestOptions = {
@@ -237,7 +242,7 @@ export class ExperimentRouter extends BaseRoute {
                     httpreq.end();
                 } break;
             case 'pipelineFromSimulatedReads':
-                { 
+                {
 
                 } break;
             case 'classificationFromEnsemble':
@@ -270,12 +275,13 @@ export class ExperimentRouter extends BaseRoute {
                             },
                             jobID: exp._id,
                             reads: unclassifiedReads,
-                            sequences : [] ,
-                            algorithms: [] ,
+                            abundance: [] ,
+                            sequences: [],
+                            algorithms: [],
                             status: <any>{},
                             score: exp.config.minScore,
                             minNumAgreed: exp.config.minNumAgreed,
-                            penalty: exp.config.penalty , 
+                            penalty: exp.config.penalty,
                             distances: <any>[]
                         };
                     const options: http.RequestOptions = {
@@ -332,15 +338,15 @@ export class ExperimentRouter extends BaseRoute {
                     Thanks for using WEVOTE classifier!
                     `;
                 var mailOptions = {
-                    from: `WEVOTE Team <${config.wevoteGmail}>`, 
-                    to: exp.email, 
-                    subject: `[WEVOTE Experiment finished] ${exp.description.slice(0,100)+'..'}`, // Subject line
-                    html: mailContent 
+                    from: `WEVOTE Team <${config.wevoteGmail}>`,
+                    to: exp.email,
+                    subject: `[WEVOTE Experiment finished] ${exp.description.slice(0, 100) + '..'}`, // Subject line
+                    html: mailContent
                 };
-                transporter.sendMail(mailOptions, function(error, info){
-                    if(error){
+                transporter.sendMail(mailOptions, function (error, info) {
+                    if (error) {
                         console.log(error);
-                    }else{
+                    } else {
                         console.log('Message sent: ' + info.response);
                     };
                 });

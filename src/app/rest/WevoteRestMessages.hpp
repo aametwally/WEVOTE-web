@@ -8,6 +8,7 @@
 
 #include "WevoteJSON.hpp"
 #include "ReadInfo.h"
+#include "TaxLine.h"
 #include "Serializable.hpp"
 
 class Status : public Serializable< Status >
@@ -195,6 +196,7 @@ public:
         properties.objectify( meta( Meta::ResultsRoute) , _d->resultsRoute );
         properties.objectify( meta( Meta::Status ) , _d->status );
         properties.objectify( meta( Meta::ReadsInfo ) , _d->readsInfo.cbegin() , _d->readsInfo.cend() );
+        properties.objectify( meta( Meta::Abundance ) , _d->abundanceProfile.cbegin() , _d->abundanceProfile.cend());
         properties.objectify( meta( Meta::Sequences ) , _d->sequences.cbegin() , _d->sequences.cend() );
         properties.objectify( meta( Meta::Algorithms ) , _d->algorithms.cbegin() , _d->algorithms.cend());
         properties.objectify( meta( Meta::Score  ) , _d->score );
@@ -216,6 +218,16 @@ public:
     const std::vector< wevote::ReadInfo > &getReadsInfo() const
     {
         return _d->readsInfo;
+    }
+
+    std::vector< wevote::TaxLine > &getAbundanceProfile()
+    {
+        return _d->abundanceProfile;
+    }
+
+    const std::vector< wevote::TaxLine > &getAbundanceprofile() const
+    {
+        return _d->abundanceProfile;
     }
 
     std::vector< std::string > &getSequences()
@@ -270,6 +282,7 @@ private:
         ResultsRoute,
         Status ,
         ReadsInfo ,
+        Abundance,
         Sequences ,
         Algorithms,
         Score ,
@@ -285,6 +298,7 @@ private:
         Status status;
         std::vector< std::string > sequences;
         std::vector< wevote::ReadInfo > readsInfo;
+        std::vector< wevote::TaxLine > abundanceProfile;
         std::vector< std::string > algorithms;
         std::vector< double > distances;
         double score;
@@ -300,6 +314,7 @@ private:
         properties.deObjectify( meta( Meta::ResultsRoute) , _d->resultsRoute );
         properties.deObjectify( meta( Meta::Status ) , _d->status );
         properties.deObjectifyArray( meta( Meta::ReadsInfo ) , _d->readsInfo );
+        properties.deObjectifyArray( meta( Meta::Abundance ) , _d->abundanceProfile );
         properties.deObjectifyArray( meta( Meta::Sequences ) , _d->sequences );
         properties.deObjectifyArray( meta( Meta::Algorithms ) , _d->algorithms );
         properties.deObjectify( meta( Meta::Score  ) , _d->score );
@@ -315,6 +330,7 @@ private:
             { Meta::ResultsRoute , "resultsRoute"},
             { Meta::Status , "status" } ,
             { Meta::ReadsInfo , "reads" } ,
+            { Meta::Abundance , "abundance" } ,
             { Meta::Sequences , "sequences" },
             { Meta::Algorithms , "algorithms" } ,
             { Meta::Score , "score" } ,

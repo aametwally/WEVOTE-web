@@ -45,6 +45,13 @@ public:
     WEVOTE_DLL std::string getTaxName( uint32_t taxid ) const;
 
     /**
+     * @brief getStandardTaxName
+     * @param taxid
+     * @return
+     */
+    WEVOTE_DLL std::string getStandardTaxName(uint32_t taxid) const;
+
+    /**
      * @brief getStandardParent
      * @param taxid
      * @return

@@ -131,7 +131,7 @@ export class WevoteClassificationPatchModel {
 
     public static makeWevoteSubmission =
     (experiment: IExperimentModel, cb: (wevoteSubmission: common.IWevoteSubmitEnsemble) => void) => {
-        fs.readFile(__dirname + '/ensemble_unclassified.csv', 'utf8', (err: any, data: string) => {
+        fs.readFile(__dirname + '/MiSeq_accuracy_ensemble_blast_kraken_tipp_clark_metaphlan.csv', 'utf8', (err: any, data: string) => {
             if (err) throw err;
             let unclassifiedReads = WevoteClassificationPatchModel.parseUnclassifiedEnsemble(data);
 
@@ -144,8 +144,9 @@ export class WevoteClassificationPatchModel {
                 },
                 status: <any>{},
                 reads: unclassifiedReads,
+                abundance: [] ,
                 sequences: [] ,
-                algorithms: [] ,
+                algorithms: ["BLAST", "KRAKEN", "TIPP", "CLARK", "MetaPhlAn"] ,
                 score: experiment.config.minScore,
                 penalty: experiment.config.penalty,
                 minNumAgreed: experiment.config.minNumAgreed,

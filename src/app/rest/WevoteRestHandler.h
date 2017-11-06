@@ -18,6 +18,7 @@
 // local lib
 #include "TaxonomyBuilder.h"
 #include "WevoteClassifier.h"
+#include "TaxonomyLineAnnotator.h"
 
 namespace wevote
 {
@@ -46,6 +47,7 @@ private:
 private:
     const TaxonomyBuilder &_taxonomy;
     const WevoteClassifier _classifier;
+    const TaxonomyLineAnnotator _annotator;
     static std::atomic_uint _jobCounter;
 };
 

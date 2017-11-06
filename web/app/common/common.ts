@@ -57,13 +57,14 @@ export interface IWevoteSubmitEnsemble {
     jobID: string,
     resultsRoute: IRemoteAddress,
     reads: IWevoteClassification[],
+    abundance: ITaxonomyAbundance[],
     sequences: string[],
     algorithms: string[],
     status: IStatus,
     score: number,
     penalty: number,
     minNumAgreed: number , 
-    distances: number[]
+    distances: number[] 
 }
 
 export interface IWevoteClassification {
