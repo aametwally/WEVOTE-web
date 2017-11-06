@@ -359,11 +359,7 @@ TaxonomyBuilder::buildTaxnameMap( const std::string &filename )
         sscanf( line.c_str() , "%d\t|\t%s", &node_id, name);
         std::string &nameRef = pmap[ node_id ];
         if( nameRef.empty())
-        {
             nameRef = name;
-            if( node_id == 543 )
-                printf("[taxid:%d][name:%s]",node_id,name);
-        }
     }
     return pmap;
 }
