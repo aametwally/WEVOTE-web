@@ -140,7 +140,7 @@ std::vector< ReadInfo > WevoteRestHandler::_fullpipeline( const WevoteSubmitEnse
             (std::thread::hardware_concurrency() < 2 )?
                 DEFAULT_THREADS_COUNT : std::thread::hardware_concurrency();
 
-    io::flushStringToFile( io::join( submission.getSequences() , "\n" ) , queryFile );
+    io::flushStringToFile( io::join( submission.getSequences() , std::string("\n")) , queryFile );
 
     std::string arguments = " --input " + queryFile;
     arguments += " --output " + outPrefix;
