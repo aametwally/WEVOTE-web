@@ -46,7 +46,7 @@ export class UserModel {
             if (err) throw err;
             console.log("Users cleared");
             UserModel.register(
-                UserModel.model({ username: "asem_alla" }),
+                UserModel.model({ username: "asem_alaa" }),
                 "qwerasdf",
                 function (err, user) {
                     if (err) throw err;

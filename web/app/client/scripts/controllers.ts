@@ -130,8 +130,8 @@ module wevote {
                 count: 0
             },
             config: {
-                minScore: 0,
-                minNumAgreed: 0,
+                minScore: 0.1,
+                minNumAgreed: 1,
                 penalty: 2,
                 algorithms: []
             }
