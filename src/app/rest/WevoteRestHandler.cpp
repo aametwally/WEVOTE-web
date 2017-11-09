@@ -142,7 +142,7 @@ void WevoteRestHandler::_generateProfile( http_request message )
                 .then([this,message]( web::json::value value )
         {
 
-            LOG_DEBUG("Full pipeline ..");
+            LOG_DEBUG("Generating profile ..");
             WevoteSubmitEnsemble submission =
                     io::DeObjectifier::fromObject< WevoteSubmitEnsemble >( value );
 
@@ -161,7 +161,7 @@ void WevoteRestHandler::_generateProfile( http_request message )
             LOG_DEBUG("[DONE] Transmitting[job:%d] .." , _jobCounter.load());
             _jobCounter++;
             LOG_DEBUG("[DONE] Submiting job:%d..",_jobCounter.load());
-            LOG_DEBUG("[DONE] Full pipeline ..");
+            LOG_DEBUG("[DONE] Generating profile ..");
         });
     });
 

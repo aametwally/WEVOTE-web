@@ -102,8 +102,7 @@ export class ExperimentModel {
             type: ReadModel.schema 
         },
         classification: {
-            type: EnsembleFileModel.schema,
-            required: true
+            type: EnsembleFileModel.schema
         },
         ensemble: {
             type: EnsembleFileModel.schema

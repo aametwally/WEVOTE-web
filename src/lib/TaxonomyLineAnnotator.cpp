@@ -50,7 +50,7 @@ TaxonomyLineAnnotator::annotateTaxonomyLines(
             const std::string name = _taxonomy.getTaxName( taxon );
             const wevote::RankID id = wevote::Rank::rankID.at( rank );
             const size_t idx = static_cast< size_t >( id );
-            std::cout << "[tax:" << taxon << "][idx:" << idx << "][name:" << name << "][rank:" << rank << "]" << std::endl;
+//            std::cout << "[tax:" << taxon << "][idx:" << idx << "][name:" << name << "][rank:" << rank << "]" << std::endl;
             taxLine.line[ idx ] = name;
             taxon = _taxonomy.getStandardParent( taxon );
         }

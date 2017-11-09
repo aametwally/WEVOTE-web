@@ -67,7 +67,7 @@ export class UploadRouter extends BaseRoute {
             res.status(204).end();
         });
 
-        this._router.post('/taxonomy', this._upload.single('file'), (req: Request, res: Response) => {
+        this._router.post('/classification', this._upload.single('file'), (req: Request, res: Response) => {
             console.log(req.file.filename);
 
             /**

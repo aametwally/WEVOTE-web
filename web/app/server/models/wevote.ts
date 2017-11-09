@@ -97,7 +97,7 @@ export class WevoteClassificationPatchModel {
 
         if (WevoteClassificationPatchModel.isHeaderLine(headerLine)) {
             if (WevoteClassificationPatchModel.isClassified(headerLine))
-                return tokens.slice( 4, tokens.indexOf('WEVOTE') + 1 );
+                return tokens.slice( 4, tokens.indexOf('WEVOTE') );
             else 
                 return tokens.slice( 1 );
         }
@@ -107,7 +107,7 @@ export class WevoteClassificationPatchModel {
 
     public static parseUnclassifiedEnsemble = (file: string): Array<IWevoteClassification> => {
         let array = new Array<IWevoteClassification>();
-        const lines = file.split('\n');
+        const lines = file.split('\n').slice(1);
         lines.forEach((line: string) => {
             const tokens: string[] = line.trim().split(",");
             if (tokens.length <= 1) return;

@@ -28,6 +28,11 @@
                                             filters="queueLimit, customFilter">
                                         </div>
                                     </div>
+                                    <div ng-controller="ClassificationUploaderController">
+                                        <div ng-include="'views/readsupload.html'" ng-show="experiment.usageScenario.value==='abundanceFromClassification'" nv-file-drop="" uploader="uploader"
+                                            filters="queueLimit, customFilter">
+                                        </div>
+                                    </div>
                                     
                                 </div>
                                 </div>

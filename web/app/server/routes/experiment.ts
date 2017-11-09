@@ -95,13 +95,13 @@ export class ExperimentRouter extends BaseRoute {
                     size: exp.ensemble.size,
                     count: exp.reads.count
                 };
-                const _taxonomy: IRemoteFile = <any>{
-                    name: "taxName",
-                    description: "somDesc",
+                const _classification: IRemoteFile = <any>{
+                    name: exp.classification.name,
+                    description: "classification file",
                     onServer: true,
-                    uri: "somURI",
-                    data: "somData",
-                    size: 0
+                    uri: exp.classification.uri,
+                    data: exp.classification.size,
+                    size: exp.classification.count
                 };
                 const _config: IConfig = <any>{
                     algorithms: exp.config.algorithms,
@@ -114,7 +114,7 @@ export class ExperimentRouter extends BaseRoute {
                     email: exp.email,
                     description: exp.description,
                     reads: _reads,
-                    taxonomy: _taxonomy,
+                    classification: _classification,
                     ensemble: _ensemble,
                     config: _config,
                     results: {},
@@ -135,11 +135,18 @@ export class ExperimentRouter extends BaseRoute {
             .get(verifyOrdinaryUser, (req: any, res: Response, next: NextFunction) => {
                 ExperimentModel.repo.retrieve((err: any, experiments: IExperimentModel[]) => {
                     if (err) return next(err);
-                    const username = req.decoded.username;
-                    const userExperiments = experiments.filter((exp: any) => {
-                        return exp.user && exp.user.username === username;
-                    });
-                    return res.json(userExperiments);
+                    if (req.decoded) {
+                        const username = req.decoded.username;
+                        const userExperiments = experiments.filter((exp: any) => {
+                            return exp.user && exp.user && exp.user.username === username;
+                        });
+                        return res.json(userExperiments);
+                    }
+                    else {
+                        const error = new Error('Not logged in!');
+                        return next(error);
+                    }
+
                 }, [
                         {
                             path: 'user',
@@ -154,13 +161,12 @@ export class ExperimentRouter extends BaseRoute {
                 ExperimentModel.repo.findById(req.params.expId,
                     function (err: any, experiment: any) {
                         if (err) return next(err);
-                        const demandingUser: string = (<any>req).decoded.username;
-                        const experimentUser: string = experiment.user.username;
-                        if (demandingUser === experimentUser)
+                        const loggedIn: Boolean = (<any>req).decoded && (<any>experiment.user);
+                        if (loggedIn && (<any>req).decoded.username === experiment.user.username)
                             return res.json(experiment);
                         else {
-                            console.log('Users mismatch!', demandingUser, experimentUser);
-                            const error = new Error('Users mismatch!' + demandingUser + experimentUser);
+                            console.log('Users mismatch or not logged in!');
+                            const error = new Error('Users mismatch or not logged in!');
                             next(error);
                         }
                     }, [
@@ -185,9 +191,8 @@ export class ExperimentRouter extends BaseRoute {
                 ExperimentModel.repo.findById(req.params.expId,
                     function (err: any, experiment: IExperimentModel) {
                         if (err) return next(err);
-                        const demandingUser: string = (<any>req).decoded.username;
-                        const experimentUser: string = (<any>experiment.user).username;
-                        if (demandingUser === experimentUser) {
+                        const loggedIn: Boolean = (<any>req).decoded && (<any>experiment.user);
+                        if (loggedIn && (<any>req).decoded.username === (<any>experiment.user).username) {
                             if (experiment.results) {
                                 WevoteClassificationPatchModel.repo.findByIdQuery(
                                     experiment.results.wevoteClassification
@@ -201,8 +206,8 @@ export class ExperimentRouter extends BaseRoute {
                             }
                         }
                         else {
-                            console.log('Users mismatch!', demandingUser, experimentUser);
-                            const error = new Error('Users mismatch!' + demandingUser + experimentUser);
+                            console.log('Users mismatch or not logged in!');
+                            const error = new Error('Users mismatch or not logged in!');
                             next(error);
                         }
                     }, [
@@ -285,9 +290,16 @@ export class ExperimentRouter extends BaseRoute {
                     exp.config.algorithms = <IAlgorithm[]>algorithms.map((value: string) => {
                         return <IAlgorithm>{ name: value, used: true };
                     });
-                    const headerLine = lines[0];
+                    const headerLine = lines[0].trim().split(',');
                     lines = lines.slice(1);
-                    const wevoteColumn = headerLine.indexOf( 'WEVOTE' );
+                    const wevoteColumn = headerLine.indexOf('WEVOTE');
+                    const distanceFirstColumn = headerLine.indexOf(`dist(${algorithms[0]})`);
+                    const distanceLastColumn = headerLine.indexOf(`dist(${algorithms[algorithms.length - 1]})`);
+                    const numToolsAgreedColumn = headerLine.indexOf('numToolsAgreed');
+                    const numToolsReportedColumn = headerLine.indexOf('numToolsReported');
+                    const numToolsUsedColumn = headerLine.indexOf('numToolsUsed');
+                    const scoreColumn = headerLine.indexOf('score');
+                    const costColumn = headerLine.indexOf('cost');
 
                     const classifiedReads = new Array<IWevoteClassification>();
                     lines.forEach((line: string) => {
@@ -295,8 +307,15 @@ export class ExperimentRouter extends BaseRoute {
                         const classifiedRead: IWevoteClassification = <any>
                             {
                                 seqId: tokens[0],
-                                votes: tokens.slice(1 ,wevoteColumn).map((val: string) => { return parseInt(val, 10); }),
-                                WEVOTE: tokens[wevoteColumn]
+                                votes: tokens.slice(4, wevoteColumn).map((val: string) => { return parseInt(val, 10); }),
+                                numToolsReported: tokens[numToolsReportedColumn],
+                                numToolsAgreed: tokens[numToolsAgreedColumn],
+                                numToolsUsed: tokens[numToolsUsedColumn],
+                                score: parseFloat(tokens[scoreColumn]),
+                                distances: tokens.slice(distanceFirstColumn, distanceLastColumn + 1)
+                                    .map((d: string) => { return parseFloat(d); }),
+                                cost: parseFloat( tokens[ costColumn ] ) ,
+                                WEVOTE: parseInt( tokens[wevoteColumn] )
                             }
                         classifiedReads.push(classifiedRead);
                     });
@@ -352,7 +371,11 @@ export class ExperimentRouter extends BaseRoute {
                     exp.config.algorithms = <IAlgorithm[]>algorithms.map((value: string) => {
                         return <IAlgorithm>{ name: value, used: true };
                     });
-                    lines = (WevoteClassificationPatchModel.isHeaderLine(lines[0])) ? lines.slice(1) : lines;
+                    if (!WevoteClassificationPatchModel.isClassified(lines[0])) {
+                        console.error('File must include header, and must be classified.');
+                    }
+                    const headerLine = lines[0];
+                    lines = lines.slice(1);
                     const unclassifiedReads = new Array<IWevoteClassification>();
                     lines.forEach((line: string) => {
                         const tokens = line.split(',');
@@ -429,7 +452,7 @@ export class ExperimentRouter extends BaseRoute {
 
                 const mailContent: string =
                     `
-                    A WEVOTE experiment, posted by your account ${user.username}, is now completed.
+                    A WEVOTE experiment, posted by your account ${(user) ? user.username : '(not logged in!)'}, is now completed.
                     You can download or visualize your results, after logging in, at
                     <a href="${config.url}:${config.port}/#!/results/${exp._id}">this link</a><br>
                     Experiment description: ${exp.description} <br>

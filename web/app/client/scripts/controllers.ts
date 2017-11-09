@@ -88,17 +88,6 @@ module wevote {
         }
         ];
 
-        private readonly taxonomySources: ITaxonomySource[] = [{
-            value: "NCBI",
-            label: "Use NCBI taxonomy database"
-        },
-        {
-            value: "custom",
-            label: "Upload custom taxonomy database"
-        }
-        ];
-
-
         private readonly emptyExperiment: common.IExperiment = {
             user: "public",
             email: "",
@@ -466,7 +455,7 @@ module wevote {
         protected onSuccessItemCB = (fileItem: any, response: any, status: any, header: any) => {
             // console.info('onSuccessItem', fileItem, response, status, headers);
             console.log('success', response, header);
-            this._scope.experiment.ensemble.uri =
+            this._scope.experiment.classification.uri =
                 JSON.parse(JSON.stringify(header.filename));
             this._scope.experiment.ensemble.count =
                 parseInt(header.ensemblecount, 10);
@@ -477,9 +466,9 @@ module wevote {
 
             this._scope.uploader.queue = [fileItem];
 
-            this._scope.experiment.ensemble.name =
+            this._scope.experiment.classification.name =
                 JSON.parse(JSON.stringify(fileItem.file.name));
-            this._scope.experiment.ensemble.size =
+            this._scope.experiment.classification.size =
                 JSON.parse(JSON.stringify(fileItem.file.size));
 
             setTimeout(function () {
@@ -666,10 +655,10 @@ module wevote {
             this._scope.experimentsError = false;
             this._scope.experimentsMessage = "Loading ...";
             this._experimentService = ExperimentService;
-
-            $interval(function() {
-                ExperimentService.retrieve(this.onExperimentsLoadedSuccess, this.onExperimentsLoadedFail);                
-              }, 4000)
+            this._experimentService.retrieve(this.onExperimentsLoadedSuccess, this.onExperimentsLoadedFail);                
+            // $interval( () => {
+            //     this._experimentService.retrieve(this.onExperimentsLoadedSuccess, this.onExperimentsLoadedFail);                                
+            //   }, 4000);
         }
 
         private onExperimentsLoadedSuccess: Function = (response: any) => {
