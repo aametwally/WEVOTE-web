@@ -268,7 +268,7 @@ protected:
             { Meta::NumToolsAgreed , "numToolsAgreed" } ,
             { Meta::NumToolsReported , "numToolsReported" } ,
             { Meta::NumToolsUsed , "numToolsUsed" } ,
-            { Meta::ResolvedTaxon , "resolvedTaxon" } ,
+            { Meta::ResolvedTaxon , "WEVOTE" } ,
             { Meta::Score , "score" } ,
             { Meta::SeqId , "seqId" } ,
             { Meta::Votes , "votes" } ,

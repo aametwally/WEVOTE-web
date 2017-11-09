@@ -181,6 +181,36 @@ export class ExperimentRouter extends BaseRoute {
                         }
                     ]);
             })
+
+            .delete(verifyOrdinaryUser, function (req: Request, res: Response, next: NextFunction) {
+                ExperimentModel.repo.findById(req.params.expId,
+                    function (err: any, experiment: IExperimentModel) {
+                        if (err) return next(err);
+                        const demandingUser: string = (<any>req).decoded.username;
+                        const experimentUser: string = (<any>experiment.user).username;
+                        if (demandingUser === experimentUser) {
+                            if (experiment.results) {
+                                WevoteClassificationPatchModel.repo.findByIdQuery(
+                                    experiment.results.wevoteClassification
+                                ).remove().exec();
+                                TaxonomyAbundanceProfileModel.repo.findByIdQuery(
+                                    experiment.results.taxonomyAbundanceProfile
+                                ).remove().exec();
+                                ExperimentModel.repo.findByIdQuery(
+                                    experiment._id
+                                ).remove().exec();
+                            }
+                        }
+                        else {
+                            console.log('Users mismatch!', demandingUser, experimentUser);
+                            const error = new Error('Users mismatch!' + demandingUser + experimentUser);
+                            next(error);
+                        }
+                    }, [
+                        {
+                            path: 'user'
+                        }]);
+            })
             ;
     }
 
@@ -200,6 +230,8 @@ export class ExperimentRouter extends BaseRoute {
                     const algorithms: string[] = exp.config.algorithms.map((alg: IAlgorithm) => {
                         return alg.name;
                     });
+                    if (WevoteClassificationPatchModel.isHeaderLine(sequences[0]))
+                        sequences = sequences.slice(1);
 
                     const submission: IWevoteSubmitEnsemble =
                         {
@@ -211,7 +243,7 @@ export class ExperimentRouter extends BaseRoute {
                             },
                             jobID: exp._id,
                             reads: [],
-                            abundance: [] ,
+                            abundance: [],
                             sequences: sequences,
                             algorithms: algorithms,
                             status: <any>{},
@@ -241,9 +273,76 @@ export class ExperimentRouter extends BaseRoute {
                     httpreq.write(JSON.stringify(submission));
                     httpreq.end();
                 } break;
-            case 'pipelineFromSimulatedReads':
+            case 'abundanceFromClassification':
                 {
+                    const classification = fs.readFileSync(UploadRouter.uploadsDir + '/' + exp.classification.uri).toString().trim();
+                    // split on newlines...
+                    let lines = classification.split('\n');
+                    if (!WevoteClassificationPatchModel.isClassified(lines[0])) {
+                        console.error('File must include header, and must be classified.');
+                    }
 
+                    const algorithms: string[] = WevoteClassificationPatchModel.extractAlgorithms(lines[0]);
+                    exp.config.algorithms = <IAlgorithm[]>algorithms.map((value: string) => {
+                        return <IAlgorithm>{ name: value, used: true };
+                    });
+                    const headerLine = lines[0];
+                    lines = lines.slice(1);
+                    const wevoteColumn = headerLine.indexOf( 'WEVOTE' );
+
+                    const classifiedReads = new Array<IWevoteClassification>();
+                    lines.forEach((line: string) => {
+                        const tokens = line.split(',');
+                        const classifiedRead: IWevoteClassification = <any>
+                            {
+                                seqId: tokens[0],
+                                votes: tokens.slice(1 ,wevoteColumn).map((val: string) => { return parseInt(val, 10); }),
+                                WEVOTE: tokens[wevoteColumn]
+                            }
+                        classifiedReads.push(classifiedRead);
+                    });
+                    const submission: IWevoteSubmitEnsemble =
+                        {
+                            resultsRoute:
+                            {
+                                host: config.localhost,
+                                port: config.port,
+                                relativePath: '/experiment/classification'
+                            },
+                            jobID: exp._id,
+                            reads: classifiedReads,
+                            abundance: [],
+                            sequences: [],
+                            algorithms: [],
+                            status: <any>{},
+                            score: exp.config.minScore,
+                            minNumAgreed: exp.config.minNumAgreed,
+                            penalty: exp.config.penalty,
+                            distances: <any>[]
+                        };
+                    const options: http.RequestOptions = {
+                        host: config.cppWevoteUrl,
+                        port: config.cppWevotePort,
+                        path: config.cppWevoteAbundancePath,
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    };
+                    const httpreq = http.request(options, function (response) {
+                        response.setEncoding('utf8');
+                        response.on('end', function () {
+                            console.log('classification file posted to wevote core server');
+                            response.on('error', function (err: Error) {
+                                console.log('Error:' + err);
+                            });
+                        });
+                    });
+                    exp.save((err: any, exp: IExperimentModel) => {
+                        if (err) throw Error('Error saving experiment model.');
+                        httpreq.write(JSON.stringify(submission));
+                        httpreq.end();
+                    });
                 } break;
             case 'classificationFromEnsemble':
                 {
@@ -275,7 +374,7 @@ export class ExperimentRouter extends BaseRoute {
                             },
                             jobID: exp._id,
                             reads: unclassifiedReads,
-                            abundance: [] ,
+                            abundance: [],
                             sequences: [],
                             algorithms: [],
                             status: <any>{},

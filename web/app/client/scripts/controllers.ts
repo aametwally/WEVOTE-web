@@ -10,10 +10,10 @@ module wevote {
         message: string,
     }
     export class MainController {
-        static readonly $inject: any = ['$scope', '$state' , 'HelloService', MainController];
+        static readonly $inject: any = ['$scope', '$state', 'HelloService', MainController];
         private _scope: MainControllerScope;
         private _hello: metaviz.HelloFactory;
-        constructor($scope: ng.IScope, $state: ng.ui.IState , hello: metaviz.HelloFactory) {
+        constructor($scope: ng.IScope, $state: ng.ui.IState, hello: metaviz.HelloFactory) {
             this._scope = <MainControllerScope>$scope;
             this._hello = hello;
             this._hello.hello();
@@ -60,11 +60,13 @@ module wevote {
         readsUploader: any,
         readsUploaderPostValidation: boolean,
         ensembleUploader: any,
-        ensembleUploaderPostValidation: boolean
+        ensembleUploaderPostValidation: boolean,
+        classificationUploader: any,
+        classificationUploaderPostValidation: boolean
     }
     export class InputController {
 
-        static readonly $inject = ['$scope','$state' , 'SimulatedReadsService',
+        static readonly $inject = ['$scope', '$state',
             'AlgorithmsService', 'ExperimentService', InputController];
 
         private _scope: InputControllerScope;
@@ -106,7 +108,6 @@ module wevote {
             reads: {
                 name: "",
                 description: "",
-                onServer: true,
                 uri: "",
                 data: "",
                 size: 0,
@@ -120,10 +121,9 @@ module wevote {
                 size: 0,
                 count: 0
             },
-            taxonomy: {
-                name: this.taxonomySources[0].value,
+            classification: {
+                name: "",
                 description: "",
-                onServer: true,
                 uri: "",
                 data: "",
                 size: 0,
@@ -137,7 +137,7 @@ module wevote {
             }
         };
 
-        constructor($scope: ng.IScope, $state: ng.ui.IStateService , private SimulatedReadsService: any,
+        constructor($scope: ng.IScope, $state: ng.ui.IStateService, private SimulatedReadsService: any,
             private AlgorithmsService: any, private ExperimentService: any) {
             this._scope = <InputControllerScope>$scope;
             this._scope.inputForm = {};
@@ -150,10 +150,8 @@ module wevote {
 
             this._scope.usageScenarios = this.usageScenarios;
 
-            this._scope.availableDatabase = [];
             this._scope.selectiveAlgorithms = true;
             this._scope.supportedAlgorithms = [];
-            this._scope.availableDatabaseLoaded = false;
             this._scope.supportedAlgorithmsLoaded = false;
             this._scope.areDataLoaded = this.areDataLoaded;
             SimulatedReadsService.retrieve(this.onSimulateReadsSuccess, this.onSimulatedReadsFail);
@@ -214,7 +212,8 @@ module wevote {
             this._scope.readsUploaderPostValidation = true;
             this._scope.ensembleUploader = null;
             this._scope.ensembleUploaderPostValidation = true;
-
+            this._scope.classificationUploader = null;
+            this._scope.classificationUploaderPostValidation = true;
             // Watchers!
             // this._scope.experiment.usageScenario.value;
             this._scope.$watch('experiment.usageScenario.value', (usage: string) => {
@@ -225,7 +224,7 @@ module wevote {
                         } break;
                     case 'abundanceFromClassification':
                         {
-                            this._scope.selectiveAlgorithms = true;
+                            this._scope.selectiveAlgorithms = false;
                         } break;
                     case 'classificationFromEnsemble':
                         {
@@ -241,6 +240,8 @@ module wevote {
                     'readsUploaderPostValidation',
                     'ensembleUploader.atLeastSingleFileUploaded',
                     'ensembleUploaderPostValidation',
+                    'classificationUploader.atLeastSingleFileUploaded',
+                    'classificationUploaderPostValidation',
                     'postValidationError'
                 ],
                 (newVal: any, oldVal: any, scope: ng.IScope) => {
@@ -259,7 +260,10 @@ module wevote {
                                 } break;
                             case 'abundanceFromClassification':
                                 {
-
+                                    this._scope.usageError =
+                                        !this._scope.classificationUploader.atLeastSingleFileUploaded;
+                                    console.log(this._scope.classificationUploader);
+                                    console.log('at least', this._scope.classificationUploader.atLeastSingleFileUploaded);
                                 } break;
                             case 'classificationFromEnsemble':
                                 {
@@ -305,21 +309,8 @@ module wevote {
         }
 
         private areDataLoaded = () => {
-            return this._scope.availableDatabaseLoaded &&
-                this._scope.supportedAlgorithmsLoaded;
+            return this._scope.supportedAlgorithmsLoaded;
         };
-
-        private onSimulateReadsSuccess: Function = (response: any) => {
-            this._scope.availableDatabase = response;
-            this._scope.availableDatabaseLoaded = true;
-            this._scope.showInput = this._scope.areDataLoaded();
-            console.log(this._scope.showInput);
-        }
-
-        private onSimulatedReadsFail: Function = (response: any) => {
-            this._scope.error = true;
-            this._scope.message = "Error: " + response.status + " " + response.statusText;
-        }
 
         private onSupportedAlgorithmsSuccess: Function = (response: any) => {
             this._scope.supportedAlgorithms = response;
@@ -461,6 +452,45 @@ module wevote {
         };
     }
 
+    export class ClassificationUploaderController extends UploaderController {
+        static readonly $inject = ['$scope', 'FileUploaderService', ClassificationUploaderController];
+
+        constructor($scope: UploaderControllerScope, FileUploaderService: any) {
+            super($scope, FileUploaderService);
+            this._uploader = FileUploaderService.getFileUploader(
+                'upload/classification', 'Drop classifcation file here', 'Classification file uploader');
+            this._uploader.onSuccessItem = this.onSuccessItemCB;
+            this._uploader.onAfterAddingFile = this.onAfterAddingFileCB;
+            this._inputScope.ensembleUploader = this._uploader;
+            this._scope.uploader = this._uploader;
+        };
+
+        protected onSuccessItemCB = (fileItem: any, response: any, status: any, header: any) => {
+            // console.info('onSuccessItem', fileItem, response, status, headers);
+            console.log('success', response, header);
+            this._scope.experiment.ensemble.uri =
+                JSON.parse(JSON.stringify(header.filename));
+            this._scope.experiment.ensemble.count =
+                parseInt(header.ensemblecount, 10);
+        };
+
+        protected onAfterAddingFileCB = (fileItem: any) => {
+            console.info('onAfterAddingFile', fileItem);
+
+            this._scope.uploader.queue = [fileItem];
+
+            this._scope.experiment.ensemble.name =
+                JSON.parse(JSON.stringify(fileItem.file.name));
+            this._scope.experiment.ensemble.size =
+                JSON.parse(JSON.stringify(fileItem.file.size));
+
+            setTimeout(function () {
+                $("[data-toggle='tooltip']").tooltip({
+                    trigger: 'hover'
+                });
+            }, 500);
+        };
+    }
     interface HeaderControllerScope extends ng.IScope {
         loggedIn: boolean,
         username: string,
@@ -628,16 +658,20 @@ module wevote {
     }
 
     export class ExperimentsListController {
-        static readonly $inject = ['$scope', 'ExperimentService', ExperimentsListController];
+        static readonly $inject = ['$scope', 'ExperimentService','$interval', ExperimentsListController];
         private _scope: ExperimentsListControllerScope;
-
-        constructor($scope: ng.IScope, private ExperimentService: any) {
+        private _experimentService;
+        constructor($scope: ng.IScope, private ExperimentService: any , $interval: any) {
             this._scope = <ExperimentsListControllerScope>$scope;
             this._scope.experiments = {};
             this._scope.showExperiments = false;
             this._scope.experimentsError = false;
             this._scope.experimentsMessage = "Loading ...";
-            ExperimentService.retrieve(this.onExperimentsLoadedSuccess, this.onExperimentsLoadedFail);
+            this._experimentService = ExperimentService;
+
+            $interval(function() {
+                ExperimentService.retrieve(this.onExperimentsLoadedSuccess, this.onExperimentsLoadedFail);                
+              }, 4000)
         }
 
         private onExperimentsLoadedSuccess: Function = (response: any) => {
@@ -673,6 +707,7 @@ module wevote {
                             return $('#desc-data-' + exp._id).html();
                         }
                     });
+
                     $('#' + 'desc-' + exp._id).click(function (e) {
                         // Special stuff to do when this link is clicked...
 
@@ -691,6 +726,19 @@ module wevote {
                     $('#' + 'param-' + exp._id).click(function (e) {
                         // Special stuff to do when this link is clicked...
 
+                        // Cancel the default action
+                        e.preventDefault();
+                    });
+
+                    $('#' + 'remove-' + exp._id).click(function (e) {
+                        // Delete experiment.
+                        this._experimentService.removeExperiment(exp._id,
+                            (delResponse) => {
+                                console.log('experiment removed:', delResponse);
+                            },
+                            (delResponse: any) => {
+                                console.log('experiment failed to remove:', delResponse);
+                            })
                         // Cancel the default action
                         e.preventDefault();
                     });
@@ -766,6 +814,7 @@ module wevote {
         .controller('InputController', InputController.$inject)
         .controller('ReadsUploaderController', ReadsUploaderController.$inject)
         .controller('EnsembleUploaderController', EnsembleUploaderController.$inject)
+        .controller('ClassificationUploaderController', ClassificationUploaderController.$inject)
         .controller('HeaderController', HeaderController.$inject)
         .controller('LoginController', LoginController.$inject)
         .controller('RegisterController', RegisterController.$inject)

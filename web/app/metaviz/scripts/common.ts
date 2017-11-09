@@ -68,7 +68,7 @@ declare namespace common {
     export interface IWevoteClassification {
         seqId: string,
         votes: number[],
-        resolvedTaxon?: number,
+        WEVOTE?: number,
         numToolsReported?: number,
         numToolsAgreed?: number,
         numToolsUsed?: number,

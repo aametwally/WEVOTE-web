@@ -281,25 +281,6 @@ module wevote {
         public abstract retrieve: (cbS: Function, cbF: Function) => any;
     }
 
-    export class SimulatedReadsFactory extends DataRetriever {
-        static readonly $inject = ['__env', '$resource', SimulatedReadsFactory.factory()];
-
-        static factory() {
-            let instance = (__env: any, $resource: ng.resource.IResourceService) =>
-                new SimulatedReadsFactory(__env , $resource);
-            return instance;
-        }
-
-        public retrieve = (cbS: Function, cbF: Function) => {
-            console.log("retrieving simulated reads",this.__env.baseUrl + "reads" );
-            return this._resource(this.__env.baseUrl + "reads", null, {
-                'update': {
-                    method: 'PUT'
-                }
-            }).query(cbS, cbF);
-        }
-    }
-
     export class AlgorithmsFactory extends DataRetriever {
         static readonly $inject = ['__env', '$resource', AlgorithmsFactory.factory()];
 
@@ -357,6 +338,11 @@ module wevote {
                     }
                 }).get(cbS, cbF);
         }
+
+        public removeExperiment = (id: string, cbS: Function, cbF: Function) => {
+            return this._resource(this.__env.baseUrl + 'experiment/:expId',
+                { expId: id }).remove(cbS, cbF);
+        }
     }
 
     export class UserFactory extends DataRetriever {
@@ -391,7 +377,6 @@ module wevote {
         .factory('LocalStorageService', LocalStorageFactory.$inject)
         .factory('AuthService', AuthFactory.$inject)
         .factory('FileUploaderService', FileUploaderFactory.$inject)
-        .factory('SimulatedReadsService', SimulatedReadsFactory.$inject)
         .factory('AlgorithmsService', AlgorithmsFactory.$inject)
         .factory('ExperimentService', ExperimentFactory.$inject)
         .factory('UserService', UserFactory.$inject)

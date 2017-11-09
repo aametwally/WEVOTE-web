@@ -525,7 +525,7 @@ left: ${this._w / 2 - 70}px;
             const textual: string = [header.join(seperator)].concat(data.map((entry: IWevoteTableEntry) => {
                 return [entry.seqId]
                     .concat(<any>entry.votes)
-                    .concat(<any>[entry.resolvedTaxon])
+                    .concat(<any>[entry.WEVOTE])
                     // .concat(<any>entry.distances)
                     .concat(<any>[entry.cost, entry.score]).join(seperator);
             })).join("\n");
@@ -609,7 +609,7 @@ left: ${this._w / 2 - 70}px;
 
                     const label = entries.map((entry: IWevoteTableEntry) => {
                         return entry.votes.map((tax: number) => { return `${tax}`; })
-                            .concat([`${entry.resolvedTaxon}`])
+                            .concat([`${entry.WEVOTE}`])
                             // .concat((<any>entry).distances.map((d: number) => { return `${d.toFixed(2)}`; }))
                             .concat([`${(<any>entry).cost.toFixed(2)}`, `${(<any>entry).score.toFixed(2)}`]);
                     });
@@ -623,7 +623,7 @@ ${xValues[index]}: ${tax}<br>
                         }).concat([
                             `
 seq: ${entry.seqId}<br>
-WEVOTE: ${entry.resolvedTaxon}<br>
+WEVOTE: ${entry.WEVOTE}<br>
 score: ${(<any>entry).score.toFixed(2)}
 `
                         ])

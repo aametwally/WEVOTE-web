@@ -8,6 +8,7 @@ module.exports = {
     'uploadDir': __dirname + '/uploads',
     'cppWevoteUrl': '127.0.0.1',
     'cppWevotePort': 34568,
+    'cppWevoteAbundancePath' : '/wevote/submit/abundance',
     'cppWevoteClassificationPath': '/wevote/submit/ensemble',
     'cppWevoteFullPipelinePath': '/wevote/submit/fullpipeline',    
     'wevoteGmail' : 'wevote.taxonomy@gmail.com',

@@ -151,7 +151,7 @@ namespace metaviz {
                     // counterMap< targeted taxid , algorithms agreed >
                     let counterMap: Map<number, Set<Array<number>>> = new Map<number, Set<Array<number>>>();
                     const votes = (showWevote) ?
-                        readClassification.votes.concat(<number>readClassification.resolvedTaxon) : readClassification.votes;
+                        readClassification.votes.concat(<number>readClassification.WEVOTE) : readClassification.votes;
 
                     votes.forEach(function (taxid: number, algIdx: number) {
                         const set = counterMap.get(taxid);

@@ -105,8 +105,8 @@ export class ExperimentModel {
         reads: {
             type: ReadModel.schema 
         },
-        taxonomy: {
-            type: TaxonomyModel.schema,
+        classification: {
+            type: EnsembleFileModel.schema,
             required: true
         },
         ensemble: {
@@ -147,7 +147,7 @@ export class ExperimentModel {
                         size: 0,
                         count: 0
                     };
-                    const _taxonomy: IRemoteFile = <any>{
+                    const _classification: IRemoteFile = <any>{
                         name: "todo",
                         description: "todo",
                         onServer: true,
@@ -166,7 +166,7 @@ export class ExperimentModel {
 
                     const _config: IConfig = <any>{
                         algorithms: [
-                            { name: "BLAST", used: true },
+                            { name: "BLASTN", used: true },
                             { name: "KRAKEN", used: true },
                             { name: "TIPP", used: true },
                             { name: "CLARK", used: true },
@@ -185,7 +185,7 @@ export class ExperimentModel {
                         usageScenario: <IUsageScenario>{ value: "classificationFromEnsemble" ,  usage: "Classification" },
                         reads: _reads,
                         ensemble: _ensemble,
-                        taxonomy: _taxonomy,
+                        classification: _classification,
                         status: <common.IStatus> { code: common.EStatus.NOT_STARTED , message: common.EStatus[common.EStatus.NOT_STARTED] },
                         config: _config
                     }, (err: any, exp: any) => {

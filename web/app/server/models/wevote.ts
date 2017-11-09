@@ -29,7 +29,7 @@ export const wevoteClassificationSchema = new mongoose.Schema({
         type: [Number],
         required: true
     },
-    resolvedTaxon: {
+    WEVOTE: {
         type: Number
     },
     numToolsReported: {
@@ -47,7 +47,7 @@ export const wevoteClassificationSchema = new mongoose.Schema({
     distances: {
         type: [Number]
     },
-    cost :{
+    cost: {
         type: Number
     }
 });
@@ -67,7 +67,7 @@ export class WevoteClassificationPatchModel {
         status: {
             type: statusSchema
         },
-        distances:{
+        distances: {
             type: [Number]
         }
 
@@ -81,7 +81,7 @@ export class WevoteClassificationPatchModel {
         const tokens = headerLine.trim().split(sep);
         if (WevoteClassificationPatchModel.isHeaderLine(headerLine))
             return tokens.reduce((previous: boolean, current: string) => {
-                return previous || current === 'resolvedTaxon';
+                return previous || current === 'WEVOTE';
             }, false);
         /** If tokens are greater than 7 fields, then it is a classified read.*/
         else return tokens.length >= 7; /** TODO: eleminate this magic number. */
@@ -97,23 +97,12 @@ export class WevoteClassificationPatchModel {
 
         if (WevoteClassificationPatchModel.isHeaderLine(headerLine)) {
             if (WevoteClassificationPatchModel.isClassified(headerLine))
-                return tokens.slice(5, -1);
-            else
-                return tokens.slice(1);
+                return tokens.slice( 4, tokens.indexOf('WEVOTE') + 1 );
+            else 
+                return tokens.slice( 1 );
         }
-        else {
-            let algorithmsCount = 0;
-            if (WevoteClassificationPatchModel.isClassified(headerLine))
-                algorithmsCount = tokens.length - 6; /** TODO: eliminate this magic number. */
-            else
-                algorithmsCount = tokens.length - 1;
-
-            let i = 0;
-            let algorithms = new Array<string>();
-            while (i++ < algorithmsCount)
-                algorithms.push(`ALG${i}`);
-            return algorithms;
-        }
+        else
+            throw Error("files must include header line");
     };
 
     public static parseUnclassifiedEnsemble = (file: string): Array<IWevoteClassification> => {
@@ -144,9 +133,9 @@ export class WevoteClassificationPatchModel {
                 },
                 status: <any>{},
                 reads: unclassifiedReads,
-                abundance: [] ,
-                sequences: [] ,
-                algorithms: ["BLAST", "KRAKEN", "TIPP", "CLARK", "MetaPhlAn"] ,
+                abundance: [],
+                sequences: [],
+                algorithms: ["BLASTN", "KRAKEN", "TIPP", "CLARK", "MetaPhlAn"],
                 score: experiment.config.minScore,
                 penalty: experiment.config.penalty,
                 minNumAgreed: experiment.config.minNumAgreed,

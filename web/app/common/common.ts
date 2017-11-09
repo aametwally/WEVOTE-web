@@ -70,7 +70,7 @@ export interface IWevoteSubmitEnsemble {
 export interface IWevoteClassification {
     seqId: string,
     votes: number[],
-    resolvedTaxon?: number,
+    WEVOTE?: number,
     numToolsReported?: number,
     numToolsAgreed?: number,
     numToolsUsed?: number,
@@ -126,7 +126,7 @@ export interface IExperiment {
     email: string;
     description: string;
     reads: IRemoteFile;
-    taxonomy: IRemoteFile;
+    classification: IRemoteFile;
     ensemble: IRemoteFile;
     config: IConfig;
     status?: IStatus;
