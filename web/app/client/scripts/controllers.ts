@@ -103,7 +103,6 @@ module wevote {
             user: "public",
             email: "",
             description: "",
-            isPrivate: false,
             usageScenario: this.usageScenarios[0],
             reads: {
                 name: "",
@@ -137,7 +136,7 @@ module wevote {
             }
         };
 
-        constructor($scope: ng.IScope, $state: ng.ui.IStateService, private SimulatedReadsService: any,
+        constructor($scope: ng.IScope, $state: ng.ui.IStateService, 
             private AlgorithmsService: any, private ExperimentService: any) {
             this._scope = <InputControllerScope>$scope;
             this._scope.inputForm = {};
@@ -154,7 +153,6 @@ module wevote {
             this._scope.supportedAlgorithms = [];
             this._scope.supportedAlgorithmsLoaded = false;
             this._scope.areDataLoaded = this.areDataLoaded;
-            SimulatedReadsService.retrieve(this.onSimulateReadsSuccess, this.onSimulatedReadsFail);
             AlgorithmsService.retrieve(this.onSupportedAlgorithmsSuccess, this.onSupportedAlgorithmsFail);
             this._scope.experiment = JSON.parse(JSON.stringify(this.emptyExperiment));
 
@@ -660,7 +658,7 @@ module wevote {
     export class ExperimentsListController {
         static readonly $inject = ['$scope', 'ExperimentService','$interval', ExperimentsListController];
         private _scope: ExperimentsListControllerScope;
-        private _experimentService;
+        private _experimentService: any;
         constructor($scope: ng.IScope, private ExperimentService: any , $interval: any) {
             this._scope = <ExperimentsListControllerScope>$scope;
             this._scope.experiments = {};
@@ -730,10 +728,10 @@ module wevote {
                         e.preventDefault();
                     });
 
-                    $('#' + 'remove-' + exp._id).click(function (e) {
+                    $('#' + 'remove-' + exp._id).click( (e) => {
                         // Delete experiment.
                         this._experimentService.removeExperiment(exp._id,
-                            (delResponse) => {
+                            (delResponse:any ) => {
                                 console.log('experiment removed:', delResponse);
                             },
                             (delResponse: any) => {
@@ -756,7 +754,6 @@ module wevote {
 
     interface IExperimentScope extends ng.IScope {
         user: string;
-        isPrivate: boolean;
         email: string;
         description: string;
         config: common.IConfig;
@@ -789,7 +786,6 @@ module wevote {
             this._scope.email = response.email;
             this._scope.description = response.description;
             this._scope.createdAt = response.createdAt;
-            this._scope.isPrivate = false;
             this._scope.config = response.config;
             this._scope.results = {
                 wevoteClassification: response.results.wevoteClassification.patch,

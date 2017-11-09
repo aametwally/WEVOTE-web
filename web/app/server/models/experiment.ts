@@ -92,10 +92,6 @@ export class ExperimentModel {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         },
-        isPrivate: {
-            type: Boolean,
-            default: false
-        },
         email: {
             type: String
         },

@@ -111,7 +111,6 @@ export class ExperimentRouter extends BaseRoute {
                 };
                 ExperimentModel.repo.create(<any>{
                     user: req.decoded._id,
-                    isPrivate: exp.isPrivate,
                     email: exp.email,
                     description: exp.description,
                     reads: _reads,

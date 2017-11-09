@@ -122,7 +122,6 @@ export interface IRemoteFile {
 
 export interface IExperiment {
     user: any;
-    isPrivate: boolean;
     email: string;
     description: string;
     reads: IRemoteFile;

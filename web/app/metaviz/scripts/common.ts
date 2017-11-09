@@ -58,11 +58,14 @@ declare namespace common {
         jobID: string,
         resultsRoute: IRemoteAddress,
         reads: IWevoteClassification[],
+        abundance: ITaxonomyAbundance[],
+        sequences: string[],
+        algorithms: string[],
         status: IStatus,
         score: number,
         penalty: number,
         minNumAgreed: number , 
-        distances: number[]
+        distances: number[] 
     }
     
     export interface IWevoteClassification {
@@ -120,11 +123,10 @@ declare namespace common {
     
     export interface IExperiment {
         user: any;
-        isPrivate: boolean;
         email: string;
         description: string;
         reads: IRemoteFile;
-        taxonomy: IRemoteFile;
+        classification: IRemoteFile;
         ensemble: IRemoteFile;
         config: IConfig;
         status?: IStatus;
@@ -132,5 +134,5 @@ declare namespace common {
         usageScenario: IUsageScenario;
         createdAt?: Date;
         modifiedAt?: Date;
-    }    
+    }      
 }
