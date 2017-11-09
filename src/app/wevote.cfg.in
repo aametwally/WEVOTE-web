@@ -1,0 +1,8 @@
+blastnPath="@BLASTN_PATH@"
+blastDB="@BLASTN_DB@"
+krakenPath="@KRAKEN_PATH@"
+krakenDB="@KRAKEN_DB@"
+clarkPath="@CLARK_PATH@"
+clarkDB="@CLARK_DB@"
+metaphlanPath="@METAPHLAN_PATH@"
+tippPath="@TIPP_PATH@"
