@@ -18,7 +18,9 @@ TaxonomyLineAnnotator::annotateTaxonomyLines(
     std::map< uint32_t , TaxLine > annotatedTaxa;
     std::map< uint32_t , uint32_t > taxCounter;
     for( const ReadInfo &read : classifiedReads )
-        taxCounter[ read.resolvedTaxon ]++;
+    {
+        ++taxCounter[ _taxonomy.correctTaxan( read.resolvedTaxon )];
+    }
 
     std::for_each( taxCounter.cbegin() , taxCounter.cend() ,
                    [&annotatedTaxa]( const std::pair< uint32_t , uint32_t > &p)
@@ -36,13 +38,11 @@ TaxonomyLineAnnotator::annotateTaxonomyLines(
     });
     LOG_INFO("Total # reads = %d", totalCounts );
 
-    std::for_each( annotatedTaxa.begin() , annotatedTaxa.end() ,
-                   [this,totalCounts](
-                   std::pair< const uint32_t , wevote::TaxLine > &p )
+    for( auto it = annotatedTaxa.begin() ; it != annotatedTaxa.end() ; ++it )
     {
-        p.second.RA = ((double)p.second.count/(double)totalCounts)*100;
-        uint32_t taxon = p.first;
-        wevote::TaxLine &taxLine = p.second;
+        it->second.RA = ((double)it->second.count/(double)totalCounts)*100;
+        uint32_t taxon = it->first;
+        wevote::Ancestry &taxLine = it->second.ancestry;
 
         while( taxon != wevote::ReadInfo::noAnnotation )
         {
@@ -50,10 +50,11 @@ TaxonomyLineAnnotator::annotateTaxonomyLines(
             const std::string name = _taxonomy.getTaxName( taxon );
             const wevote::RankID id = wevote::Rank::rankID.at( rank );
             const size_t idx = static_cast< size_t >( id );
+            std::cout << "[tax:" << taxon << "][idx:" << idx << "][name:" << name << "][rank:" << rank << "]" << std::endl;
             taxLine.line[ idx ] = name;
             taxon = _taxonomy.getStandardParent( taxon );
         }
-    });
+    }
 
     return annotatedTaxa;
 }

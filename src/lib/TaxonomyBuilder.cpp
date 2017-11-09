@@ -53,6 +53,11 @@ std::string TaxonomyBuilder::getTaxName(uint32_t taxid) const
     }
 }
 
+std::string TaxonomyBuilder::getStandardTaxName(uint32_t taxid) const
+{
+    return getTaxName( correctTaxan( taxid ));
+}
+
 uint32_t TaxonomyBuilder::getStandardParent(uint32_t taxid) const
 {
     try{
@@ -352,7 +357,9 @@ TaxonomyBuilder::buildTaxnameMap( const std::string &filename )
         uint32_t node_id;
         char name[1000];
         sscanf( line.c_str() , "%d\t|\t%s", &node_id, name);
-        pmap[node_id] = name;
+        std::string &nameRef = pmap[ node_id ];
+        if( nameRef.empty())
+            nameRef = name;
     }
     return pmap;
 }

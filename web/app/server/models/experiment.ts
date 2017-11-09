@@ -166,9 +166,11 @@ export class ExperimentModel {
 
                     const _config: IConfig = <any>{
                         algorithms: [
-                            { name: "ALG0", used: true },
-                            { name: "ALG1", used: true },
-                            { name: "ALG2", used: true },
+                            { name: "BLAST", used: true },
+                            { name: "KRAKEN", used: true },
+                            { name: "TIPP", used: true },
+                            { name: "CLARK", used: true },
+                            { name: "MetaPhlAn", used: true },
                         ],
                         minScore: 0,
                         minNumAgreed: 0,

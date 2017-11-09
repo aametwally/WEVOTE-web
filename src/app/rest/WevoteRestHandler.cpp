@@ -8,7 +8,8 @@ namespace rest
 std::atomic_uint WevoteRestHandler::_jobCounter{0};
 WevoteRestHandler::WevoteRestHandler( const uri &uri ,
                                       const TaxonomyBuilder &taxonomy )
-    : RestHandler( uri ), _taxonomy( taxonomy ) , _classifier( _taxonomy )
+    : RestHandler( uri ), _taxonomy( taxonomy ) ,
+      _classifier( _taxonomy ) , _annotator( _taxonomy )
 {
 
 }
@@ -37,27 +38,33 @@ void WevoteRestHandler::_wevoteClassifier( http_request message )
         message.extract_json()
                 .then([this,message]( web::json::value value )
         {
-            WevoteSubmitEnsemble data =
+            WevoteSubmitEnsemble submission =
                     io::DeObjectifier::fromObject< WevoteSubmitEnsemble >( value );
 
-            data.getDistances() =
-                    _classifier.classify( data.getReadsInfo() , data.getMinNumAgreed() ,
-                                          data.getPenalty());
+            submission.getDistances() =
+                    _classifier.classify( submission.getReadsInfo() , submission.getMinNumAgreed() ,
+                                          submission.getPenalty());
 
             uint32_t undefined =
-                    std::count_if( data.getReadsInfo().cbegin() , data.getReadsInfo().cend() ,
+                    std::count_if( submission.getReadsInfo().cbegin() , submission.getReadsInfo().cend() ,
                                    []( const wevote::ReadInfo &read )
             {
                 return read.resolvedTaxon == wevote::ReadInfo::noAnnotation;
             });
-            LOG_INFO("Unresolved taxan=%d/%d",undefined,data.getReadsInfo().size());
+            LOG_INFO("Unresolved taxan=%d/%d",undefined,submission.getReadsInfo().size());
 
-            data.getStatus().setPercentage( 100.0 );
-            data.getStatus().setCode( Status::StatusCode::SUCCESS );
+            std::map< uint32_t , wevote::TaxLine > annotatedTaxa =
+                    _annotator.annotateTaxonomyLines( submission.getReadsInfo() );
+
+            for( auto it = annotatedTaxa.cbegin() ; it != annotatedTaxa.cend() ; ++it )
+                submission.getAbundanceProfile().push_back( it->second );
+
+            submission.getStatus().setPercentage( 100.0 );
+            submission.getStatus().setCode( Status::StatusCode::SUCCESS );
 
 
             LOG_DEBUG("Transmitting..");
-            _transmitJSON( data );
+            _transmitJSON( submission );
             LOG_DEBUG("[DONE] Transmitting[job:%d] .." , _jobCounter.load());
             _jobCounter++;
             LOG_DEBUG("[DONE] Submiting job:%d..",_jobCounter.load());
@@ -100,6 +107,12 @@ void WevoteRestHandler::_fullPipeline(http_request message)
             });
             LOG_INFO("Unresolved taxan=%d/%d",undefined,submission.getReadsInfo().size());
 
+            std::map< uint32_t , wevote::TaxLine > annotatedTaxa = _annotator
+                    .annotateTaxonomyLines( submission.getReadsInfo() );
+
+            for( auto it = annotatedTaxa.cbegin() ; it != annotatedTaxa.cend() ; ++it )
+                submission.getAbundanceProfile().push_back( it->second );
+
             submission.getStatus().setPercentage( 100.0 );
             submission.getStatus().setCode( Status::StatusCode::SUCCESS );
 
@@ -128,26 +141,16 @@ void WevoteRestHandler::_generateProfile( http_request message )
         message.extract_json()
                 .then([this,message]( web::json::value value )
         {
-            LOG_DEBUG("abundance profile generation ..");
+
+            LOG_DEBUG("Full pipeline ..");
             WevoteSubmitEnsemble submission =
                     io::DeObjectifier::fromObject< WevoteSubmitEnsemble >( value );
 
-            WevoteScriptHandler pipelineHandler;
+            std::map< uint32_t , wevote::TaxLine > annotatedTaxa = _annotator
+                    .annotateTaxonomyLines( submission.getReadsInfo() );
 
-            submission.getReadsInfo() = pipelineHandler
-                    .execute( submission.getSequences() , submission.getAlgorithms());
-
-            submission.getDistances() = _classifier
-                    .classify( submission.getReadsInfo() , submission.getMinNumAgreed() ,
-                                          submission.getPenalty());
-
-            uint32_t undefined =
-                    std::count_if( submission.getReadsInfo().cbegin() , submission.getReadsInfo().cend() ,
-                                   []( const wevote::ReadInfo &read )
-            {
-                return read.resolvedTaxon == wevote::ReadInfo::noAnnotation;
-            });
-            LOG_INFO("Unresolved taxan=%d/%d",undefined,submission.getReadsInfo().size());
+            for( auto it = annotatedTaxa.cbegin() ; it != annotatedTaxa.cend() ; ++it )
+                submission.getAbundanceProfile().push_back( it->second );
 
             submission.getStatus().setPercentage( 100.0 );
             submission.getStatus().setCode( Status::StatusCode::SUCCESS );
