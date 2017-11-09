@@ -58,11 +58,8 @@ module wevote {
         taxonomySources: ITaxonomySource[],
         postExperiment: any,
         readsUploader: any,
-        readsUploaderPostValidation: boolean,
         ensembleUploader: any,
-        ensembleUploaderPostValidation: boolean,
         classificationUploader: any,
-        classificationUploaderPostValidation: boolean
     }
     export class InputController {
 
@@ -125,7 +122,7 @@ module wevote {
             }
         };
 
-        constructor($scope: ng.IScope, $state: ng.ui.IStateService, 
+        constructor($scope: ng.IScope, $state: ng.ui.IStateService,
             private AlgorithmsService: any, private ExperimentService: any) {
             this._scope = <InputControllerScope>$scope;
             this._scope.inputForm = {};
@@ -188,22 +185,31 @@ module wevote {
                             });
 
                         });
-                    this._scope.experiment = JSON.parse(JSON.stringify(this.emptyExperiment));
-                    this._scope.inputForm.form.$setPristine();
-                    this._scope.inputForm.form.$setUntouched();
+                    // this._scope.experiment = JSON.parse(JSON.stringify(this.emptyExperiment));
+                    // this._scope.inputForm.form.$setPristine();
+                    // this._scope.inputForm.form.$setUntouched();
                     $('#advanced').collapse("hide");
                 }
             };
 
             this._scope.readsUploader = null;
-            this._scope.readsUploaderPostValidation = true;
             this._scope.ensembleUploader = null;
-            this._scope.ensembleUploaderPostValidation = true;
             this._scope.classificationUploader = null;
-            this._scope.classificationUploaderPostValidation = true;
             // Watchers!
             // this._scope.experiment.usageScenario.value;
             this._scope.$watch('experiment.usageScenario.value', (usage: string) => {
+                // if( this._scope.readsUploader )
+                // {
+                //     this._scope.readsUploader.queue.length = 0;
+                // }
+                // if( this._scope.ensembleUploader )
+                // {
+                //     this._scope.ensembleUploader.queue.length = 0;
+                // }
+                // if( this._scope.classificationUploader )
+                // {
+                //     this._scope.classificationUploader.queue.length = 0;
+                // }
                 switch (usage) {
                     case 'pipelineFromReads':
                         {
@@ -220,16 +226,12 @@ module wevote {
                 }
             });
 
+
             this._scope.$watchGroup(
                 [
-                    'experiment.usageScenario.value',
-                    'readsUploader.atLeastSingleFileUploaded',
-                    'readsUploaderPostValidation',
-                    'ensembleUploader.atLeastSingleFileUploaded',
-                    'ensembleUploaderPostValidation',
-                    'classificationUploader.atLeastSingleFileUploaded',
-                    'classificationUploaderPostValidation',
-                    'postValidationError'
+                    'readsUploader.uploaded',
+                    'ensembleUploader.uploaded',
+                    'classificationUploader.uploaded',
                 ],
                 (newVal: any, oldVal: any, scope: ng.IScope) => {
                     const noAlgorithmChosen =
@@ -242,24 +244,24 @@ module wevote {
                                     if (this._scope.readsUploader)
                                         this._scope.usageError =
                                             this._scope.usageError ||
-                                            !this._scope.readsUploader.atLeastSingleFileUploaded;
+                                            !this._scope.readsUploader.uploaded;
 
                                 } break;
                             case 'abundanceFromClassification':
                                 {
                                     this._scope.usageError =
-                                        !this._scope.classificationUploader.atLeastSingleFileUploaded;
+                                        !this._scope.classificationUploader.uploaded;
                                     console.log(this._scope.classificationUploader);
-                                    console.log('at least', this._scope.classificationUploader.atLeastSingleFileUploaded);
+                                    console.log('at least', this._scope.classificationUploader.uploaded);
                                 } break;
                             case 'classificationFromEnsemble':
                                 {
                                     if (this._scope.ensembleUploader) {
                                         {
                                             this._scope.usageError =
-                                                !this._scope.ensembleUploader.atLeastSingleFileUploaded;
+                                                !this._scope.ensembleUploader.uploaded;
                                             console.log(this._scope.ensembleUploader);
-                                            console.log('at least', this._scope.ensembleUploader.atLeastSingleFileUploaded);
+                                            console.log('at least', this._scope.ensembleUploader.uploaded);
                                         }
                                     }
                                 } break;
@@ -448,7 +450,7 @@ module wevote {
                 'upload/classification', 'Drop classifcation file here', 'Classification file uploader');
             this._uploader.onSuccessItem = this.onSuccessItemCB;
             this._uploader.onAfterAddingFile = this.onAfterAddingFileCB;
-            this._inputScope.ensembleUploader = this._uploader;
+            this._inputScope.classificationUploader = this._uploader;
             this._scope.uploader = this._uploader;
         };
 
@@ -645,20 +647,24 @@ module wevote {
     }
 
     export class ExperimentsListController {
-        static readonly $inject = ['$scope', 'ExperimentService','$interval', ExperimentsListController];
+        static readonly $inject = ['$scope', 'ExperimentService', '$interval', ExperimentsListController];
         private _scope: ExperimentsListControllerScope;
-        private _experimentService: any;
-        constructor($scope: ng.IScope, private ExperimentService: any , $interval: any) {
+        private static _experimentService: any;
+        private static _refreshInterval: any;
+        constructor($scope: ng.IScope, private ExperimentService: any, $interval: any) {
             this._scope = <ExperimentsListControllerScope>$scope;
             this._scope.experiments = {};
             this._scope.showExperiments = false;
             this._scope.experimentsError = false;
             this._scope.experimentsMessage = "Loading ...";
-            this._experimentService = ExperimentService;
-            this._experimentService.retrieve(this.onExperimentsLoadedSuccess, this.onExperimentsLoadedFail);                
-            // $interval( () => {
-            //     this._experimentService.retrieve(this.onExperimentsLoadedSuccess, this.onExperimentsLoadedFail);                                
-            //   }, 4000);
+            ExperimentsListController._experimentService = ExperimentService;
+            ExperimentsListController._experimentService.retrieve(this.onExperimentsLoadedSuccess, this.onExperimentsLoadedFail);
+            ExperimentsListController._refreshInterval = $interval(() => {
+                ExperimentsListController._experimentService.retrieve(this.onExperimentsLoadedSuccess, this.onExperimentsLoadedFail);
+            }, 4000);
+            this._scope.$on('$stateChangeStart', () => {
+                $interval.cancel( ExperimentsListController._refreshInterval );
+            });
         }
 
         private onExperimentsLoadedSuccess: Function = (response: any) => {
@@ -670,7 +676,7 @@ module wevote {
                     placement: 'top'
                 });
 
-                this._scope.experiments.forEach(function (exp: any) {
+                this._scope.experiments.forEach((exp: any) => {
                     $('#' + exp._id).popover({
                         html: true,
                         trigger: "focus",
@@ -679,7 +685,7 @@ module wevote {
                             return $('#data-' + exp._id).html();
                         }
                     });
-                    $('#' + exp._id).click(function (e) {
+                    $('#' + exp._id).click((e) => {
                         // Special stuff to do when this link is clicked...
 
                         // Cancel the default action
@@ -717,11 +723,12 @@ module wevote {
                         e.preventDefault();
                     });
 
-                    $('#' + 'remove-' + exp._id).click( (e) => {
+                    $('#' + 'remove-' + exp._id).click((e: any) => {
                         // Delete experiment.
-                        this._experimentService.removeExperiment(exp._id,
-                            (delResponse:any ) => {
+                        ExperimentsListController._experimentService.removeExperiment(exp._id,
+                            (delResponse: any) => {
                                 console.log('experiment removed:', delResponse);
+                                ExperimentsListController._experimentService.retrieve(this.onExperimentsLoadedSuccess, this.onExperimentsLoadedFail);                                
                             },
                             (delResponse: any) => {
                                 console.log('experiment failed to remove:', delResponse);

@@ -223,7 +223,7 @@ module wevote {
 
             uploader.label = label;
             uploader.description = description;
-            uploader.atLeastSingleFileUploaded = false;
+            uploader.uploaded = false;
             // FILTERS
 
             uploader.filters.push({
@@ -262,9 +262,9 @@ module wevote {
                 // console.log(headers);
                 this.atLeastSingleFileUploaded = true;
             };
-            uploader.onCompleteAll = function () {
+            uploader.onCompleteAll =  () => {
                 console.info('onCompleteAll');
-                this.atLeastSingleFileUploaded = true;
+                uploader.uploaded = true;
             };
 
             return uploader;

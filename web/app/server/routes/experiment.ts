@@ -189,26 +189,30 @@ export class ExperimentRouter extends BaseRoute {
 
             .delete(verifyOrdinaryUser, function (req: Request, res: Response, next: NextFunction) {
                 ExperimentModel.repo.findById(req.params.expId,
-                    function (err: any, experiment: IExperimentModel) {
+                    (err: any, experiment: IExperimentModel) => {
                         if (err) return next(err);
-                        const loggedIn: Boolean = (<any>req).decoded && (<any>experiment.user);
-                        if (loggedIn && (<any>req).decoded.username === (<any>experiment.user).username) {
-                            if (experiment.results) {
-                                WevoteClassificationPatchModel.repo.findByIdQuery(
-                                    experiment.results.wevoteClassification
-                                ).remove().exec();
-                                TaxonomyAbundanceProfileModel.repo.findByIdQuery(
-                                    experiment.results.taxonomyAbundanceProfile
-                                ).remove().exec();
-                                ExperimentModel.repo.findByIdQuery(
-                                    experiment._id
-                                ).remove().exec();
+                        if (experiment) {
+                            const loggedIn: Boolean =
+                                typeof (<any>req).decoded !== 'undefined' &&
+                                typeof experiment.user !== 'undefined';
+                            if (loggedIn && (<any>req).decoded.username === (<any>experiment.user).username) {
+                                if (experiment.results) {
+                                    WevoteClassificationPatchModel.repo.findByIdQuery(
+                                        experiment.results.wevoteClassification
+                                    ).remove().exec();
+                                    TaxonomyAbundanceProfileModel.repo.findByIdQuery(
+                                        experiment.results.taxonomyAbundanceProfile
+                                    ).remove().exec();
+                                    ExperimentModel.repo.findByIdQuery(
+                                        experiment._id
+                                    ).remove().exec();
+                                }
                             }
-                        }
-                        else {
-                            console.log('Users mismatch or not logged in!');
-                            const error = new Error('Users mismatch or not logged in!');
-                            next(error);
+                            else {
+                                console.log('Users mismatch or not logged in!');
+                                const error = new Error('Users mismatch or not logged in!');
+                                next(error);
+                            }
                         }
                     }, [
                         {
@@ -314,8 +318,8 @@ export class ExperimentRouter extends BaseRoute {
                                 score: parseFloat(tokens[scoreColumn]),
                                 distances: tokens.slice(distanceFirstColumn, distanceLastColumn + 1)
                                     .map((d: string) => { return parseFloat(d); }),
-                                cost: parseFloat( tokens[ costColumn ] ) ,
-                                WEVOTE: parseInt( tokens[wevoteColumn] )
+                                cost: parseFloat(tokens[costColumn]),
+                                WEVOTE: parseInt(tokens[wevoteColumn])
                             }
                         classifiedReads.push(classifiedRead);
                     });
