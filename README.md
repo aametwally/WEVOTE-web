@@ -24,7 +24,7 @@ sudo apt-get install build-essential
 ```
 
 * OpenMP: for multithreading execution. 
-* CMake (minimum version 3.9): 
+* CMake (minimum version 3.5): 
 ```
 sudo apt-get install cmake
 ``` 
@@ -49,7 +49,7 @@ git clone https://github.com/aametwally/WEVOTE-web.git
 cd wevote
 mkdir build
 cd build
-cmake -DCMAKE_PREFIX_PATH="<path-to-qt-installed-library>" -DCMAKE_INSTALL_PREFIX="<target-installation-directory>" ..
+cmake -DCMAKE_PREFIX_PATH="<path-to-qt-installed-library>"  -DBLASTN_PATH="<path-to-BLASTN-dir>" -DBLASTN_DB="<path-to-BLASTN-database>" -DKRAKEN_PATH="<path-to-KRAKEN-dir>" -DKRAKEN_DB="<path-to-KRAKEN-database>" -DCLARK_PATH="<path-CLARK-dir>" -DCLARK_DB="<path-to-CLARK-database>" -DMETAPHLAN_PATH="<path-to-MetaPhlAn-dir>" -DTIPP_PATH="<path-to-TIPP-dir>" -DCMAKE_INSTALL_PREFIX="<target-installation-directory>" ..
 ```
 An example where Qt root directory installed at ```/opt``` and we intend to install the project in ```/projects/wevote```.
 ```
@@ -57,9 +57,10 @@ cmake -DCMAKE_PREFIX_PATH="/opt/Qt5.9.1/5.9.1/gcc_64/lib/cmake" -DCMAKE_INSTALL_
 ```
 
 After installation three applications are installed at ```CMAKE_INSTALL_PREFIX/bin```: 
-* wevoteClassifier: wevote classification app from an ensemble file including multiple votes (i.e taxonomic binning). 
-* abundanceAnnotator: evaluating the abundance per taxonomic identification. 
-* wevoteREST: an Http Restful server with multiple functionalities. 
+* wevotePipeline: the full pipeline app from sequences file.
+* wevoteClassifier: wevote classification app accepts as an input an ensemble file including multiple votes (i.e taxonomic binning) per sequence. 
+* abundanceAnnotator: generating the community profile from WEVOTE classification file. 
+* wevoteREST: an Http Restful server with exposing the the pipeline with the three different use cases: full pipeline, classification, and community profile. 
 
 ### Running WEVOTE Rest computational server:
 ```

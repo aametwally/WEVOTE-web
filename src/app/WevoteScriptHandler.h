@@ -25,7 +25,7 @@ public:
     std::vector< ReadInfo > execute( const std::vector< std::string > &inputSequences ,
                                      const std::vector< std::string > &algorithms ) const;
 protected:
-    static uint _getId() const;
+    static uint _getId() ;
 
 private:
     static std::atomic_uint _jobCounter;

@@ -101,7 +101,7 @@ WevoteScriptHandler::execute( const std::vector< std::string > &sequences,
     }
 }
 
-uint WevoteScriptHandler::_getId() const
+uint WevoteScriptHandler::_getId()
 {
     return _jobCounter++;
 }

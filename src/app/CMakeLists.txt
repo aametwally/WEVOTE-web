@@ -40,29 +40,36 @@ set( ALGORITHMS_INITIALIZER_LIST "{${ALGORITHMS_LIST_COMMA}}")
 configure_file( config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h @ONLY)
 configure_file( wevote.cfg.in ${CMAKE_CURRENT_SOURCE_DIR}/wevote.cfg @ONLY)
 
-set( WEVOTE_APP "wevoteClassifier")
+set( PIPELINE_APP "wevotePipeline" )
+set( CLASSIFIER_APP "wevoteClassifier")
 set( ABUNDANCE_APP "abundanceAnnotator")
 ### Generate the executable
-
-add_executable( ${WEVOTE_APP}
+add_executable( ${PIPELINE_APP}
     CommandLineParser.hpp
+    run_WEVOTE_PIPELINE.sh
+    config.h
     WevoteScriptHandler.h
     WevoteScriptHandler.cpp
+    wevotePipeline.cpp )
+
+add_executable( ${CLASSIFIER_APP}
+    CommandLineParser.hpp
     wevoteClassifier.cpp )
+
 add_executable( ${ABUNDANCE_APP}
     CommandLineParser.hpp
-    WevoteScriptHandler.h
-    WevoteScriptHandler.cpp
     abundanceAnnotator.cpp )
 
 ### Make sure to use the required Qt modules
-qt5_use_modules( ${WEVOTE_APP} Core )
+qt5_use_modules( ${PIPELINE_APP} Core )
+qt5_use_modules( ${CLASSIFIER_APP} Core )
 qt5_use_modules( ${ABUNDANCE_APP} Core )
 
-target_link_libraries( ${WEVOTE_APP} ${WEVOTE_LIB_LIBRARIES} )
+target_link_libraries( ${PIPELINE_APP}  ${WEVOTE_LIB_LIBRARIES} )
+target_link_libraries( ${CLASSIFIER_APP} ${WEVOTE_LIB_LIBRARIES} )
 target_link_libraries( ${ABUNDANCE_APP} ${WEVOTE_LIB_LIBRARIES} )
 
 # Install the executable (generate with 'make install' in the bin directory)
-install( TARGETS ${WEVOTE_APP} ${ABUNDANCE_APP} DESTINATION bin )
+install( TARGETS ${PIPELINE_APP}  ${CLASSIFIER_APP} ${ABUNDANCE_APP} DESTINATION bin )
 install( PROGRAMS ${ABUNDANCE_SCRIPT_NAME} ${WEVOTE_PIPELINE_SCRIPT_NAME} DESTINATION bin )
 install( FILES ${WEVOTE_CONFIG_FILE_NAME} DESTINATION bin )
