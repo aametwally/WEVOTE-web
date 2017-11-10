@@ -1,13 +1,15 @@
 #ifndef TAXONOMYBUILDER_H
 #define TAXONOMYBUILDER_H
 
+// local lib/common
 #include "headers.hpp"
 #include "helpers.hpp"
-#include "Taxon.h"
-#include "ReadInfo.h"
 #include "Logger.h"
-#include "Rank.h"
 
+// local lib
+#include "Taxon.h"
+#include "Rank.h"
+#include "ReadInfo.h"
 namespace wevote
 {
 
@@ -64,7 +66,7 @@ public:
      * @param tempTax
      * @return
      */
-    WEVOTE_DLL uint32_t correctTaxan( uint32_t tempTax ) const;
+    WEVOTE_DLL uint32_t correctTaxan( uint32_t taxid ) const;
 
     /**
      * @brief lca
@@ -218,5 +220,5 @@ private:
     std::unique_ptr< TaxonomyPrivate > _data;
 
 };
-}
+}  // namespace wevote  // namespace wevote
 #endif // TAXONOMYBUILDER_H

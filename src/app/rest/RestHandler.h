@@ -29,7 +29,7 @@ protected:
 
 
 public:
-    WEVOTE_DLL RestHandler( const http::uri &uri);
+    WEVOTE_DLL explicit RestHandler( const http::uri &uri);
     WEVOTE_DLL ~RestHandler();
     WEVOTE_DLL void start();
     pplx::task<void> open() { return _listener.open(); }

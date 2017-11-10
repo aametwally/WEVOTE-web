@@ -124,8 +124,7 @@ const std::list< QCommandLineOption > commandLineOptions =
     }
 };
 
-auto extractFunction = []( const QCommandLineParser &parser ,
-        ParsingResults<WevoteParameters> &results)
+auto extractFunction = []( ParsingResults<WevoteParameters> &results)
 {
     /// parse commandline arguments
     if( !parser.isSet("input-file") ||

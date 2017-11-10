@@ -9,4 +9,4 @@ bool ReadInfo::isAnnotation( uint32_t taxid )
     return taxid != noAnnotation;
 }
 
-}
+} // namespace wevote

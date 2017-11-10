@@ -51,11 +51,11 @@ auto join( SeqIt first , SeqIt last , const SeperatorType &sep )
         return (a += sep) += b ;
     };
 
-    if( first == last )
+    if( first == last ) {
         return StringType();
-    else if ( std::next( first , 1 ) == last )
+    } if ( std::next( first , 1 ) == last ) {
         return *first;
-    else
+    } else
     {
         StringType result = *first;
         result.reserve( std::accumulate( first , last , std::distance( first , last ) ,
@@ -121,7 +121,7 @@ auto getFileLines( const std::string &filePath )
 }
 
 template< typename CharType = char >
-void flushStringToFile( const std::basic_string< CharType > &data , const std::string &filePath )
+void flushStringToFile( const std::basic_string< CharType > & /*data*/ , const std::string &filePath )
 {
     std::basic_ofstream< CharType > myfile;
     myfile.open (filePath.c_str());
@@ -138,7 +138,7 @@ void flushStringToFile( const std::basic_string< CharType > &data , const std::s
 
 
 template< class CharType >
-auto split( const std::basic_string< CharType > &s , CharType delim  )
+auto split( const std::basic_string< CharType > & /*s*/ , CharType delim  )
 {
     using StringType = std::basic_string< CharType >;
     std::basic_stringstream< CharType > ss( s );
@@ -165,7 +165,7 @@ auto split( const StringType &s , SeperatorType delim  )
     return tokens;
 }
 
-}
-}
+}  // namespace io
+}  // namespace wevote
 
 #endif

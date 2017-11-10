@@ -146,7 +146,7 @@ public:
     }
 
 private:
-    DeObjectifier( web::json::value object )
+    explicit DeObjectifier( web::json::value object )
         : _object( object )
     {
 
@@ -252,7 +252,7 @@ struct WevoteEnsembleSubmissionRequest
 
 };
 
-}
-}
+}  // namespace io
+}  // namespace wevote
 
 #endif // WEVOTEJSON_HPP

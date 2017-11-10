@@ -3,4 +3,4 @@
 namespace wevote
 {
 
-}
+} // namespace wevote

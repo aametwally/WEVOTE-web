@@ -203,7 +203,7 @@ void WevoteRestHandler::_transmitJSON( const WevoteSubmitEnsemble &data )
 }
 
 
-}
-}
+}  // namespace rest
+}  // namespace wevote
 
 

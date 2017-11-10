@@ -49,7 +49,7 @@ private:
     static std::atomic_uint _jobCounter;
 };
 
-}
-}
+}  // namespace rest
+}  // namespace wevote
 
 #endif // WEVOTERESTHANDLER_H

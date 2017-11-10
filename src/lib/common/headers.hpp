@@ -4,10 +4,10 @@
 // STL Containers
 #include <map>
 #include <set>
-#include <vector>
-#include <string>
-#include <iterator>
 #include <array>
+#include <iterator>
+#include <string>
+#include <vector>
 //#include <tr1/unordered_map>
 #include <unordered_map>
 
@@ -32,15 +32,15 @@
 
 // STL Misc
 #include <algorithm>
-#include <functional>
-#include <numeric>
 #include <atomic>
 #include <errno.h>
 #include <fcntl.h>
+#include <functional>
+#include<numeric>
+#include <numeric>
 #include <stdint.h>
-#include <sys/stat.h>
+#include<math.h>
 #include <sys/types.h>
-#include <math.h>
 #include <type_traits>
 
 #if defined(__linux__) || defined(__linux) || defined( __GNUC__ )

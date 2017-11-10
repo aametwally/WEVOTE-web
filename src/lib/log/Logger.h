@@ -9,7 +9,7 @@
 
 #include "helpers.hpp"
 #include "LogLevel.hh"
-
+#include "Colors.hh"
 #define USTR(x) wevote::io::convertOrReturn< std::string >( x ).c_str()
 
 /**

@@ -12,6 +12,6 @@ struct Taxon{
     uint32_t occurrence;
     double abundance;
 };
-}
+} // namespace wevote
 
 #endif // TAXON_H

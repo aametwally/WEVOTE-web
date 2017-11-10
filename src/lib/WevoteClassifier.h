@@ -1,12 +1,15 @@
 #ifndef WEVOTECLASSIFIER_H
 #define WEVOTECLASSIFIER_H
 
+// local lib/common
+#include "Logger.h"
+#include "helpers.hpp"
+
+// local lib
 #include "TaxonomyBuilder.h"
 #include "ReadInfo.h"
 #include "TaxLine.h"
-#include "helpers.hpp"
-#include "Logger.h"
-
+#include "TaxonomyBuilder.h"
 namespace wevote
 {
 
@@ -20,7 +23,7 @@ public:
      * @brief WevoteClassifier
      * @param taxonomy
      */
-    WevoteClassifier( const TaxonomyBuilder &taxonomy );
+    explicit explicit WevoteClassifier( const TaxonomyBuilder &taxonomy );
 
     /**
      * @brief classify
@@ -80,5 +83,5 @@ private:
 private:
     const TaxonomyBuilder &_taxonomy;
 };
-}
+}  // namespace wevote  // namespace wevote
 #endif // WEVOTECLASSIFIER_H

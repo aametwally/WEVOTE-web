@@ -70,8 +70,9 @@ uint32_t TaxonomyBuilder::getStandardParent(uint32_t taxid) const
 
 uint32_t TaxonomyBuilder::correctTaxan( uint32_t taxid ) const
 {
-    if ( taxid == ReadInfo::noAnnotation )
+    if ( taxid == ReadInfo::noAnnotation ) {
         return ReadInfo::noAnnotation;
+}
     try
     {
         std::string rank;
@@ -104,8 +105,9 @@ uint32_t TaxonomyBuilder::correctTaxan( uint32_t taxid ) const
 
 int TaxonomyBuilder::distance( uint32_t a , uint32_t b ) const
 {
-    if (a == ReadInfo::noAnnotation || b == ReadInfo::noAnnotation )
+    if (a == ReadInfo::noAnnotation || b == ReadInfo::noAnnotation ) {
         return maxDegree;
+}
 
     const std::vector< uint32_t > aPath = getButtomUpAncestry( a );
     try
@@ -146,8 +148,9 @@ std::vector<uint32_t> TaxonomyBuilder::getButtomUpAncestry(uint32_t taxon) const
 
 uint32_t TaxonomyBuilder::lca( uint32_t a, uint32_t b ) const
 {
-    if (a == 0 || b == 0)
-        return a ? a : b;
+    if (a == 0 || b == 0) {
+        return a != 0u ? a : b;
+}
 
     const std::set< uint32_t > aPath = getAncestry( a );
     try
@@ -388,4 +391,4 @@ bool TaxonomyBuilder::isRank( const std::string &rank )
         return r == rank;
     });
 }
-}
+}  // namespace wevote

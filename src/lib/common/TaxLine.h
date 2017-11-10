@@ -1,10 +1,13 @@
 #ifndef TAXLINE_H
 #define TAXLINE_H
 
+// local lib/common
 #include "headers.hpp"
 #include "helpers.hpp"
-#include "Rank.h"
 #include "Serializable.hpp"
+
+// local lib
+#include "Rank.h"
 
 namespace wevote
 {
@@ -142,11 +145,12 @@ public:
         return ss.str();
     }
 
-    static std::string toString(  const std::map<uint32_t, TaxLine> &abundance , bool csv )
+    static std::string toString(  const std::map /*unused*/<uint32_t, TaxLine> & /*abundance*/ , bool csv )
     {
         std::stringstream ss;
-        if( csv )
+        if( csv ) {
             ss << TaxLine::header( csv );
+}
         for( const std::pair< uint32_t , wevote::TaxLine > &p : abundance)
             ss << p.second.toString( csv );
         return ss.str();
@@ -192,7 +196,7 @@ protected:
         return mmap;
     }
 };
-}
+}  // namespace wevote
 
 
 #endif // TAXLINE_H

@@ -9,8 +9,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "Logger.h"
-#include "Colors.hh"
-
+#include "LogLevel.hh"
 #if defined(__linux__) || defined(__linux) || defined(__GNUC__)
 #include <unistd.h>
 #define TIME_STAMP_FORMAT "%D.%M.%Y, %H:%M:%S"
@@ -34,8 +33,9 @@ Logger::Logger()
 
 Logger* Logger::instance()
 {
-    if ( !instance_ )
+    if ( instance_ == nullptr )
         instance_ = new Logger;
+
 
     return instance_;
 }

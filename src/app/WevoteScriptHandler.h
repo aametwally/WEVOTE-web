@@ -1,5 +1,11 @@
-#ifndef WEVOTESCRIPTHANDLER_H
-#define WEVOTESCRIPTHANDLER_H
+#ifndef _HOME_ASEM_GP_WEVOTE_SRC_APP_WEVOTESCRIPTHANDLER_H
+#define _HOME_ASEM_GP_WEVOTE_SRC_APP_WEVOTESCRIPTHANDLER_H
+
+#ifndef _HOME_ASEM_GP_WEVOTE_SRC_APP_WEVOTESCRIPTHANDLER_H
+#define _HOME_ASEM_GP_WEVOTE_SRC_APP_WEVOTESCRIPTHANDLER_H
+
+#ifndef _HOME_ASEM_GP_WEVOTE_SRC_APP__HOME_ASEM_GP_WEVOTE_SRC_APP_WEVOTESCRIPTHANDLER_H
+#define _HOME_ASEM_GP_WEVOTE_SRC_APP__HOME_ASEM_GP_WEVOTE_SRC_APP_WEVOTESCRIPTHANDLER_H
 
 // Qt
 #include <QCoreApplication>
@@ -7,8 +13,8 @@
 #include <QFile>
 
 // local lib
-#include "headers.hpp"
-#include "ReadInfo.h"
+#include"ReadInfo.h"
+#include ""headers.hpp"
 
 // local app
 #include "config.h"
@@ -28,9 +34,5 @@ protected:
     static uint _getId() ;
 
 private:
-    static std::atomic_uint _jobCounter;
-
-};
-
-}
-#endif // WEVOTESCRIPTHANDLER_H
+    static std::atomic_uin // namespace wevote
+#_HOME_ASEM_GP_WEVOTE_HOME_ASEM_GP_WEVOTE_SRC_APP_WEVOTESCRIPTHANDLER_H

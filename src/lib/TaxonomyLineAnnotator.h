@@ -1,11 +1,13 @@
 #ifndef TAXONOMYLINEANNOTATOR_H
 #define TAXONOMYLINEANNOTATOR_H
 
-#include "helpers.hpp"
-#include "TaxonomyBuilder.h"
-#include "TaxLine.h"
+// local lib/common
 #include "Logger.h"
+#include "helpers.hpp"
 
+// local lib
+#include "TaxLine.h"
+#include "TaxonomyBuilder.h"
 namespace wevote
 {
 
@@ -16,7 +18,7 @@ public:
      * @brief TaxonomyLineAnnotator
      * @param taxonomy
      */
-    TaxonomyLineAnnotator( const TaxonomyBuilder &taxonomy );
+    explicit explicit TaxonomyLineAnnotator( const TaxonomyBuilder &taxonomy );
 
 
     /**
@@ -39,5 +41,5 @@ private:
 };
 
 
-}
+}  // namespace wevote  // namespace wevote
 #endif // TAXONOMYLINEANNOTATOR_H

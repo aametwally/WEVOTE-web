@@ -21,4 +21,4 @@ const std::unordered_map< std::string , RankID > Rank::rankID
     {RANK_GENUS        ,RankID::Genus       } ,
     {RANK_SPECIES      ,RankID::Species     }
 };
-}
+}  // namespace wevote

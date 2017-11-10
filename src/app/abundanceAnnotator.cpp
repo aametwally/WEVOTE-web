@@ -52,8 +52,7 @@ const std::list< QCommandLineOption > commandLineOptions =
     }
 };
 
-auto extractFunction = []( const QCommandLineParser &parser ,
-        ParsingResults<AbundanceParameters> &results)
+auto extractFunction = []( ParsingResults<AbundanceParameters> &results)
 {
     /// parse commandline arguments
     if( !parser.isSet("input-file") ||

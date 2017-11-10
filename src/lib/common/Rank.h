@@ -36,6 +36,6 @@ struct Rank
 };
 
 
-}
+}  // namespace wevote
 
 #endif // RANK_H

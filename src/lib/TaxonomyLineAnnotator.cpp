@@ -73,4 +73,4 @@ void TaxonomyLineAnnotator::writeResults(
     myfile.close();
 }
 
-}
+}  // namespace wevote

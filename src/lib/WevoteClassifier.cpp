@@ -213,4 +213,4 @@ std::vector<double> WevoteClassifier::_computeDistance( const ReadInfo &read ) c
     return distances;
 }
 
-}
+}  // namespace wevote
