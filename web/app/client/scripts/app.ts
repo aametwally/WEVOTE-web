@@ -49,11 +49,11 @@ module wevote {
                             }
                         })
 
-                        .state('app.feedback', {
-                            url: 'feedback',
+                        .state('app.info', {
+                            url: 'info',
                             views: {
                                 'content@': {
-                                    template: '<h1>Feedback To be Completed</h1>'
+                                    templateUrl: "views/info.html",
                                 }
                             }
                         })

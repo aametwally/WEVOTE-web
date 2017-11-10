@@ -16,10 +16,10 @@
                 <li ng-class="{active:isState('app.track')}"><a ui-sref="app.track">
                         <span class="glyphicon glyphicon glyphicon-list-alt"
                               aria-hidden="true"></span> Track Experiments</a></li>
-                <li ng-class="{active:isState('app.feedback')}"><a ui-sref="app.feedback">
-                         <span class="glyphicon glyphicon glyphicon-bell"
+                <li ng-class="{active:isState('app.info')}"><a ui-sref="app.info">
+                         <span class="fa fa-info-circle"
                                aria-hidden="true"></span>
-                    Feedback</a></li>
+                    Info</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li ng-if="!loggedIn"><a ng-click="openLogin()">

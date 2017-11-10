@@ -9,10 +9,12 @@ module wevote {
         error: boolean,
         message: string,
     }
+
     export class MainController {
         static readonly $inject: any = ['$scope', '$state', 'HelloService', MainController];
         private _scope: MainControllerScope;
         private _hello: metaviz.HelloFactory;
+
         constructor($scope: ng.IScope, $state: ng.ui.IState, hello: metaviz.HelloFactory) {
             this._scope = <MainControllerScope>$scope;
             this._hello = hello;
@@ -61,6 +63,7 @@ module wevote {
         ensembleUploader: any,
         classificationUploader: any,
     }
+
     export class InputController {
 
         static readonly $inject = ['$scope', '$state',
@@ -73,16 +76,16 @@ module wevote {
             usage: "Full Pipeline",
             hint: "upload reads file"
         },
-        {
-            value: "classificationFromEnsemble",
-            usage: "Classification",
-            hint: "upload a wevote ensemble file"
-        },
-        {
-            value: "abundanceFromClassification",
-            usage: "Community Profiling",
-            hint: "upload wevote classified file"
-        }
+            {
+                value: "classificationFromEnsemble",
+                usage: "Classification",
+                hint: "upload a wevote ensemble file"
+            },
+            {
+                value: "abundanceFromClassification",
+                usage: "Community Profiling",
+                hint: "upload wevote classified file"
+            }
         ];
 
         private readonly emptyExperiment: common.IExperiment = {
@@ -123,7 +126,7 @@ module wevote {
         };
 
         constructor($scope: ng.IScope, $state: ng.ui.IStateService,
-            private AlgorithmsService: any, private ExperimentService: any) {
+                    private AlgorithmsService: any, private ExperimentService: any) {
             this._scope = <InputControllerScope>$scope;
             this._scope.inputForm = {};
             this._scope.state = $state;
@@ -211,18 +214,18 @@ module wevote {
                 //     this._scope.classificationUploader.queue.length = 0;
                 // }
                 switch (usage) {
-                    case 'pipelineFromReads':
-                        {
-                            this._scope.selectiveAlgorithms = true;
-                        } break;
-                    case 'abundanceFromClassification':
-                        {
-                            this._scope.selectiveAlgorithms = false;
-                        } break;
-                    case 'classificationFromEnsemble':
-                        {
-                            this._scope.selectiveAlgorithms = false;
-                        } break;
+                    case 'pipelineFromReads': {
+                        this._scope.selectiveAlgorithms = true;
+                    }
+                        break;
+                    case 'abundanceFromClassification': {
+                        this._scope.selectiveAlgorithms = false;
+                    }
+                        break;
+                    case 'classificationFromEnsemble': {
+                        this._scope.selectiveAlgorithms = false;
+                    }
+                        break;
                 }
             });
 
@@ -239,32 +242,32 @@ module wevote {
                     this._scope.usageError = noAlgorithmChosen;
                     if (this._scope.inputForm.form)
                         switch (this._scope.experiment.usageScenario.value) {
-                            case 'pipelineFromReads':
-                                {
-                                    if (this._scope.readsUploader)
-                                        this._scope.usageError =
-                                            this._scope.usageError ||
-                                            !this._scope.readsUploader.uploaded;
-
-                                } break;
-                            case 'abundanceFromClassification':
-                                {
+                            case 'pipelineFromReads': {
+                                if (this._scope.readsUploader)
                                     this._scope.usageError =
-                                        !this._scope.classificationUploader.uploaded;
-                                    console.log(this._scope.classificationUploader);
-                                    console.log('at least', this._scope.classificationUploader.uploaded);
-                                } break;
-                            case 'classificationFromEnsemble':
-                                {
-                                    if (this._scope.ensembleUploader) {
-                                        {
-                                            this._scope.usageError =
-                                                !this._scope.ensembleUploader.uploaded;
-                                            console.log(this._scope.ensembleUploader);
-                                            console.log('at least', this._scope.ensembleUploader.uploaded);
-                                        }
+                                        this._scope.usageError ||
+                                        !this._scope.readsUploader.uploaded;
+
+                            }
+                                break;
+                            case 'abundanceFromClassification': {
+                                this._scope.usageError =
+                                    !this._scope.classificationUploader.uploaded;
+                                console.log(this._scope.classificationUploader);
+                                console.log('at least', this._scope.classificationUploader.uploaded);
+                            }
+                                break;
+                            case 'classificationFromEnsemble': {
+                                if (this._scope.ensembleUploader) {
+                                    {
+                                        this._scope.usageError =
+                                            !this._scope.ensembleUploader.uploaded;
+                                        console.log(this._scope.ensembleUploader);
+                                        console.log('at least', this._scope.ensembleUploader.uploaded);
                                     }
-                                } break;
+                                }
+                            }
+                                break;
                         }
                 });
 
@@ -337,6 +340,7 @@ module wevote {
     interface OnSuccessCBType {
         (fileItem: any, response: any, status: any, headers: any): void;
     }
+
     interface OnAfterAddingFileCBType {
         (fileItem: any): void;
     }
@@ -346,6 +350,7 @@ module wevote {
         uploader: any,
         experiment: any
     }
+
     abstract class UploaderController {
         protected _scope: UploaderControllerScope;
         protected _uploader: any;
@@ -480,6 +485,7 @@ module wevote {
             }, 500);
         };
     }
+
     interface HeaderControllerScope extends ng.IScope {
         loggedIn: boolean,
         username: string,
@@ -500,8 +506,8 @@ module wevote {
         private _auth: AuthFactory;
 
         constructor($scope: ng.IScope, $state: ng.ui.IStateService,
-            $rootScope: ng.IRootScopeService, ngDialog: ng.dialog.IDialogService,
-            auth: AuthFactory) {
+                    $rootScope: ng.IRootScopeService, ngDialog: ng.dialog.IDialogService,
+                    auth: AuthFactory) {
             this._scope = <HeaderControllerScope>$scope;
             this._scope.loggedIn = false;
             this._scope.username = '';
@@ -562,12 +568,14 @@ module wevote {
         username: string;
         password: string;
     }
+
     interface LoginControllerScope extends ng.IScope {
         rememberMe: boolean;
         loginData: ILoginData;
         doLogin: () => void;
         openRegister: () => void;
     }
+
     export class LoginController {
         static readonly $inject = ['$scope', 'ngDialog', 'LocalStorageService', 'AuthService', LoginController];
         private _scope: LoginControllerScope;
@@ -576,7 +584,7 @@ module wevote {
         private _auth: AuthFactory;
 
         constructor($scope: ng.IScope, ngDialog: ng.dialog.IDialogService,
-            $localStorage: LocalStorageFactory, auth: AuthFactory) {
+                    $localStorage: LocalStorageFactory, auth: AuthFactory) {
             this._scope = <LoginControllerScope>$scope;
             this._ngDialog = ngDialog;
             this._localStorage = $localStorage;
@@ -591,7 +599,9 @@ module wevote {
                     });
 
                 this._auth.login(this._scope.loginData,
-                    () => { this._ngDialog.closeAll(); });
+                    () => {
+                        this._ngDialog.closeAll();
+                    });
             }
             this._scope.openRegister = () => {
                 this._ngDialog.open(<any>{
@@ -612,6 +622,7 @@ module wevote {
         lastname: string,
         rememberMr: boolean
     }
+
     interface RegisterControllerScope extends ng.IScope {
         registration: IRegistration;
         doRegister: () => void;
@@ -625,7 +636,7 @@ module wevote {
         private _auth: AuthFactory;
 
         constructor($scope: ng.IScope, ngDialog: ng.dialog.IDialogService,
-            $localStorage: LocalStorageFactory, auth: AuthFactory) {
+                    $localStorage: LocalStorageFactory, auth: AuthFactory) {
             this._scope = <RegisterControllerScope>$scope;
             this._ngDialog = ngDialog;
             this._localStorage = $localStorage;
@@ -634,10 +645,21 @@ module wevote {
             this._scope.doRegister = () => {
                 console.log('Doing registration', this._scope.registration);
                 this._auth.register(this._scope.registration,
-                    () => { this._ngDialog.closeAll(); });
+                    () => {
+                        this._ngDialog.closeAll();
+                    });
             };
         }
     }
+
+    // export class InfoController {
+    //     static readonly $inject = [Info];
+    //
+    //     constructor() {
+    //         $('#wevote-pipeline').
+    //     };
+    // }
+
 
     interface ExperimentsListControllerScope extends ng.IScope {
         experiments: any,
@@ -651,6 +673,7 @@ module wevote {
         private _scope: ExperimentsListControllerScope;
         private static _experimentService: any;
         private static _refreshInterval: any;
+
         constructor($scope: ng.IScope, private ExperimentService: any, $interval: any) {
             this._scope = <ExperimentsListControllerScope>$scope;
             this._scope.experiments = {};
@@ -663,7 +686,7 @@ module wevote {
                 ExperimentsListController._experimentService.retrieve(this.onExperimentsLoadedSuccess, this.onExperimentsLoadedFail);
             }, 4000);
             this._scope.$on('$stateChangeStart', () => {
-                $interval.cancel( ExperimentsListController._refreshInterval );
+                $interval.cancel(ExperimentsListController._refreshInterval);
             });
         }
 
@@ -728,7 +751,7 @@ module wevote {
                         ExperimentsListController._experimentService.removeExperiment(exp._id,
                             (delResponse: any) => {
                                 console.log('experiment removed:', delResponse);
-                                ExperimentsListController._experimentService.retrieve(this.onExperimentsLoadedSuccess, this.onExperimentsLoadedFail);                                
+                                ExperimentsListController._experimentService.retrieve(this.onExperimentsLoadedSuccess, this.onExperimentsLoadedFail);
                             },
                             (delResponse: any) => {
                                 console.log('experiment failed to remove:', delResponse);
@@ -765,6 +788,7 @@ module wevote {
         private _scope: IExperimentScope;
         private _auth: AuthFactory;
         private _timeout: ng.ITimeoutService;
+
         constructor($scope: ng.IScope, private ExperimentService: any, auth: AuthFactory, $stateParams: ng.ui.IStateParamsService) {
             this._scope = <IExperimentScope>$scope;
             this._auth = auth;
@@ -787,7 +811,7 @@ module wevote {
                 wevoteClassification: response.results.wevoteClassification.patch,
                 numToolsUsed: response.results.wevoteClassification.numToolsUsed,
                 abundance: response.results.taxonomyAbundanceProfile.abundance,
-                statistics: { readsCount: 0, nonAbsoluteAgreement: 0 }
+                statistics: {readsCount: 0, nonAbsoluteAgreement: 0}
             };
             this._scope.showExperiment = true;
             this._scope.experimentError = false;
@@ -812,5 +836,5 @@ module wevote {
         .controller('RegisterController', RegisterController.$inject)
         .controller('ExperimentsListController', ExperimentsListController.$inject)
         .controller('ExperimentController', ExperimentController.$inject)
-        ;
+    ;
 }
