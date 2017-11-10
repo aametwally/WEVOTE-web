@@ -7,6 +7,8 @@
     1. [Overview](#web-overview)
     2. [Prerequisites](#web-prerequisites)
     3. [Building and running the application](#web-installing)
+3. [Amazon AMI with a complete setup](#ami)
+
 
 
 
@@ -189,3 +191,31 @@ sudo service mongod start
 ```
 npm start
 ```
+
+
+
+# Amazon AMI with a complete setup <div id='ami'></div>
+A complete setup of the project including the five classification methods (i.e BLASTN, KRAKEN, CLARK, MetaPhlAn, TIPP), is available through Amazon Machine Image (AMI), using a **500 GB EBS** storage. The memory budget of the instance is subject to the intended methods to use. For example, if the methods are used, but KRAKEN and CLARK, an instance with memory of **1 GiB**. Whereas, incorporating KRAKEN and CLARK would require an instance of **80 GiB** memory budget.
+
+## Usage
+1. Launch an instance with approporiate specifications using the public AMI [ami-7e2a9e04](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;search=ami-7e2a9e04;sort=tag:Name).
+
+2. Connect with a new session and run the WEVOTE computational server:
+    1. Change the directory to the executable: `cd /projects/wevote/bin`
+    2. Run `./wevoteREST -d <taxonomy-dir>`.
+
+3. Connect with another session and change directory to `wevote-root`/web: 
+    1. The client application has to be updated with the Url of the instance. Open with an editor (e.g `nano`), then edit `wevote-root`/web/app/server/config.js. 
+    2. Update the Url value at line no. 5 with the instance url, for example: 
+    ```javascript
+    'url': 'http://ec2-54-157-9-86.compute-1.amazonaws.com',
+    ```
+    3. To apply changes run: `npm run build`.
+     
+    4. Activate the `MongoDB` service: `sudo service mongod start`, then start the web application: `npm start`.
+
+4. Edit the security group attached to your instance and add new **Inbound** rule with the following parameters: 
+Type | Protocol | Port Range | Source
+------------ | ------------- | ------------- | -------------
+Custom TCP Rule | TCP | 8080 | ::/0, 0.0.0.0/0	
+5. From the browser access to our instance url at protocol 8080 (e.g `http://ec2-54-157-9-86.compute-1.amazonaws.com:8080`).
