@@ -214,7 +214,7 @@ A complete setup of the project including the five classification methods (i.e B
      
     4. Activate the `MongoDB` service: `sudo service mongod start`, then start the web application: `npm start`.
 
-4. From the Amazon Web Console, edit the security group attached to your instance and add new **Inbound** rule with the following parameters: 
+4. From the Amazon Web Console, edit the security group attached to your instance by adding new **Inbound** rule with the following parameters: 
 
 Type | Protocol | Port Range | Source 
 ------------ | ------------- | ------------- | ------------- 
