@@ -34,7 +34,7 @@ public:
         setCode( other.getCode());
     }
     Status()
-        : _code( StatusCode::NOT_STARTED ), _percentage( 0 ) = default;
+        : _code( StatusCode::NOT_STARTED ), _percentage( 0 ) {}
 
     Status &operator=( const Status &other )
     {
@@ -186,7 +186,7 @@ protected:
     friend class Serializable< WevoteSubmitEnsemble >;
 public:
     WevoteSubmitEnsemble()
-        : _d( new Data )= default;
+        : _d( new Data ){}
 
     template< typename Objectifier >
     void objectify( Objectifier &properties ) const

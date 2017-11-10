@@ -34,7 +34,7 @@ public:
           numToolsUsed(0) , score(0) , cost( 0.0 )
     {}
 
-    static std::string classifiedHeader( bool csv , const std::vector /*unused*/< std::string > & /*tools*/ )
+    static std::string classifiedHeader( bool csv , const std::vector< std::string > & tools )
     {
         std::stringstream ss;
         const std::string delim = (csv)? "," : "\t";

@@ -23,7 +23,7 @@ public:
      * @brief WevoteClassifier
      * @param taxonomy
      */
-    explicit explicit WevoteClassifier( const TaxonomyBuilder &taxonomy );
+    explicit WevoteClassifier( const TaxonomyBuilder &taxonomy );
 
     /**
      * @brief classify

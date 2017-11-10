@@ -11,7 +11,7 @@ struct WevoteScriptArguments
             const std::string &queryFile ,
             const std::string &outPrefix ,
             unsigned int threads ,
-            const std::vector< std::string > & /*algorithms*/ )
+            const std::vector< std::string > & algorithms )
         : _queryFile( queryFile ) ,
           _outPrefix( outPrefix ) ,
           _threads( threads ) ,

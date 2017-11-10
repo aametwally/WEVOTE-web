@@ -18,7 +18,7 @@ public:
      * @brief TaxonomyLineAnnotator
      * @param taxonomy
      */
-    explicit explicit TaxonomyLineAnnotator( const TaxonomyBuilder &taxonomy );
+    explicit TaxonomyLineAnnotator( const TaxonomyBuilder &taxonomy );
 
 
     /**

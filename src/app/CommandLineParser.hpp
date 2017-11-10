@@ -1,7 +1,11 @@
 #ifndef COMMANDLINEPARSER_H
 #define COMMANDLINEPARSER_H
 
-#include <QCommandLin<QCommandLineParse<memory>
+// STL
+#include<memory>
+
+// Qt
+#include <QCommandLineParser>
 
 enum class CommandLineResult
 {
@@ -25,8 +29,8 @@ struct ParsingResults
 class CommandLineParser
 {
 public:
-    CommandLineParser( const QCoreApplication & /*app*/ ,
-                       const std::list /*unused*/< QCommandLineOption > & /*options*/ ,
+    CommandLineParser( const QCoreApplication & app ,
+                       const std::list < QCommandLineOption > &options,
                        std::string helpDescription )
         : _app( app )
     {

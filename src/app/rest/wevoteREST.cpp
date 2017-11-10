@@ -59,7 +59,8 @@ const std::list< QCommandLineOption > commandLineOptions =
     }
 };
 
-auto extractFunction = []( ParsingResults<WevoteRestParameters> &results)
+auto extractFunction = [](const QCommandLineParser &parser,
+        ParsingResults<WevoteRestParameters> &results)
 {
     QDir taxonomyDBPath( parser.value("taxonomy-db-path"));
     if( !taxonomyDBPath.exists())

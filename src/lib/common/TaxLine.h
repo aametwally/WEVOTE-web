@@ -145,7 +145,7 @@ public:
         return ss.str();
     }
 
-    static std::string toString(  const std::map /*unused*/<uint32_t, TaxLine> & /*abundance*/ , bool csv )
+    static std::string toString(  const std::map<uint32_t, TaxLine> & abundance, bool csv )
     {
         std::stringstream ss;
         if( csv ) {
