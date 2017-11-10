@@ -8,7 +8,7 @@ template< typename T >
 class Serializable
 {
 protected:
-    Serializable(){}
+    Serializable()= default;
     T &_instance()
     {
         return static_cast<T const&>(*this);

@@ -62,7 +62,7 @@ WevoteClassifier::classify(
         else if(read.numToolsReported==2 && minNumAgreed<=2)
         {
             int n=0;
-            uint32_t savedTax_2[2];
+            std::array< uint32_t , 2 > savedTax_2;
             for ( uint32_t annotation : read.annotation )
                 if( annotation != ReadInfo::noAnnotation )
                     savedTax_2[n++]=annotation;

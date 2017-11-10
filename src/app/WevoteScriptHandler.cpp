@@ -53,9 +53,7 @@ private:
 };
 
 WevoteScriptHandler::WevoteScriptHandler()
-{
-
-}
+= default;
 
 std::vector< ReadInfo >
 WevoteScriptHandler::execute( const std::vector< std::string > &sequences,

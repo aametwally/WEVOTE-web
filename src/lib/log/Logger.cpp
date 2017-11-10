@@ -23,7 +23,7 @@
 #define TIME_STAMP_CHAR_LENGTH 128
 
 // Global static pointer used to ensure a single instance of the class
-Logger* Logger::instance_ = NULL;
+Logger* Logger::instance_ = nullptr;
 
 
 Logger::Logger()
@@ -57,7 +57,7 @@ void Logger::log( const LOG_LEVEL logLevel,
     vsnprintf( logMessage, sizeof( logMessage ), string, argumentList );
 
     // Get the time now
-    time_t timeNow = time( NULL );
+    time_t timeNow = time( nullptr );
 
     // Time stamp string
     char timeStamp[TIME_STAMP_CHAR_LENGTH];
