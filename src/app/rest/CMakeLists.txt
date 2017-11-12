@@ -28,16 +28,15 @@ set( WEVOTE_REST_HDR
     WevoteRestMessages.hpp
     ../WevoteScriptHandler.h
     ../config.h
-    ../config.h.in
-    ../wevote.cfg.in
-    ../wevote.cfg )
+    ../config.h.in  )
 
 set( WEVOTE_REST_MISC
-    ${ABUNDANCE_SCRIPT_NAME}
-    ${WEVOTE_PIPELINE_SCRIPT_NAME}
-    ${WEVOTE_CONFIG_FILE_NAME} )
+    ../run_WEVOTE_PIPELINE.sh
+    ../wevote.cfg.in
+    ../wevote.cfg
+    )
 
-add_executable( ${WEVOTE_REST} ${WEVOTE_REST_SRC} ${WEVOTE_REST_HDR} )
+add_executable( ${WEVOTE_REST} ${WEVOTE_REST_SRC} ${WEVOTE_REST_HDR} ${WEVOTE_REST_MISC})
 
 ### Make sure to use the required Qt modules
 qt5_use_modules( ${WEVOTE_REST} Core )
