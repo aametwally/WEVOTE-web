@@ -58,7 +58,7 @@ BLASTN | `/home/ubuntu/WEVOTE_PACKAGE/blast` | `/home/ubuntu/WEVOTE_PACKAGE/blas
  TIPP | `/home/ubuntu/WEVOTE_PACKAGE/tipp` | -  
 
 In addition, the build type, installation prefix, and Qt root directory can be specified in the cmake command. 
-In this build, we used the following configuration:
+In this build, we the following configuration is used:
 
 
 Parameter | Description | Value 
@@ -68,7 +68,7 @@ CMAKE_PREFIX_PATH | Cmake directory of Qt | `/opt/Qt5.9.2/lib/cmake`
 CMAKE_INSTALL_PREFIX | The installation directory | `/projects/wevote` 
 
 ```
-cd wevote
+cd WEVOTE-web
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
@@ -81,10 +81,6 @@ cmake -DCMAKE_BUILD_TYPE=Release \
 -DCLARK_PATH=/home/ubuntu/WEVOTE_PACKAGE/clark \
 -DCLARK_DB=/home/ubuntu/WEVOTE_PACKAGE/clarkDB \
 -DMETAPHLAN_PATH=/home/ubuntu/WEVOTE_PACKAGE/metaphlan ..
-```
-An example where Qt root directory installed at ```/opt``` and we intend to install the project in ```/projects/wevote```.
-```
-cmake -DCMAKE_PREFIX_PATH="/opt/Qt5.9.1/5.9.1/gcc_64/lib/cmake" -DCMAKE_INSTALL_PREFIX="/projects/wevote" -DCMAKE_BUILD_TYPE=Release ..
 ```
 
 After installation three applications are installed at ```CMAKE_INSTALL_PREFIX/bin```: 
@@ -100,21 +96,14 @@ cd <CMAKE_INSTALL_PREFIX>/bin
 ```
 
 ```
-Usage: E:\repo\wevote\build\bin\Release\wevoteREST.exe [options]
-E:\repo\wevote\build\bin\Release\wevoteREST.exe help
+Usage: ./wevoteREST [options]
+./wevoteREST help
 
 Options:
-  -?, -h, --help                             Displays this help.
+  -h, --help                                 Displays this help.
   -H, --host <host>                          host where application is served.
   -P, --port <port>                          The port (i.e socket number)
                                              selected for the application.
-  -W, --wevote-host <wevote-host>            host where central wevote server
-                                             served.
-  -R, --wevote-port <port>                   The port (i.e socket number)
-                                             selected for the central wevote
-                                             server.
-  -A, --wevote-path <wevote-path>            The relative path used to submit
-                                             wevote results.
   -d, --taxonomy-db-path <taxonomy-db-path>  The path of the taxonomy database
                                              file.
   -v, --verbose <verbose>                    Enable verbose mode.
@@ -122,18 +111,9 @@ Options:
 
 #### Example 
 ```
-.\wevoteREST.exe -d path/to/taxonomy/dir
+./wevoteREST -d path/to/taxonomy/dir
 ```
 
-### Testing Wevote Classifier
-To run unit tests the path of ensemble file ```TEST_ENSEMBLE_CSV_FILE``` and the taxonomy files directory ```TEST_TAXONOMY_DIRECTORY``` need to be introduced
-in the cmake command. For example: 
-```
-cd wevote
-mkdir build
-cd build
-cmake -DCMAKE_PREFIX_PATH="/opt/Qt5.9.1/5.9.1/gcc_64/lib/cmake" -DCMAKE_INSTALL_PREFIX="/projects/wevote" -DTEST_TAXONOMY_DIRECTORY="/projects/data/taxonomy" -DTEST_ENSEMBLE_CSV_FILE="/projects/data/03C31_S1_71_ensemble.csv" -DCMAKE_BUILD_TYPE=Release  ..
-```
 ### Running Wevote Classifier:
 #### Change directory to ```CMAKE_INSTALL_PREFIX/bin```
 
@@ -182,6 +162,36 @@ Options:
 
 ```
 
+### Running Abundance Annotator:
+```
+cd /projects/wevote/bin
+./wevotePipeline -h
+```
+
+```
+Usage: ./wevotePipeline [options]
+./wevotePipeline help
+
+Options:
+  -h, --help                                 Displays this help.
+  -i, --input-file <input-file>              Input ensemble file produced by
+                                             the used algorithms.
+  -d, --taxonomy-db-path <taxonomy-db-path>  The path of the taxonomy database
+                                             file.
+  -p, --output-prefix <output-prefix>        OutputFile Prefix
+  -n, --threads <threads>                    Num of threads.
+  -k, --penalty <penalty>                    Penalty.
+  -a, --min-num-agreed <min-num-agreed>      Minimum number of tools agreed
+                                             tools on WEVOTE decision.
+  -s, --score <score>                        Score threshold.
+  --clark                                    Run CLARK.
+  --blastn                                   Run BLASTN
+  --tipp                                     Run TIPP.
+  --metaphlan                                Run MetaPhlAn.
+  --kraken                                   Run KRAKEN
+  -v, --verbose <verbose>                    Enable verbose mode.
+
+```
 
 # WEVOTE Web Module <div id='wevote-web'></div>
 ## Overview <div id='web-overview'></div>
@@ -202,7 +212,7 @@ using the AngularJS framework and d3.js library.
 
 #### Change directory to web, then build wevote-web from scratch:
 ```
-cd wevote-web
+cd WEVOTE-web/web
 npm install
 npm run build
 ```
