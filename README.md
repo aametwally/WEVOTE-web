@@ -245,9 +245,10 @@ A complete setup of the project including the five classification methods (i.e B
 
 3. Connect with another session and change directory to `wevote/web`: 
     1. The client application has to be updated with the Url of the instance. Open with an editor (e.g `nano`), then edit `wevote/web/app/server/config.js`. 
-    2. Update the Url value at line no. 5 with the instance url, for example: 
+    2. Update the Url and port values at line no. 5 and 6, with the url of the instance and port 8080, for example: 
     ```javascript
-    'url': 'http://ec2-54-157-9-86.compute-1.amazonaws.com',
+    'url': 'ec2-54-211-235-65.compute-1.amazonaws.com',
+    'port': 8080,
     ```
     3. To apply changes run: `npm run build`.
      
