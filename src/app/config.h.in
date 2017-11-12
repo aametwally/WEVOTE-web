@@ -1,7 +1,7 @@
 #ifndef CONFIG_H_IN
 #define CONFIG_H_IN
 
-#include <array>
+#include <set>
 
 #define WEVOTE_PIPELINE_SCRIPT_NAME "@WEVOTE_PIPELINE_SCRIPT_NAME@"
 #define ABUNDANCE_SCRIPT_NAME "@ABUNDANCE_SCRIPT_NAME@"
