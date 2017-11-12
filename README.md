@@ -47,11 +47,40 @@ git clone https://github.com/aametwally/WEVOTE-web.git
 
 
 #### Change directory to wevote-service, then build wevote-service from scratch:
+Assuming tools and the corresponding database are installed at `~/WEVOTE_PACKAGE` as shown in the table: 
+
+Tool | Path | Database location  
+------------ | ------------- | ------------- 
+BLASTN | `/home/ubuntu/WEVOTE_PACKAGE/blast` | `/home/ubuntu/WEVOTE_PACKAGE/blastDB/nt` (prefix) 
+ CLARK | `/home/ubuntu/WEVOTE_PACKAGE/clark` | `/home/ubuntu/WEVOTE_PACKAGE/clarkDB` (dir)
+ KRAKEN | `/home/ubuntu/WEVOTE_PACKAGE/kraken` | `/home/ubuntu/WEVOTE_PACKAGE/krakenDB` (dir)
+ MetaPhlAn | `/home/ubuntu/WEVOTE_PACKAGE/metaphlan` | - 
+ TIPP | `/home/ubuntu/WEVOTE_PACKAGE/tipp` | -  
+
+In addition, the build type, installation prefix, and Qt root directory can be specified in the cmake command. 
+In this build, we used the following configuration:
+
+
+Parameter | Description | Value 
+------------ | ------------- | -------------  
+CMAKE_BUILD_TYPE | The build type (e.g Release or Debug) | `Release`  
+CMAKE_PREFIX_PATH | Cmake directory of Qt | `/opt/Qt5.9.2/lib/cmake` 
+CMAKE_INSTALL_PREFIX | The installation directory | `/projects/wevote` 
+
 ```
 cd wevote
 mkdir build
 cd build
-cmake -DCMAKE_PREFIX_PATH="<path-to-qt-installed-library>"  -DBLASTN_PATH="<path-to-BLASTN-dir>" -DBLASTN_DB="<path-to-BLASTN-database>" -DKRAKEN_PATH="<path-to-KRAKEN-dir>" -DKRAKEN_DB="<path-to-KRAKEN-database>" -DCLARK_PATH="<path-CLARK-dir>" -DCLARK_DB="<path-to-CLARK-database>" -DMETAPHLAN_PATH="<path-to-MetaPhlAn-dir>" -DTIPP_PATH="<path-to-TIPP-dir>" -DCMAKE_INSTALL_PREFIX="<target-installation-directory>" ..
+cmake -DCMAKE_BUILD_TYPE=Release \
+-DCMAKE_PREFIX_PATH=/opt/Qt5.9.2/lib/cmake \
+-DCMAKE_INSTALL_PREFIX=/projects/wevote \
+-DBLASTN_PATH=/home/ubuntu/WEVOTE_PACKAGE/blast \
+-DBLASTN_DB=/home/ubuntu/WEVOTE_PACKAGE/blastDB/nt \
+-DKRAKEN_PATH=/home/ubuntu/WEVOTE_PACKAGE/kraken \
+-DKRAKEN_DB=/home/ubuntu/WEVOTE_PACKAGE/krakenDB \
+-DCLARK_PATH=/home/ubuntu/WEVOTE_PACKAGE/clark \
+-DCLARK_DB=/home/ubuntu/WEVOTE_PACKAGE/clarkDB \
+-DMETAPHLAN_PATH=/home/ubuntu/WEVOTE_PACKAGE/metaphlan ..
 ```
 An example where Qt root directory installed at ```/opt``` and we intend to install the project in ```/projects/wevote```.
 ```
@@ -198,7 +227,7 @@ npm start
 A complete setup of the project including the five classification methods (i.e BLASTN, KRAKEN, CLARK, MetaPhlAn, TIPP), is available through Amazon Machine Image (AMI), using a **500 GB EBS** storage. The memory budget of the instance is subject to the intended methods to use. For example, if the methods are used, but KRAKEN and CLARK, an instance with memory of **1 GiB**. Whereas, incorporating KRAKEN and CLARK would require an instance of **80 GiB** memory budget.
 
 ## Usage
-1. Launch an instance with approporiate specifications using the public AMI [ami-7e2a9e04](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;search=ami-7e2a9e04;sort=tag:Name).
+1. Launch an instance with approporiate specifications using the public AMI [ami-16318a6c](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;search=ami-16318a6c;sort=tag:Name).
 
 2. Connect with a new session and run the WEVOTE computational server:
     1. Change the directory to the executable: `cd /projects/wevote/bin`
