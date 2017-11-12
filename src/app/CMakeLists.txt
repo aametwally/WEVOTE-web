@@ -15,7 +15,7 @@ set( WEVOTE_CONFIG_FILE_NAME wevote.cfg )
 
 set( ALGORITHMS_LIST )
 
-if( EXISTS "${BLASTN_PATH}" AND EXISTS "${BLASTN_DB}")
+if( EXISTS "${BLASTN_PATH}" AND BLASTN_DB)
     list( APPEND ALGORITHMS_LIST "\"blastn\"" )
 endif()
 
