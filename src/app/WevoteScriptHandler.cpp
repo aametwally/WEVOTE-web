@@ -76,7 +76,7 @@ WevoteScriptHandler::execute( const std::vector< std::string > &sequences,
 
     WevoteScriptArguments arguments( queryFile , outPrefix , threadsCount , algorithms );
     const std::string cmd = pipelineScript + arguments.getCommandLineArguments();
-
+    std::pair< std::vector< ReadInfo > , std::vector< std::string >> reads;
     LOG_DEBUG("Executing:%s",cmd.c_str());
     try
     {
@@ -84,10 +84,8 @@ WevoteScriptHandler::execute( const std::vector< std::string > &sequences,
         {
             QFile::remove( QString::fromStdString( queryFile ));
             const std::vector< std::string > unclassifiedReads = io::getFileLines( outputFile );
-            auto reads = ReadInfo::parseUnclassifiedReads( unclassifiedReads.cbegin() , unclassifiedReads.cend());
-            QFile::remove( QString::fromStdString( outputFile ));
+            reads = ReadInfo::parseUnclassifiedReads( unclassifiedReads.cbegin() , unclassifiedReads.cend());
             LOG_DEBUG("[DONE] Executing:%s", cmd.c_str());
-            return std::move( reads.first );
         }
     } catch( const std::exception &e )
     {
@@ -95,8 +93,9 @@ WevoteScriptHandler::execute( const std::vector< std::string > &sequences,
     }
 
     QFile::remove( QString::fromStdString( queryFile ));
+    QDir( QString::fromStdString( outPrefix )).removeRecursively();
     LOG_DEBUG("Failure executing command:%s", cmd.c_str());
-    return {};
+    return std::move( reads.first );
 }
 
 uint WevoteScriptHandler::_getId()
