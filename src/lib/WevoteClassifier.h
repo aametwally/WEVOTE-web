@@ -29,18 +29,19 @@ public:
      * @brief classify
      * @param reads
      */
-    std::vector<double> classify( std::vector< ReadInfo > &reads ,
-                                  int minNumAgreed ,
-                                  int penalty ,
-                                  DistanceFunctionType distanceFunction = manhattanDistance() ,
-                                  int threads = 1 ) const;
+    void classify(
+            std::vector< ReadInfo > &reads ,
+            int minNumAgreed ,
+            int penalty ,
+            DistanceFunctionType distanceFunction = manhattanDistance() ,
+            int threads = 1 ) const;
 
     /**
      * @brief getReads
      * @param filename
      * @return
      */
-    static std::pair< std::vector< ReadInfo > ,  std::vector< std::string >>
+    static std::pair<std::vector<ReadInfo>, std::vector<std::string> >
     getUnclassifiedReads(const std::string &filename , std::string delim = ",");
 
     /**
@@ -57,7 +58,7 @@ public:
      * @param taxonomy
      * @return
      */
-    static std::pair< std::vector< ReadInfo > ,  std::vector< std::string >>
+    static std::pair<std::vector<ReadInfo>, std::vector<std::string> >
     getClassifiedReads( const std::string &filename , bool csv = false );
 
     /**
@@ -65,6 +66,19 @@ public:
      * @param reads
      */
     void preprocessReads( std::vector< ReadInfo > &reads ) const;
+
+
+    /**
+     * @brief algorithmsAccumulativeDistances
+     * @param reads
+     * @param algorithms
+     * @param distanceFunction
+     * @return
+     */
+    std::map< std::string , double >
+    algorithmsAccumulativeDistances( const std::vector< ReadInfo > &reads ,
+                                     const std::vector< std::string > &algorithms ,
+                                     DistanceFunctionType distanceFunction = euclideanDistance()) const;
 
     /**
      * @brief manhattanDistance

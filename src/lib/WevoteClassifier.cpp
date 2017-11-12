@@ -9,8 +9,7 @@ WevoteClassifier::WevoteClassifier( const TaxonomyBuilder &taxonomy )
 
 }
 
-std::vector< double >
-WevoteClassifier::classify(
+void WevoteClassifier::classify(
         std::vector<ReadInfo> &reads,
         int minNumAgreed, int penalty,
         DistanceFunctionType distanceFunction ,
@@ -115,21 +114,10 @@ WevoteClassifier::classify(
         read.cost = distanceFunction( read.distances );
     }
 
-    std::vector< double > netDistance;
-    for( auto i = 0 ; i < reads.front().numToolsUsed ; ++i )
-    {
-        std::vector< double > distances;
-        std::transform( reads.cbegin() , reads.cend() ,
-                        std::back_inserter( distances ) ,
-                        [i]( const ReadInfo &read ){ return read.distances.at( i );});
-        netDistance.push_back( euclideanDistance()( distances ));
-    }
-
     double end = omp_get_wtime();
     double total=end-start;
     LOG_INFO("[DONE] Classification (%d threads)..",threads);
     LOG_INFO("WEVOTE classification executed in=%f" , total );
-    return netDistance;
 }
 
 std::pair< std::vector< ReadInfo > ,  std::vector< std::string >>
@@ -142,7 +130,7 @@ WevoteClassifier::getUnclassifiedReads(
 
 void WevoteClassifier::writeResults(
         const std::vector<ReadInfo> &reads,
-        const std::vector< std::string > &tools ,
+        const std::vector<std::string> &tools ,
         const std::string &fileName ,
         bool csv )
 {
@@ -181,6 +169,26 @@ void WevoteClassifier::preprocessReads( std::vector<ReadInfo> &reads ) const
                                                read.annotation.cend() ,
                                                []( uint32_t taxid ){
                 return ReadInfo::isAnnotation( taxid ); });
+}
+
+std::map< std::string , double >
+WevoteClassifier::algorithmsAccumulativeDistances(
+        const std::vector<ReadInfo> &reads,
+        const std::vector<std::string> &algorithms,
+        WevoteClassifier::DistanceFunctionType distanceFunction ) const
+{
+    std::map< std::string , double > netDistance;
+    int i = 0 ;
+    for( auto it = algorithms.cbegin() ; it != algorithms.cend() ; ++it )
+    {
+        std::vector< double > distances;
+        std::transform( reads.cbegin() , reads.cend() ,
+                        std::back_inserter( distances ) ,
+                        [i]( const ReadInfo &read ){ return read.distances.at( i );});
+        netDistance[ *it ] =  distanceFunction( distances );
+        ++i;
+    }
+    return netDistance;
 }
 
 WevoteClassifier::DistanceFunctionType WevoteClassifier::manhattanDistance()

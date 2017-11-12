@@ -205,6 +205,7 @@ int main(int argc, char *argv[])
     if( param.tipp      ) algorithms.push_back("TIPP");
     if( param.kraken    ) algorithms.push_back("KRAKEN");
     if( param.metaphlan ) algorithms.push_back("MetaPhlAn");
+    std::sort( algorithms.begin() , algorithms.end());
 
     const std::string nodesFilename=
             QDir( QString::fromStdString( param.taxonomyDB ))
@@ -235,10 +236,10 @@ int main(int argc, char *argv[])
     LOG_INFO("[DONE] Building Taxonomy..");
 
     wevote::WevoteClassifier wevoteClassifier( taxonomy );
-    std::vector< double > netDistance =
-            wevoteClassifier.classify( reads , param.minNumAgreed ,
-                                       param.penalty , wevote::WevoteClassifier::manhattanDistance() ,
-                                       param.threads );
+    wevoteClassifier.classify( reads ,
+                               param.minNumAgreed ,
+                               param.penalty , wevote::WevoteClassifier::manhattanDistance() ,
+                               param.threads );
 
     uint32_t undefined =
             std::count_if( reads.cbegin() , reads.cend() ,
@@ -253,11 +254,12 @@ int main(int argc, char *argv[])
     wevote::WevoteClassifier::writeResults( reads , algorithms , outputDetailsCSV , true );
 
     printf("\n");
-    for( auto i = 0 ; i < algorithms.size() ; ++i )
+    for( const std::pair< std::string , double > &algorithmCost :
+         wevoteClassifier.algorithmsAccumulativeDistances( reads , algorithms ))
         printf( STD_WHITE  "<%s>\n\t\t"  STD_RESET
                 STD_YELLOW "total-distance:%f\n"   STD_RESET ,
-                algorithms.at( i ).c_str() ,
-                netDistance.at( i )) ;
+                algorithmCost.first.c_str() ,
+                algorithmCost.second ) ;
 
     return EXIT_SUCCESS;
 }

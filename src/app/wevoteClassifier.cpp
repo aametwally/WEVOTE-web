@@ -186,10 +186,10 @@ int main(int argc, char *argv[])
     LOG_INFO("[DONE] Building Taxonomy..");
 
     wevote::WevoteClassifier wevoteClassifier( taxonomy );
-    std::vector< double > netDistance =
-            wevoteClassifier.classify( reads.first , param.minNumAgreed ,
-                                       param.penalty , wevote::WevoteClassifier::manhattanDistance() ,
-                                       param.threads );
+    wevoteClassifier.classify( reads.first ,
+                               param.minNumAgreed , param.penalty ,
+                               wevote::WevoteClassifier::manhattanDistance() ,
+                               param.threads );
 
     uint32_t undefined =
             std::count_if( reads.first.cbegin() , reads.first.cend() ,
@@ -204,11 +204,12 @@ int main(int argc, char *argv[])
     wevote::WevoteClassifier::writeResults( reads.first , reads.second , outputDetailsCSV , true );
 
     printf("\n");
-    for( auto i = 0 ; i < reads.second.size() ; ++i )
+    for( const std::pair< std::string , double > &algorithmCost :
+         wevoteClassifier.algorithmsAccumulativeDistances( reads.first , reads.second ))
         printf( STD_WHITE  "<%s>\n\t\t"  STD_RESET
                 STD_YELLOW "total-distance:%f\n"   STD_RESET ,
-                reads.second.at( i ).c_str() ,
-                netDistance.at( i )) ;
+                algorithmCost.first.c_str() ,
+                algorithmCost.second ) ;
 
     return EXIT_SUCCESS;
 }

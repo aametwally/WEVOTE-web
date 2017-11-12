@@ -21,7 +21,7 @@ struct WevoteScriptArguments;
 class WevoteScriptHandler
 {
 public:
-    WevoteScriptHandler();
+    WevoteScriptHandler() = default;
     std::vector< ReadInfo > execute( const std::vector< std::string > &inputSequences ,
                                      const std::vector< std::string > &algorithms ) const;
 protected:

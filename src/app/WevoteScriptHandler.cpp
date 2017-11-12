@@ -32,9 +32,7 @@ struct WevoteScriptArguments
             std::string algorithmLowerCase = algorithm;
             std::transform(algorithmLowerCase.begin(), algorithmLowerCase.end(),
                            algorithmLowerCase.begin(), ::tolower);
-            if( std::find( wevote::config::algorithms.cbegin() ,
-                           wevote::config::algorithms.cend() ,
-                           algorithmLowerCase ) != wevote::config::algorithms.cend())
+            if( wevote::config::algorithms.find( algorithmLowerCase ) != wevote::config::algorithms.end())
                 arguments << " --" + algorithmLowerCase;
         });
         return arguments.str();
@@ -52,12 +50,10 @@ private:
     const std::vector< std::string > _algorithms;
 };
 
-WevoteScriptHandler::WevoteScriptHandler()
-= default;
 
 std::vector< ReadInfo >
 WevoteScriptHandler::execute( const std::vector< std::string > &sequences,
-                              const std::vector< std::string > &algorithms ) const
+                              const std::vector<std::string> &algorithms ) const
 {
     const std::string id = std::to_string( _getId());
     const std::string seperator = "/";
@@ -82,21 +78,25 @@ WevoteScriptHandler::execute( const std::vector< std::string > &sequences,
     const std::string cmd = pipelineScript + arguments.getCommandLineArguments();
 
     LOG_DEBUG("Executing:%s",cmd.c_str());
-    if( arguments.validateArguments() && std::system( cmd.c_str()) == EXIT_SUCCESS )
+    try
     {
-        QFile::remove( QString::fromStdString( queryFile ));
-        const std::vector< std::string > unclassifiedReads = io::getFileLines( outputFile );
-        auto reads = ReadInfo::parseUnclassifiedReads( unclassifiedReads.cbegin() , unclassifiedReads.cend());
-        QFile::remove( QString::fromStdString( outputFile ));
-        LOG_DEBUG("[DONE] Executing:%s", cmd.c_str());
-        return std::move( reads.first );
-    }
-    else
+        if( arguments.validateArguments() && std::system( cmd.c_str()) == EXIT_SUCCESS )
+        {
+            QFile::remove( QString::fromStdString( queryFile ));
+            const std::vector< std::string > unclassifiedReads = io::getFileLines( outputFile );
+            auto reads = ReadInfo::parseUnclassifiedReads( unclassifiedReads.cbegin() , unclassifiedReads.cend());
+            QFile::remove( QString::fromStdString( outputFile ));
+            LOG_DEBUG("[DONE] Executing:%s", cmd.c_str());
+            return std::move( reads.first );
+        }
+    } catch( const std::exception &e )
     {
-        QFile::remove( QString::fromStdString( queryFile ));
-        LOG_DEBUG("Failure executing command:%s", cmd.c_str());
-        return {};
+        LOG_WARNING("exception:%s", e.what());
     }
+
+    QFile::remove( QString::fromStdString( queryFile ));
+    LOG_DEBUG("Failure executing command:%s", cmd.c_str());
+    return {};
 }
 
 uint WevoteScriptHandler::_getId()

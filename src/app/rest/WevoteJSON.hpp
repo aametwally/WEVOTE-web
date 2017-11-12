@@ -168,14 +168,14 @@ private:
 
     template< typename T ,
               typename enableIfSupportedString< T >::type = 0 >
-    static defs::string_t _fromValue( const web::json::value &str )
+    static auto _fromValue( const web::json::value &str )
     {
         return str.as_string();
     }
 
     template< typename T ,
               typename disableIfSupportedString< T >::type = 0 >
-    static std::string _fromValue( const web::json::value &str )
+    static auto _fromValue( const web::json::value &str )
     {
         return wevote::io::toStringType( str.as_string());
     }
@@ -224,11 +224,12 @@ public:
         }
     }
 
-    template< typename T >
-    void deObjectifyArray( const utility::string_t &key , std::vector< T > &dest ) const
+    template< typename Container >
+    void deObjectifyArray( const utility::string_t &key , Container &dest ) const
     {
         try
         {
+            using T = typename Container::value_type;
             std::function<T(const web::json::value&)> fromval = _fromValue< T >;
             const web::json::value value = _object.at( key );
             const web::json::array array = value.as_array();

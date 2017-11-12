@@ -13,7 +13,7 @@ namespace wevote
 {
 namespace config
 {
-const std::array< std::string , @ALGORITHMS_COUNT@ > algorithms = @ALGORITHMS_INITIALIZER_LIST@;
+const std::set< std::string > algorithms = @ALGORITHMS_INITIALIZER_LIST@;
 
 }
 }

@@ -4,7 +4,6 @@
 // Qt
 #include <QCoreApplication>
 
-
 // cpprest
 #include "cpprest/json.h"
 #include "cpprest/http_client.h"

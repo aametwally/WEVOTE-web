@@ -41,9 +41,15 @@ void WevoteRestHandler::_wevoteClassifier( http_request message )
             WevoteSubmitEnsemble submission =
                     io::DeObjectifier::fromObject< WevoteSubmitEnsemble >( value );
 
+            _classifier.classify( submission.getReadsInfo() ,
+                                  submission.getMinNumAgreed() ,
+                                  submission.getPenalty());
+
             submission.getDistances() =
-                    _classifier.classify( submission.getReadsInfo() , submission.getMinNumAgreed() ,
-                                          submission.getPenalty());
+                    io::mapToValues( _classifier.algorithmsAccumulativeDistances(
+                                         submission.getReadsInfo() ,
+                                         submission.getAlgorithms()));
+
 
             uint32_t undefined =
                     std::count_if( submission.getReadsInfo().cbegin() , submission.getReadsInfo().cend() ,
@@ -61,7 +67,6 @@ void WevoteRestHandler::_wevoteClassifier( http_request message )
 
             submission.getStatus().setPercentage( 100.0 );
             submission.getStatus().setCode( Status::StatusCode::SUCCESS );
-
 
             LOG_DEBUG("Transmitting..");
             _transmitJSON( submission );
@@ -90,14 +95,23 @@ void WevoteRestHandler::_fullPipeline(http_request message)
             WevoteSubmitEnsemble submission =
                     io::DeObjectifier::fromObject< WevoteSubmitEnsemble >( value );
 
+            /// Trick: sort back algorithms to client as the script use lexicographical ordering.
+            std::sort( submission.getAlgorithms().begin() , submission.getAlgorithms().end());
+
             WevoteScriptHandler pipelineHandler;
 
             submission.getReadsInfo() = pipelineHandler
                     .execute( submission.getSequences() , submission.getAlgorithms());
 
-            submission.getDistances() = _classifier
-                    .classify( submission.getReadsInfo() , submission.getMinNumAgreed() ,
-                                          submission.getPenalty());
+            _classifier.classify( submission.getReadsInfo() ,
+                                  submission.getMinNumAgreed() ,
+                                  submission.getPenalty());
+
+            submission.getDistances() =
+                    io::mapToValues( _classifier.algorithmsAccumulativeDistances(
+                                         submission.getReadsInfo() ,
+                                         submission.getAlgorithms()));
+
 
             uint32_t undefined =
                     std::count_if( submission.getReadsInfo().cbegin() , submission.getReadsInfo().cend() ,

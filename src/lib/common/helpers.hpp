@@ -165,6 +165,16 @@ auto split( const StringType &s , SeperatorType delim  )
     return tokens;
 }
 
+template < typename M >
+std::vector< typename M::mapped_type >
+mapToValues( const  M & m  ) {
+    std::vector< typename M::mapped_type > v;
+    for( typename M::const_iterator it = m.cbegin(); it != m.cend(); ++it ) {
+        v.push_back( it->second );
+    }
+    return v;
+}
+
 }  // namespace io
 }  // namespace wevote
 

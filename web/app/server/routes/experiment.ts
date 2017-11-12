@@ -61,7 +61,13 @@ export class ExperimentRouter extends BaseRoute {
                                 wevoteClassification: classificationDoc._id,
                                 taxonomyAbundanceProfile: abundanceDoc._id
                             };
-
+                            
+                            // use algorithms as sorted by the core server.
+                            experiment.config.algorithms = submission.algorithms
+                                .map((algStr: string) => {
+                                    return <IAlgorithm>{ name: algStr, used: true };
+                                });
+                            
                             experiment.save((err: any, exp: IExperimentModel) => {
                                 res.writeHead(200, { 'Content-Type': 'text/plain' });
                                 res.end();
@@ -138,7 +144,7 @@ export class ExperimentRouter extends BaseRoute {
                     if (req.decoded) {
                         const username = req.decoded.username;
                         const userExperiments = experiments.filter((exp: any) => {
-                            return exp.user && exp.user && exp.user.username === username;
+                            return  exp.user && exp.user.username === username;
                         });
                         return res.json(userExperiments);
                     }
@@ -161,7 +167,7 @@ export class ExperimentRouter extends BaseRoute {
                 ExperimentModel.repo.findById(req.params.expId,
                     function (err: any, experiment: any) {
                         if (err) return next(err);
-                        const loggedIn: Boolean = (<any>req).decoded && (<any>experiment.user);
+                        const loggedIn: Boolean = experiment && (<any>req).decoded && (<any>experiment.user);
                         if (loggedIn && (<any>req).decoded.username === experiment.user.username)
                             return res.json(experiment);
                         else {
@@ -244,11 +250,11 @@ export class ExperimentRouter extends BaseRoute {
                     const submission: IWevoteSubmitEnsemble =
                         {
                             resultsRoute:
-                            {
-                                host: config.localhost,
-                                port: config.port,
-                                relativePath: '/experiment/classification'
-                            },
+                                {
+                                    host: config.localhost,
+                                    port: config.port,
+                                    relativePath: '/experiment/classification'
+                                },
                             jobID: exp._id,
                             reads: [],
                             abundance: [],
@@ -326,11 +332,11 @@ export class ExperimentRouter extends BaseRoute {
                     const submission: IWevoteSubmitEnsemble =
                         {
                             resultsRoute:
-                            {
-                                host: config.localhost,
-                                port: config.port,
-                                relativePath: '/experiment/classification'
-                            },
+                                {
+                                    host: config.localhost,
+                                    port: config.port,
+                                    relativePath: '/experiment/classification'
+                                },
                             jobID: exp._id,
                             reads: classifiedReads,
                             abundance: [],
@@ -393,11 +399,11 @@ export class ExperimentRouter extends BaseRoute {
                     const submission: IWevoteSubmitEnsemble =
                         {
                             resultsRoute:
-                            {
-                                host: config.localhost,
-                                port: config.port,
-                                relativePath: '/experiment/classification'
-                            },
+                                {
+                                    host: config.localhost,
+                                    port: config.port,
+                                    relativePath: '/experiment/classification'
+                                },
                             jobID: exp._id,
                             reads: unclassifiedReads,
                             abundance: [],
