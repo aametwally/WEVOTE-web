@@ -38,24 +38,24 @@ sudo apt-get install cmake
 
 ## Installing, Testing, and Running<div id='computational-installing'></div>
 
-### Installing Wevote Cpp Applications.
+### Installing WEVOTE Core applications.
 
-#### Clone the project to your local repository:
+#### Clone the project to your machine:
 ```
 git clone https://github.com/aametwally/WEVOTE-web.git
 ```
 
 
-#### Change directory to wevote-service, then build wevote-service from scratch:
-Assuming tools and the corresponding database are installed at `~/WEVOTE_PACKAGE` as shown in the table: 
+#### Building the core library and applications using CMake:
+Assuming taxonomic binning tools and the corresponding database are installed at `~/WEVOTE_PACKAGE` as shown in the table: 
 
 Tool | Path | Database location  
 ------------ | ------------- | ------------- 
-BLASTN | `/home/ubuntu/WEVOTE_PACKAGE/blast` | `/home/ubuntu/WEVOTE_PACKAGE/blastDB/nt` (prefix) 
- CLARK | `/home/ubuntu/WEVOTE_PACKAGE/clark` | `/home/ubuntu/WEVOTE_PACKAGE/clarkDB` (dir)
- KRAKEN | `/home/ubuntu/WEVOTE_PACKAGE/kraken` | `/home/ubuntu/WEVOTE_PACKAGE/krakenDB` (dir)
- MetaPhlAn | `/home/ubuntu/WEVOTE_PACKAGE/metaphlan` | - 
- TIPP | `/home/ubuntu/WEVOTE_PACKAGE/tipp` | -  
+BLASTN | `~/WEVOTE_PACKAGE/blast` | `~/WEVOTE_PACKAGE/blastDB/nt` (prefix) 
+ CLARK | `~/WEVOTE_PACKAGE/clark` | `~/WEVOTE_PACKAGE/clarkDB` (dir)
+ KRAKEN | `~/WEVOTE_PACKAGE/kraken` | `~/WEVOTE_PACKAGE/krakenDB` (dir)
+ MetaPhlAn | `~/WEVOTE_PACKAGE/metaphlan` | - 
+ TIPP | `~/WEVOTE_PACKAGE/tipp` | -  
 
 In addition, the build type, installation prefix, and Qt root directory can be specified in the cmake command. 
 In this build, we the following configuration is used:
