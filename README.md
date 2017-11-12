@@ -237,7 +237,7 @@ npm start
 A complete setup of the project including the five classification methods (i.e BLASTN, KRAKEN, CLARK, MetaPhlAn, TIPP), is available through Amazon Machine Image (AMI), using a **500 GB EBS** storage. The memory budget of the instance is subject to the intended methods to use. For example, if the methods are used, but KRAKEN and CLARK, an instance with memory of **1 GiB**. Whereas, incorporating KRAKEN and CLARK would require an instance of **80 GiB** memory budget.
 
 ## Usage
-1. Launch an instance with approporiate specifications using the public AMI [ami-16318a6c](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;search=ami-16318a6c;sort=tag:Name).
+1. Launch an instance with approporiate specifications using the public AMI [ami-0212a978](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;search=ami-0212a978;sort=tag:Name).
 
 2. Connect with a new session and run the WEVOTE computational server:
     1. Change the directory to the executable: `cd /projects/wevote/bin`
