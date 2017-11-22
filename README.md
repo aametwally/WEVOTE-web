@@ -63,7 +63,6 @@ In this build, we the following configuration is used:
 Parameter | Description | Value 
 ------------ | ------------- | -------------  
 CMAKE_BUILD_TYPE | The build type (e.g Release or Debug) | `Release`  
-CMAKE_PREFIX_PATH | Cmake directory of Qt | `/opt/Qt5.9.2/lib/cmake` 
 CMAKE_INSTALL_PREFIX | The installation directory | `/projects/wevote` 
 
 ```
@@ -71,7 +70,6 @@ cd WEVOTE-web
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
--DCMAKE_PREFIX_PATH=/opt/Qt5.9.2/lib/cmake \
 -DCMAKE_INSTALL_PREFIX=/projects/wevote \
 -DBLASTN_PATH=/home/ubuntu/WEVOTE_PACKAGE/blast \
 -DBLASTN_DB=/home/ubuntu/WEVOTE_PACKAGE/blastDB/nt \
