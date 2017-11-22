@@ -200,8 +200,14 @@ While the client and visualization applications (the front-end side) is implemen
 using the AngularJS framework and d3.js library.
 
 ## Prerequisites <div id='web-prerequisites'></div>
-* Node v6: [installation instructions](https://nodejs.org/en/download/package-manager/).
-* MongoDB: installation instructions [(Linux)](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/) or [(windows)](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/) .  
+* Node v6: See [installation instructions](https://nodejs.org/en/download/package-manager/).  
+
+<strong>OR</strong> run the following commands:
+```shell
+curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+* MongoDB: See [installation instructions](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/).  
 * Wevote computational server (server must be running before running wevote-web server): [installation and running instruction](https://bitbucket.org/asem_abdelaziz/wevote/overview)
 </br>
 
