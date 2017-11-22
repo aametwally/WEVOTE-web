@@ -208,7 +208,7 @@ curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 sudo apt-get install -y nodejs
 ```
 * MongoDB: See [installation instructions](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/).  
-* Wevote computational server (server must be running before running wevote-web server): [installation and running instruction](https://bitbucket.org/asem_abdelaziz/wevote/overview)
+* Wevote computational server (server must be running before running wevote-web server): [installation and running instruction](#wevote-computational)
 </br>
 
 ## Building and running the application <div id='web-installing'></div>
