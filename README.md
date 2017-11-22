@@ -18,21 +18,20 @@
 This section details steps for installing and running WEVOTE. Current WEVOTE version only supports Linux. If you experience difficulty installing or running the software, please contact (Ahmed Metwally: ametwa2@uic.edu).
 
 ## Prerequisites <div id='computational-prerequisites'></div>
-* cpprest: a restfull API c++ library. [Follow this link for installation.](https://github.com/Microsoft/cpprestsdk/wiki)
-* BLASTN, Kraken, TIPP, CLARK, and MetaPhlan installed on the machine. 
-* g++: 
-```shell
-sudo apt-get install build-essential
-```
+* g++.
+* CMake (minimum version 3.5).
+* Qt SDK: for command line argument processing beside other modules are expected to be used extensively through development.
+* cpprest: a restfull API c++ library.
+* OpenMP: for multithreading execution.  
 
-* OpenMP: for multithreading execution. 
-* CMake (minimum version 3.5): 
+To install above dependencies: 
+```shell
+sudo add-apt-repository universe
+sudo apt-get update
+sudo apt-get install build-essential cmake qt5-default libcpprest-dev
 ```
-sudo apt-get install cmake
-``` 
-* Qt SDK: for command line argument processing beside other modules are expected to be used extensively through development. [Follow these instruction for installing Qt SDK.](https://wiki.qt.io/Install_Qt_5_on_Ubuntu).
+* BLASTN, Kraken, TIPP, CLARK, and MetaPhlan installed on the machine. 
 * A machine with RAM of at least 75 GB to run Kraken and Clark. You may ignore this prerequisite if you do not use kraken or clark. 
-* R: for generating summary statistics, graphs, and messaging the data to be compatible with Phyloseq package. 
 
 
 
