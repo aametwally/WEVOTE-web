@@ -3,9 +3,6 @@
 
 #include <atomic>
 
-#include <QObject>
-#include <QMetaEnum>
-
 #include "WevoteJSON.hpp"
 #include "ReadInfo.h"
 #include "TaxLine.h"
@@ -13,9 +10,9 @@
 
 class Status : public Serializable< Status >
 {
-    Q_GADGET
 protected:
     friend class Serializable< Status >;
+
 public:
 
     enum class StatusCode
@@ -25,8 +22,6 @@ public:
         SUCCESS ,
         FAILURE
     };
-
-    Q_ENUM( StatusCode )
 
     Status( const Status &other )
     {
@@ -46,7 +41,7 @@ public:
     void setCode( StatusCode status )
     {
         _code.store( status );
-        _message = _metaEnum().valueToKey( static_cast< int >( status ));
+        _message = _statusCodeToString( status );
     }
 
     StatusCode getCode() const volatile
@@ -72,8 +67,8 @@ public:
     void objectify( Objectifier &properties ) const
     {
         auto meta = _meta< defs::char_t , Meta >;
-        const int code = _metaEnum().value( static_cast< int >( getCode()));
-        const std::string message( _metaEnum().valueToKey( code ));
+        const int code =  static_cast< int >( getCode());
+        const std::string message( _statusCodeToString( getCode()));
         properties.objectify( meta( Meta::StatusCode ) , code );
         properties.objectify( meta( Meta::StatusMessage ) , message );
         properties.objectify( meta( Meta::Percentage  ) , static_cast< float >( getPercentage()) );
@@ -86,10 +81,17 @@ protected:
         Percentage
     };
 
-    static const QMetaEnum &_metaEnum()
+
+    std::string _statusCodeToString( StatusCode code ) const
     {
-        static auto meta = QMetaEnum::fromType<StatusCode>();
-        return meta;
+        if( code == StatusCode::NOT_STARTED )
+            return "NOT_STARTED";
+        if( code == StatusCode::IN_PROGRESS )
+            return "IN_PROGRESS";
+        if( code == StatusCode::SUCCESS )
+            return "SUCCESS";
+        if( code == StatusCode::FAILURE )
+            return "FAILURE";
     }
 
     template< typename DeObjectifier >
