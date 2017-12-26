@@ -116,6 +116,6 @@
     "serve-favicon": "~2.4.2",
     "session-file-store": "^1.0.0",
     "venn.js": "^0.2.14",
-    "wait-for-port": "0.0.2"
+    "wait-port": "^0.2.2"
   }
 }
