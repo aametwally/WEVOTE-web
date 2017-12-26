@@ -1,11 +1,9 @@
-FROM mhart/alpine-node:latest
-
-RUN apk add --no-cache --virtual .build-deps git
+FROM node:carbon
 
 ## Install NPM Packages
 ADD package.json /tmp/package.json
-RUN cd /tmp && npm install
-RUN mkdir -p /root/web && cp -a /tmp/node_modules /root/web
+RUN cd /tmp && rm -rf ./node_modules  && npm install
+RUN mkdir -p /root/web && cp -r /tmp/node_modules /root/web
 
 ## Copy source
 WORKDIR /root/web

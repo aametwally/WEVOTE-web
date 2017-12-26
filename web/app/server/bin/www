@@ -9,6 +9,7 @@ var debug = require('debug')('wevote:server');
 var http = require('http');
 var config = require('../config');
 
+
 /**
  * Get port from environment and store in Express.
  */
@@ -25,6 +26,7 @@ var server = http.createServer(app.Server.bootstrap(port,host));
  */
 server.on('error', onError);
 server.on('listening', onListening);
+
 
 server.listen(port);
 /**
