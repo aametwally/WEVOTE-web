@@ -1,4 +1,18 @@
-# Table of Contents
+# What is WEVOTE-web?
+
+[![Build Status](https://travis-ci.org/aametwally/WEVOTE-web.svg?branch=master)](https://travis-ci.org/aametwally/WEVOTE-web)
+
+WEVOTE-web is cloud-based framework of the WEVOTE ensemble taxonomic identification method. The framework to improves the usability of WEVOTE algorithm. In addition, it provides an interactive visual analytics tool to ease the interpretation of the classification results. WEVOTE-web application can also be used by researchers as a repository to store their experimental history for further revisions. A complete setup for the project and its dependencies as a web application is available as an Amazon Machine Image (AMI) for a direct deployment on AWS EC2 machine. The latest AMI is [ami-0f873d75](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;search=ami-0f873d75;sort=tag:Name)
+
+
+### Publication:
+1. Asem Alaa, Ahmed A. Metwally. "Cloud-based Solution for Improving Usability and Interactivity of Metagenomic Ensemble Taxonomic Identification Methods", IEEE Biomedical and Health Informatics, Accepted, 2018.  
+
+2. Ahmed A. Metwally, Yang Dai, Patricia W. Finn, and David L. Perkins. "WEVOTE: Weighted Voting Taxonomic Identification Method of Microbial Sequences." PloS one 11, no. 9 (2016): e0163527.
+http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0163527
+
+
+## Table of Contents
 1. [WEVOTE Computational Module](#wevote-computational)
     1. [Getting Started](#computational-getting-started)
     2. [Prerequisites](#computational-prerequisites)
@@ -13,11 +27,11 @@
 
 
 
-# WEVOTE Computational Module<div id='wevote-computational'></div>
-## Getting Started <div id='computational-getting-started'></div>
+## WEVOTE Computational Module<div id='wevote-computational'></div>
+### Getting Started <div id='computational-getting-started'></div>
 This section details steps for installing and running WEVOTE. Current WEVOTE version only supports Linux. If you experience difficulty installing or running the software, please contact (Ahmed Metwally: ametwa2@uic.edu).
 
-## Prerequisites <div id='computational-prerequisites'></div>
+### Prerequisites <div id='computational-prerequisites'></div>
 * g++.
 * CMake (minimum version 3.5).
 * Qt SDK: for command line argument processing beside other modules are expected to be used extensively through development.
@@ -35,7 +49,7 @@ sudo apt-get install build-essential cmake qt5-default libcpprest-dev
 
 
 
-## Installing, Testing, and Running<div id='computational-installing'></div>
+### Installing, Testing, and Running<div id='computational-installing'></div>
 
 ### Installing WEVOTE Core applications.
 
