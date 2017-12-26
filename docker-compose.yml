@@ -1,15 +1,20 @@
 version: "2"
 services:
   web:
-    build: .
+    image: asempc/wevote:web
     ports:
       - "3000:3000"
     links:
       - database
-    volumes:
-      - .:/root/web
+      - computational
     depends_on:
       - database # To make sure this sevice is run before web app
+      - computational
+
+  computational:
+    image: asempc/wevote:computational-basic
+    ports:
+      - "34568:34568"
   
   database:
     image: mongo
