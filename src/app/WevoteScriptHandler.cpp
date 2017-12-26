@@ -87,14 +87,17 @@ WevoteScriptHandler::execute( const std::vector< std::string > &sequences,
             reads = ReadInfo::parseUnclassifiedReads( unclassifiedReads.cbegin() , unclassifiedReads.cend());
             LOG_DEBUG("[DONE] Executing:%s", cmd.c_str());
         }
+        else
+            LOG_DEBUG("Failure executing command:%s", cmd.c_str());
+
     } catch( const std::exception &e )
     {
         LOG_WARNING("exception:%s", e.what());
+        LOG_DEBUG("Failure executing command:%s", cmd.c_str());
     }
 
     QFile::remove( QString::fromStdString( queryFile ));
     QDir( QString::fromStdString( outPrefix )).removeRecursively();
-    LOG_DEBUG("Failure executing command:%s", cmd.c_str());
     return std::move( reads.first );
 }
 
