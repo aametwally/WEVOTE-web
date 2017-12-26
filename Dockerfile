@@ -9,7 +9,7 @@ RUN \
   apt-get install -qq build-essential clang && \
   apt-get install -qq software-properties-common && \
   apt-get install -qq curl git htop wget && \
-  apt-get install -qq cmake && \
+  apt-get install -qq cmake qt5-default libcpprest-dev && \
   rm -rf /var/lib/apt/lists/*
 
 # Set environment variables.
@@ -23,8 +23,8 @@ RUN git clone https://github.com/aametwally/WEVOTE-web.git
 WORKDIR /root/WEVOTE-web
 RUN mkdir build
 WORKDIR /root/WEVOTE-web/build
-cmake -DCMAKE_BUILD_TYPE=Release \
--DCMAKE_INSTALL_PREFIX=/root/wevote-install ..
+RUN cmake -DCMAKE_BUILD_TYPE=Release \
+-DCMAKE_INSTALL_PREFIX=/root/wevote-install .. && make && make install
 
 
 # Download Taxonomy DB
