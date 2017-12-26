@@ -10,6 +10,7 @@ import * as mongoose from 'mongoose';
 import errorHandler = require("errorhandler");
 import * as passport from 'passport';
 import * as cors from 'cors';
+const waitForPort = require('wait-for-port');
 
 // routers
 import { UserRouter } from './routes/user';
@@ -28,55 +29,61 @@ import { IStatus, EStatus, IWevoteSubmitEnsemble } from './common/common';
 export class Server {
     private _app: Express.Application;
 
-    public static bootstrap(port: string , host: string): Express.Application {
+    public static bootstrap(port: string, host: string): Express.Application {
         let server = new Server();
         server._app.set('port', port);
-        server._app.set('host', host );
+        server._app.set('host', host);
         return server._app;
     }
 
     constructor() {
-        this._app = Express();
-        this.db();
-        this.middleware();
-        this.passport();
-        this.routes();
-        this.api();
-        init((experiment: IExperimentModel) => {
-            WevoteClassificationPatchModel.makeWevoteSubmission(experiment,
-                (submission: IWevoteSubmitEnsemble) => {
-                    const options: http.RequestOptions = {
-                        host: config.cppWevoteUrl,
-                        port: config.cppWevotePort,
-                        path: config.cppWevoteClassificationPath,
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        timeout : 60000
-                    };
+        waitForPort(config.cppWevoteUrl, config.cppWevotePort, (err: any) => {
 
-                    const httpreq = http.request(options, function (response) {
-                        response.setEncoding('utf8');
-                        response.on('end', function () {
-                            experiment.status = {
-                                code: EStatus.IN_PROGRESS,
-                                message: EStatus[EStatus.IN_PROGRESS],
-                                percentage: 0
+            this._app = Express();
+            this.db();
+            this.middleware();
+            this.passport();
+            this.routes();
+            this.api();
+
+            if (err) throw new Error(err);
+            // .. now we know that (at least for now) my-host.com is 
+            // listening on port 22 
+            init((experiment: IExperimentModel) => {
+                WevoteClassificationPatchModel.makeWevoteSubmission(experiment,
+                    (submission: IWevoteSubmitEnsemble) => {
+                        const options: http.RequestOptions = {
+                            host: config.cppWevoteUrl,
+                            port: config.cppWevotePort,
+                            path: config.cppWevoteClassificationPath,
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
                             }
-                            experiment.save((err: any, doc: IExperimentModel) => {
-                                if (err)
-                                    throw err;
-                                console.log("updated Experiment status" + doc.status);
-                            });
-                            response.on('error', function (err: Error) {
-                                console.log('Error:' + err);
-                            });
-                        })
+                        };
+
+                        const httpreq = http.request(options, function (response) {
+                            response.setEncoding('utf8');
+                            response.on('end', function () {
+                                experiment.status = {
+                                    code: EStatus.IN_PROGRESS,
+                                    message: EStatus[EStatus.IN_PROGRESS],
+                                    percentage: 0
+                                }
+                                experiment.save((err: any, doc: IExperimentModel) => {
+                                    if (err)
+                                        throw err;
+                                    console.log("updated Experiment status" + doc.status);
+                                });
+                                response.on('error', function (err: Error) {
+                                    console.log('Error:' + err);
+                                });
+                            })
+                        });
+                        httpreq.write(JSON.stringify(submission));
+                        httpreq.end();
                     });
-                    httpreq.write(JSON.stringify(submission));
-                    httpreq.end();
-                });
+            });
         });
     }
 
@@ -110,7 +117,7 @@ export class Server {
         this._app.use(logger('dev'));
         this._app.use(bodyParser.json({ limit: '50mb', strict: false }));
         this._app.use(bodyParser.urlencoded({ extended: false }));
-        this._app.use( cors());
+        this._app.use(cors());
         this._app.use(cookieParser());
     }
 
