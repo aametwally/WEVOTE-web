@@ -4,7 +4,7 @@ module.exports = {
     'host': '0.0.0.0',
     'url': 'http://127.0.0.1',
     'port': 3000,
-    'localhost': '127.0.0.1',
+    'localhost': 'computational',
     'uploadDir': __dirname + '/uploads',
     'cppWevoteUrl': '127.0.0.1',
     'cppWevotePort': 34568,
