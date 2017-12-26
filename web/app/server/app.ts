@@ -37,15 +37,15 @@ export class Server {
     }
 
     constructor() {
+
+        this._app = Express();
+        this.db();
+        this.middleware();
+        this.passport();
+        this.routes();
+        this.api();
+
         waitForPort(config.cppWevoteUrl, config.cppWevotePort, (err: any) => {
-
-            this._app = Express();
-            this.db();
-            this.middleware();
-            this.passport();
-            this.routes();
-            this.api();
-
             if (err) throw new Error(err);
             // .. now we know that (at least for now) my-host.com is 
             // listening on port 22 
