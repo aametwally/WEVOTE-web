@@ -46,12 +46,11 @@ export class Server {
         this.api();
 
         const params = {
-            host: config.cppWevoteUrl,
             port: config.cppWevotePort,
             interval: 1000
         }
 
-        waitPort(params, 30000)
+        waitPort(params, 15000)
             .then((open: any) => {
                 if (open) {
                     console.log('The port is now open!');
