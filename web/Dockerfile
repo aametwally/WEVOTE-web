@@ -10,7 +10,7 @@ RUN mkdir -p /root/web && cp -a /tmp/node_modules /root/web
 ## Copy source
 WORKDIR /root/web
 ADD . /root/web
-RUN npm run build
+RUN npm run config && npm run build
 
 EXPOSE 3000
 

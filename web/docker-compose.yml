@@ -4,4 +4,17 @@ services:
     build: .
     ports:
       - "3000:3000"
+    links:
+      - database
+    volumes:
+      - .:/root/web
+    depends_on:
+      - database # To make sure this sevice is run before web app
+  
+  database:
+    image: mongo
+    volumes:
+      - /data/mongodb/db:/data/db
+    ports:
+      - "27017:27017"
 

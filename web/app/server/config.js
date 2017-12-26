@@ -1,6 +1,6 @@
 module.exports = {
     'secretKey': '12345-67890-09876-54321',
-    'mongoUrl': 'mongodb://mongo/wevote',
+    'mongoUrl': 'mongodb://database:27017/wevote',
     'host': '0.0.0.0',
     'url': 'http://127.0.0.1',
     'port': 3000,
