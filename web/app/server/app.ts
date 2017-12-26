@@ -52,7 +52,8 @@ export class Server {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
-                        }
+                        },
+                        timeout : 60000
                     };
 
                     const httpreq = http.request(options, function (response) {
