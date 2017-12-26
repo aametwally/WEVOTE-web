@@ -46,7 +46,7 @@ export class Server {
         this.api();
 
         const waitOptions = {
-            numRetries: 20, //Number of retries
+            numRetries: 50, //Number of retries
             retryInterval: 2000 //Milliseconds to wait between retries
           };
 
