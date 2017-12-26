@@ -46,14 +46,15 @@ export class Server {
         this.api();
 
         const params = {
+            host: '0.0.0.0',
             port: config.cppWevotePort,
             interval: 1000
         }
 
-        // waitPort(params, 15000)
-        //     .then((open: any) => {
-        //         if (open) {
-        //             console.log('The port is now open!');
+        waitPort(params, 15000)
+            .then((open: any) => {
+                if (open) {
+                    console.log('The port is now open!');
                     init((experiment: IExperimentModel) => {
                         WevoteClassificationPatchModel.makeWevoteSubmission(experiment,
                             (submission: IWevoteSubmitEnsemble) => {
@@ -89,12 +90,12 @@ export class Server {
                                 httpreq.end();
                             });
                     });
-            //     }
-            //     else console.log('The port did not open before the timeout...');
-            // })
-            // .catch((err: any) => {
-            //     console.error(`An unknown error occured while waiting for the port: ${err}`);
-            // });
+                }
+                else console.log('The port did not open before the timeout...');
+            })
+            .catch((err: any) => {
+                console.error(`An unknown error occured while waiting for the port: ${err}`);
+            });
 
 
     }
