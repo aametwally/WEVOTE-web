@@ -56,47 +56,47 @@ export class Server {
         //     .then((open: any) => {
         //         if (open) {
         //             console.log('The port is now open!');
-                    init((experiment: IExperimentModel) => {
-                        WevoteClassificationPatchModel.makeWevoteSubmission(experiment,
-                            (submission: IWevoteSubmitEnsemble) => {
-                                const options: http.RequestOptions = {
-                                    host: config.cppWevoteUrl,
-                                    port: config.cppWevotePort,
-                                    path: config.cppWevoteClassificationPath,
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json'
-                                    }
-                                };
+        init((experiment: IExperimentModel) => {
+            WevoteClassificationPatchModel.makeWevoteSubmission(experiment,
+                (submission: IWevoteSubmitEnsemble) => {
+                    const options: http.RequestOptions = {
+                        host: config.cppWevoteUrl,
+                        port: config.cppWevotePort,
+                        path: config.cppWevoteClassificationPath,
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    };
 
-                                const httpreq = http.request(options, function (response) {
-                                    response.setEncoding('utf8');
-                                    response.on('end', function () {
-                                        experiment.status = {
-                                            code: EStatus.IN_PROGRESS,
-                                            message: EStatus[EStatus.IN_PROGRESS],
-                                            percentage: 0
-                                        }
-                                        experiment.save((err: any, doc: IExperimentModel) => {
-                                            if (err)
-                                                throw err;
-                                            console.log("updated Experiment status" + doc.status);
-                                        });
-                                        response.on('error', function (err: Error) {
-                                            console.log('Error:' + err);
-                                        });
-                                    })
-                                });
-                                httpreq.write(JSON.stringify(submission));
-                                httpreq.end();
+                    const httpreq = http.request(options, function (response) {
+                        response.setEncoding('utf8');
+                        response.on('end', function () {
+                            experiment.status = {
+                                code: EStatus.IN_PROGRESS,
+                                message: EStatus[EStatus.IN_PROGRESS],
+                                percentage: 0
+                            }
+                            experiment.save((err: any, doc: IExperimentModel) => {
+                                if (err)
+                                    throw err;
+                                console.log("updated Experiment status" + doc.status);
                             });
+                            response.on('error', function (err: Error) {
+                                console.log('Error:' + err);
+                            });
+                        })
                     });
-                }
-            //     else console.log('The port did not open before the timeout...');
-            // })
-            // .catch((err: any) => {
-            //     console.error(`An unknown error occured while waiting for the port: ${err}`);
-            // });
+                    httpreq.write(JSON.stringify(submission));
+                    httpreq.end();
+                });
+        });
+        // }
+        //     else console.log('The port did not open before the timeout...');
+        // })
+        // .catch((err: any) => {
+        //     console.error(`An unknown error occured while waiting for the port: ${err}`);
+        // });
 
 
     }
