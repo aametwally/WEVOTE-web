@@ -1,21 +1,14 @@
-version: "2"
+version: '3.4'
 services:
-  web:
-    image: asempc/wevote:web
-    ports:
-      - "3000:3000"
-    links:
-      - database
-      - computational
-    depends_on:
-      - database # To make sure this sevice is run before web app
-      - computational
-
   computational:
     image: asempc/wevote:computational-basic
     ports:
-      - "34568:34568"
-  
+      - target: 34568
+        published: 34568
+        protocol: tcp
+    stdin_open: true
+    tty: true
+
   database:
     image: mongo
     volumes:
@@ -23,3 +16,20 @@ services:
     ports:
       - "27017:27017"
 
+  web:
+    image: asempc/wevote:web
+    ports:
+      - 3000:3000
+    links:
+      - computational
+      - database
+
+    depends_on:
+      - database 
+      - computational
+
+  start_dependencies:
+    image: dadarek/wait-for-dependencies
+    depends_on:
+      - computational
+    command: computational:34568

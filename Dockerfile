@@ -19,12 +19,13 @@ ENV HOME /root
 WORKDIR /root
 
 
-RUN git clone https://github.com/aametwally/WEVOTE-web.git
+COPY . /root/WEVOTE-web
 WORKDIR /root/WEVOTE-web
 RUN mkdir build
 WORKDIR /root/WEVOTE-web/build
 RUN cmake -DCMAKE_BUILD_TYPE=Release \
--DCMAKE_INSTALL_PREFIX=/root/wevote-install .. && make && make install
+-DCMAKE_INSTALL_PREFIX=/root/wevote-install ..
+RUN make && make install
 
 
 # Download Taxonomy DB
@@ -34,4 +35,5 @@ WORKDIR db
 RUN wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz && tar xzf taxdump.tar.gz && rm taxdump.tar.gz
 
 EXPOSE 34568
-CMD ["/root/wevote-install/bin/wevoteREST","-d","/root/db"]
+CMD ["/root/wevote-install/bin/wevoteREST" , "-d","/root/db", "-H" , "computational" , "-P" , "234568" ]
+
