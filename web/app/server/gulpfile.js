@@ -15,12 +15,7 @@ gulp.task('common', function () {
         .pipe(gulp.dest('common'));
 });
 
-gulp.task('config', function () {
-    process.env.ENV_WEVOTE_BASE_URL = config.url;
-});
-
-
-gulp.task('ts', ['common','config'], function () {
+gulp.task('ts', ['common'], function () {
     var tsResults = tsServerProject.src()
         .pipe(tsServerProject());
     return tsResults.js.pipe(gulp.dest("../build")),
