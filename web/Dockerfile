@@ -1,5 +1,7 @@
 FROM mhart/alpine-node:latest
 
+RUN apk add --no-cache --virtual .build-deps git
+
 ## Install NPM Packages
 ADD package.json /tmp/package.json
 RUN cd /tmp && npm install
@@ -10,4 +12,6 @@ WORKDIR /root/web
 ADD . /root/web
 RUN npm run build
 
+EXPOSE 3000
 
+CMD ["npm","start"]
