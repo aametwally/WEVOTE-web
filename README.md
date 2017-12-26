@@ -1,4 +1,18 @@
-# Table of Contents
+# What is WEVOTE-web?
+
+[![Build Status](https://travis-ci.org/aametwally/WEVOTE-web.svg?branch=master)](https://travis-ci.org/aametwally/WEVOTE-web)
+
+WEVOTE-web is cloud-based framework of the WEVOTE ensemble taxonomic identification method. The framework to improves the usability of WEVOTE algorithm. In addition, it provides an interactive visual analytics tool to ease the interpretation of the classification results. WEVOTE-web application can also be used by researchers as a repository to store their experimental history for further revisions. A complete setup for the project and its dependencies as a web application is available as an Amazon Machine Image (AMI) for a direct deployment on AWS EC2 machine. The latest AMI is [ami-0f873d75](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;search=ami-0f873d75;sort=tag:Name)
+
+
+### Publication:
+1. Asem Alaa, Ahmed A. Metwally. "Cloud-based Solution for Improving Usability and Interactivity of Metagenomic Ensemble Taxonomic Identification Methods", IEEE Biomedical and Health Informatics, Accepted, 2018.  
+
+2. Ahmed A. Metwally, Yang Dai, Patricia W. Finn, and David L. Perkins. "WEVOTE: Weighted Voting Taxonomic Identification Method of Microbial Sequences." PloS one 11, no. 9 (2016): e0163527.
+http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0163527
+
+
+## Table of Contents
 1. [WEVOTE Computational Module](#wevote-computational)
     1. [Getting Started](#computational-getting-started)
     2. [Prerequisites](#computational-prerequisites)
@@ -13,30 +27,29 @@
 
 
 
-# WEVOTE Computational Module<div id='wevote-computational'></div>
-## Getting Started <div id='computational-getting-started'></div>
+## WEVOTE Computational Module<div id='wevote-computational'></div>
+### Getting Started <div id='computational-getting-started'></div>
 This section details steps for installing and running WEVOTE. Current WEVOTE version only supports Linux. If you experience difficulty installing or running the software, please contact (Ahmed Metwally: ametwa2@uic.edu).
 
-## Prerequisites <div id='computational-prerequisites'></div>
-* cpprest: a restfull API c++ library. [Follow this link for installation.](https://github.com/Microsoft/cpprestsdk/wiki)
-* BLASTN, Kraken, TIPP, CLARK, and MetaPhlan installed on the machine. 
-* g++: 
+### Prerequisites <div id='computational-prerequisites'></div>
+* g++.
+* CMake (minimum version 3.5).
+* Qt SDK: for command line argument processing beside other modules are expected to be used extensively through development.
+* cpprest: a restfull API c++ library.
+* OpenMP: for multithreading execution.  
+
+To install above dependencies: 
 ```shell
-sudo apt-get install build-essential
+sudo add-apt-repository universe
+sudo apt-get update
+sudo apt-get install build-essential cmake qt5-default libcpprest-dev
 ```
-
-* OpenMP: for multithreading execution. 
-* CMake (minimum version 3.5): 
-```
-sudo apt-get install cmake
-``` 
-* Qt SDK: for command line argument processing beside other modules are expected to be used extensively through development. [Follow these instruction for installing Qt SDK.](https://wiki.qt.io/Install_Qt_5_on_Ubuntu).
+* BLASTN, Kraken, TIPP, CLARK, and MetaPhlan installed on the machine. 
 * A machine with RAM of at least 75 GB to run Kraken and Clark. You may ignore this prerequisite if you do not use kraken or clark. 
-* R: for generating summary statistics, graphs, and messaging the data to be compatible with Phyloseq package. 
 
 
 
-## Installing, Testing, and Running<div id='computational-installing'></div>
+### Installing, Testing, and Running<div id='computational-installing'></div>
 
 ### Installing WEVOTE Core applications.
 
@@ -64,7 +77,6 @@ In this build, we the following configuration is used:
 Parameter | Description | Value 
 ------------ | ------------- | -------------  
 CMAKE_BUILD_TYPE | The build type (e.g Release or Debug) | `Release`  
-CMAKE_PREFIX_PATH | Cmake directory of Qt | `/opt/Qt5.9.2/lib/cmake` 
 CMAKE_INSTALL_PREFIX | The installation directory | `/projects/wevote` 
 
 ```
@@ -72,7 +84,6 @@ cd WEVOTE-web
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
--DCMAKE_PREFIX_PATH=/opt/Qt5.9.2/lib/cmake \
 -DCMAKE_INSTALL_PREFIX=/projects/wevote \
 -DBLASTN_PATH=/home/ubuntu/WEVOTE_PACKAGE/blast \
 -DBLASTN_DB=/home/ubuntu/WEVOTE_PACKAGE/blastDB/nt \
@@ -203,9 +214,15 @@ While the client and visualization applications (the front-end side) is implemen
 using the AngularJS framework and d3.js library.
 
 ## Prerequisites <div id='web-prerequisites'></div>
-* Node v6: [installation instructions](https://nodejs.org/en/download/package-manager/).
-* MongoDB: installation instructions [(Linux)](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/) or [(windows)](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/) .  
-* Wevote computational server (server must be running before running wevote-web server): [installation and running instruction](https://bitbucket.org/asem_abdelaziz/wevote/overview)
+* Node v6: See [installation instructions](https://nodejs.org/en/download/package-manager/).  
+
+<strong>OR</strong> run the following commands:
+```shell
+curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+* MongoDB: See [installation instructions](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/).  
+* Wevote computational server (server must be running before running wevote-web server): [installation and running instruction](#wevote-computational)
 </br>
 
 ## Building and running the application <div id='web-installing'></div>
