@@ -47,7 +47,6 @@ export class Server {
 
 
         const params = {
-            host: config.cppWevoteUrl,
             port: config.cppWevotePort,
             interval: 1000
         };
