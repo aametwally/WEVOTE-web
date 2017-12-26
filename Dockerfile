@@ -33,5 +33,5 @@ RUN mkdir db
 WORKDIR db
 RUN wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz && tar xzf taxdump.tar.gz && rm taxdump.tar.gz
 
-CMD ["/root/wevote-install/bin/wevoteREST","-d","/root/db"]
 EXPOSE 34568
+CMD ["/root/wevote-install/bin/wevoteREST","-d","/root/db"]
