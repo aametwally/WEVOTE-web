@@ -45,7 +45,12 @@ export class Server {
         this.routes();
         this.api();
 
-        waitForPort(config.cppWevoteUrl, config.cppWevotePort, (err: any) => {
+        const waitOptions = {
+            numRetries: 20, //Number of retries
+            retryInterval: 2000 //Milliseconds to wait between retries
+          };
+
+        waitForPort(config.cppWevoteUrl, config.cppWevotePort, waitOptions , (err: any) => {
             if (err) throw new Error(err);
             // .. now we know that (at least for now) my-host.com is 
             // listening on port 22 
