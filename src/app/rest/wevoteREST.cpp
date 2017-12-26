@@ -8,7 +8,7 @@
 #include "WevoteRestHandler.h"
 #include "CommandLineParser.hpp"
 
-#define DEFAULT_HOST "127.0.0.1"
+#define DEFAULT_HOST "0.0.0.0"
 #define DEFAULT_PORT 34568
 
 struct WevoteRestParameters
