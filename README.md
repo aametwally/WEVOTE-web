@@ -19,8 +19,11 @@ http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0163527
     3. [Installing, Testing, and Running](#computational-installing)
 2. [WEVOTE Web Module](#wevote-web)
     1. [Overview](#web-overview)
-    2. [Prerequisites](#web-prerequisites)
-    3. [Building and running the application](#web-installing)
+    2. [Building and running the application](#web-native-install)
+        1. [Prerequisites](#native-prerequisites)
+    3. [Alternative method: building and running through Docker-Compose (Ubuntu Xenial 16.04)](#web-docker-install)
+        1. [Prerequisites](#docker-prerequisites)
+
 3. [Amazon AMI with a complete setup](#ami)
 
 
@@ -213,7 +216,11 @@ libraries and handles all database operations, user sessions, and communication 
 While the client and visualization applications (the front-end side) is implemented
 using the AngularJS framework and d3.js library.
 
-## Prerequisites <div id='web-prerequisites'></div>
+
+
+## Building and running the application <div id='web-native-install'></div>
+
+#### Prerequisites <div id='native-prerequisites'></div>
 * Node v6: See [installation instructions](https://nodejs.org/en/download/package-manager/).  
 
 <strong>OR</strong> run the following commands:
@@ -224,8 +231,6 @@ sudo apt-get install -y nodejs
 * MongoDB: See [installation instructions](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/).  
 * Wevote computational server (server must be running before running wevote-web server): [installation and running instruction](#wevote-computational)
 </br>
-
-## Building and running the application <div id='web-installing'></div>
 
 #### Change directory to web, then build wevote-web from scratch:
 ```
@@ -248,7 +253,15 @@ sudo service mongod start
 npm start
 ```
 
-
+## Alternative method: building and running through Docker-Compose (Ubuntu Xenial 16.04)<div id='web-docker-install'></div>
+#### Prerequisites: Docker & Docker-Compose <div id='docker-prerequisites'></div>
+1. Installing Docker Community Edition (CE): ([follow instructions](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce-1)).
+2. Installing Docker-Compose: ([follow instructions](https://docs.docker.com/compose/install/#install-compose)).
+#### Change directory to web, then build and run wevote-web as a dockerized application:
+```
+cd WEVOTE-web/web
+sudo docker-compose run --build
+```
 
 # Amazon AMI with a complete setup <div id='ami'></div>
 A complete setup of the project including the five classification methods (i.e BLASTN, KRAKEN, CLARK, MetaPhlAn, TIPP), is available through Amazon Machine Image (AMI), using a **500 GB EBS** storage. The memory budget of the instance is subject to the intended methods to use. For example, if the methods are used, but KRAKEN and CLARK, an instance with memory of **1 GiB**. Whereas, incorporating KRAKEN and CLARK would require an instance of **80 GiB** memory budget.
