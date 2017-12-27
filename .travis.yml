@@ -23,4 +23,4 @@ matrix:
         - sudo apt-get update
         - sudo apt-get -y install docker-ce
       script:
-        - sudo docker-compose up --build
+        - sudo docker-compose build
