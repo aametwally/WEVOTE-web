@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
 
     http::uri_builder uriBuilder;
     uriBuilder.set_scheme( U("http"));
-    uriBuilder.set_host( io::convertOrReturn< defs::string_t >( param.host ));
+    uriBuilder.set_host( 'computational');
     uriBuilder.set_port( param.port );
     rest::WevoteRestHandler httpHandler( uriBuilder.to_uri() , taxonomy );
     httpHandler.start();
