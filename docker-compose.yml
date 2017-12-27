@@ -8,22 +8,21 @@ services:
         protocol: tcp
     stdin_open: true
     tty: true
+    network_mode: "host"
 
   database:
     image: mongo
+    network_mode: "host"
     volumes:
       - /data/mongodb/db:/data/db
     ports:
       - "27017:27017"
 
   web:
-    image: asempc/wevote:web
+    build: ./web
     ports:
       - 3000:3000
-    links:
-      - computational
-      - database
-
+    network_mode: "host"
     depends_on:
       - database 
       - computational

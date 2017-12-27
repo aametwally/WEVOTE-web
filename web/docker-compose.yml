@@ -6,14 +6,11 @@ services:
       - /data/mongodb/db:/data/db
     ports:
       - "27017:27017"
-
+    network_mode: "host"
   web:
     build: .
     ports:
       - 3000:3000
-    extra_hosts:
-      - "computational:127.0.0.1"
-    links:
-      - database
+    network_mode: "host"
     depends_on:
       - database 
