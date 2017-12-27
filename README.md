@@ -17,6 +17,8 @@ http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0163527
     1. [Getting Started](#computational-getting-started)
     2. [Prerequisites](#computational-prerequisites)
     3. [Installing, Testing, and Running](#computational-installing)
+    4. [Alternative method: building and running wevoteREST through Docker-Compose (Ubuntu Xenial 16.04)](#computational-docker-install)
+        1. [Prerequisites](#computational-docker-prerequisites)
 2. [WEVOTE Web Module](#wevote-web)
     1. [Overview](#web-overview)
     2. [Building and running the application](#web-native-install)
@@ -205,6 +207,16 @@ Options:
   --kraken                                   Run KRAKEN
   -v, --verbose <verbose>                    Enable verbose mode.
 
+```
+
+### Alternative method: building and running wevoteREST through Docker Container(Ubuntu Xenial 16.04)<div id='computational-docker-install'></div>
+#### Prerequisites: Docker <div id='computational-docker-prerequisites'></div>
+Install Docker Community Edition (CE): ([follow instructions](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce-1)).
+#### Change directory to web, then build and run wevoteREST as a docker container:
+```
+cd WEVOTE-web
+sudo docker build . -t computational
+sudo docker run --rm -it computational
 ```
 
 # WEVOTE Web Module <div id='wevote-web'></div>
