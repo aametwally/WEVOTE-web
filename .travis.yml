@@ -18,7 +18,7 @@ matrix:
       
       
     - language: cpp
-      before_install:
+      install:
         - sudo rm /usr/local/bin/docker-compose
         - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
         - sudo chmod +x docker-compose
@@ -28,6 +28,5 @@ matrix:
         - sudo apt-get update
         - sudo apt-get -y install docker-ce
 
-        - sudo docker-compose build
       script:
-        - sudo docker-compose up 
+        - sudo docker-compose up --build
