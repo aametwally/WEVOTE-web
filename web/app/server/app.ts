@@ -49,7 +49,7 @@ export class Server {
             host: config.cppWevoteUrl,
             port: config.cppWevotePort,
             interval: 1000,
-            timeout: 15000
+            timeout: 60000
         }
 
         waitPort(params)
