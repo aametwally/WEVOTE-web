@@ -1,22 +1,17 @@
 sudo: required
-
 services:
   - docker
-
 env:
   - DOCKER_COMPOSE_VERSION=1.18.0
 
 matrix:
   include:
     - language: node_js
-      
       install: true
       script:
         - cd web
         - sudo docker build -t web .
         - sudo docker tag web asempc/wevote:travis-web
-      
-      
     - language: cpp
       install:
         - sudo rm /usr/local/bin/docker-compose
@@ -27,6 +22,5 @@ matrix:
         - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
         - sudo apt-get update
         - sudo apt-get -y install docker-ce
-
       script:
         - sudo docker-compose up --build
