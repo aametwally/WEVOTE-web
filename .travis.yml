@@ -10,11 +10,13 @@ matrix:
   include:
     - language: node_js
       
-      before_install:
+      install: true
+      script:
         - cd web
         - sudo docker build -t web .
         - sudo docker tag web asempc/wevote:travis-web
-        
+      
+      
     - language: cpp
       before_install:
         - sudo rm /usr/local/bin/docker-compose
