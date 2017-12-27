@@ -8,7 +8,7 @@
 #include "WevoteRestHandler.h"
 #include "CommandLineParser.hpp"
 
-#define DEFAULT_HOST "computational"
+#define DEFAULT_HOST "0.0.0.0"
 #define DEFAULT_PORT 34568
 
 struct WevoteRestParameters
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
 
     http::uri_builder uriBuilder;
     uriBuilder.set_scheme( U("http"));
-    uriBuilder.set_host( "computational");
+    uriBuilder.set_host( io::convertOrReturn< defs::string_t >( param.host ));
     uriBuilder.set_port( param.port );
     rest::WevoteRestHandler httpHandler( uriBuilder.to_uri() , taxonomy );
     httpHandler.start();
