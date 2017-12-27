@@ -1,0 +1,19 @@
+version: '3.4'
+services:
+  database:
+    image: mongo
+    volumes:
+      - /data/mongodb/db:/data/db
+    ports:
+      - "27017:27017"
+
+  web:
+    build: .
+    ports:
+      - 3000:3000
+    extra_hosts:
+      - "computational:127.0.0.1"
+    links:
+      - database
+    depends_on:
+      - database 
