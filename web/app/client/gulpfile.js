@@ -23,7 +23,8 @@ var gulp = require('gulp'),
     tsClientProject = tsc.createProject('tsconfig.json'),
     sourcemaps = require('gulp-sourcemaps'),
     replace = require('gulp-replace'),
-    serverConfig = require('../server/config');
+    serverConfig = require('../server/config'),
+    execSync = require('child_process').execSync;
 ;
 
 
@@ -52,6 +53,16 @@ gulp.task('config', function () {
             // Replaces instances of "foo" with "oof" 
             return (process.env.WEVOTE_BASE_URL) ?
                 `'${process.env.WEVOTE_BASE_URL}'`: `'${serverConfig.url}:${serverConfig.port}/'` ;
+        }))
+        .pipe(gulp.dest('../build/public'));
+});
+
+gulp.task('config-ec2', function () {
+    return gulp.src(['./env.js'])
+        .pipe(replace('ENV_WEVOTE_BASE_URL', function (match) {
+            // Replaces instances of "foo" with "oof" 
+            const ipaddress = execSync('/usr/bin/curl -s http://169.254.169.254/latest/meta-data/public-ipv4');
+            return `'${ipaddress}:${serverConfig.port}/'` ;
         }))
         .pipe(gulp.dest('../build/public'));
 });
