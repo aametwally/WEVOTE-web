@@ -92,6 +92,10 @@ gulp.task('clean', function (cb) {
     return del(['../build/public', 'common'], { force: true }, cb);
 });
 
+gulp.task('build-ec2', ['clean'], function () {
+    gulp.start('ts', 'config-ec2', 'usemin', 'imagemin', 'copyfonts');
+});
+
 gulp.task('default', ['clean'], function () {
     gulp.start('ts', 'config', 'usemin', 'imagemin', 'copyfonts');
 });
