@@ -7,6 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./app/build/bin/www",
+    "start-ec2": "WEVOTE_WEB_PORT=8080 npm run start",
     "bower": "node_modules/bower/bin/bower",
     "build-server": "node node_modules/gulp/bin/gulp.js --gulpfile app/server/gulpfile.js ",
     "build-client": "node node_modules/gulp/bin/gulp.js --gulpfile app/client/gulpfile.js",
@@ -14,7 +15,7 @@
     "config-client": "node node_modules/gulp/bin/gulp.js --gulpfile app/client/gulpfile.js config",
     "config-ec2": "node node_modules/gulp/bin/gulp.js --gulpfile app/client/gulpfile.js config-ec2",
     "config": "npm run config-client",
-    "config-amazon": "npm run config-ec2",
+    "config-amazon": "WEVOTE_WEB_PORT=8080 npm run config-ec2",
     "build": "npm run build-server && npm run build-metaviz && npm run build-client",
     "watch": "node node_modules/gulp/bin/gulp.js watch"
   },
