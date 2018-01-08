@@ -130,7 +130,6 @@ export class ExperimentRouter extends BaseRoute {
                         console.log("Error:" + err);
                         return next(err);
                     }
-                    // console.log("experiment posted!:" + exp);
                     let id = exp._id;
                     res.writeHead(200, { 'Content-Type': 'text/plain' });
                     ExperimentRouter._handleExperiment(exp);
@@ -235,6 +234,8 @@ export class ExperimentRouter extends BaseRoute {
 
     private static _handleExperiment(exp: IExperimentModel) {
         const usageScenario = exp.usageScenario;
+        const resutlsPort = (process.env.WEVOTE_WEB_PORT === 'undefined')? config.port : parseInt( <string>process.env.WEVOTE_WEB_PORT );
+
         switch (usageScenario.value) {
             case 'pipelineFromReads':
                 {
@@ -252,7 +253,7 @@ export class ExperimentRouter extends BaseRoute {
                             resultsRoute:
                                 {
                                     host: config.localhost,
-                                    port: config.port,
+                                    port: resutlsPort,
                                     relativePath: '/experiment/classification'
                                 },
                             jobID: exp._id,
@@ -334,7 +335,7 @@ export class ExperimentRouter extends BaseRoute {
                             resultsRoute:
                                 {
                                     host: config.localhost,
-                                    port: config.port,
+                                    port: resutlsPort,
                                     relativePath: '/experiment/classification'
                                 },
                             jobID: exp._id,
@@ -401,7 +402,7 @@ export class ExperimentRouter extends BaseRoute {
                             resultsRoute:
                                 {
                                     host: config.localhost,
-                                    port: config.port,
+                                    port: resutlsPort,
                                     relativePath: '/experiment/classification'
                                 },
                             jobID: exp._id,

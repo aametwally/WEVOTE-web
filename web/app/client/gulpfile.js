@@ -61,8 +61,8 @@ gulp.task('config-ec2', function () {
     return gulp.src(['./env.js'])
         .pipe(replace('ENV_WEVOTE_BASE_URL', function (match) {
             // Replaces instances of "foo" with "oof" 
-            const ipaddress = execSync('/usr/bin/curl -s http://169.254.169.254/latest/meta-data/public-ipv4');
-            return `'${ipaddress}:${process.env.WEVOTE_WEB_PORT}/'` ;
+            const hostname = execSync('/usr/bin/curl -s http://169.254.169.254/latest/meta-data/public-hostname');
+            return `'http://${hostname}:${process.env.WEVOTE_WEB_PORT}/'` ;
         }))
         .pipe(gulp.dest('../build/public'));
 });

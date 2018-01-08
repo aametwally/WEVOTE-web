@@ -11,7 +11,7 @@
     "bower": "node_modules/bower/bin/bower",
     "build-server": "node node_modules/gulp/bin/gulp.js --gulpfile app/server/gulpfile.js ",
     "build-client": "node node_modules/gulp/bin/gulp.js --gulpfile app/client/gulpfile.js",
-    "build-client-ec2": "node node_modules/gulp/bin/gulp.js --gulpfile app/client/gulpfile.js build-ec2",
+    "build-client-ec2": "WEVOTE_WEB_PORT=8080 node node_modules/gulp/bin/gulp.js --gulpfile app/client/gulpfile.js build-ec2",
     "build-metaviz": "node node_modules/gulp/bin/gulp.js --gulpfile app/metaviz/gulpfile.js",
     "config-client": "node node_modules/gulp/bin/gulp.js --gulpfile app/client/gulpfile.js config",
     "config-ec2": "WEVOTE_WEB_PORT=8080 node node_modules/gulp/bin/gulp.js --gulpfile app/client/gulpfile.js config-ec2",

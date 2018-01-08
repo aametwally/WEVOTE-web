@@ -188,7 +188,6 @@ export class ExperimentModel {
                             console.log("Error:" + err);
                             throw err;
                         }
-                        console.log("experiment posted!:" + exp);
                         cb( exp );
                     });
 

@@ -87,6 +87,7 @@ export class Server {
                                         });
                                     })
                                 });
+                                console.log("results route!:" + JSON.stringify( submission.resultsRoute ));
                                 httpreq.write(JSON.stringify(submission));
                                 httpreq.end();
                             });
