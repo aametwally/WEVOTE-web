@@ -32,7 +32,7 @@ A complete setup of the project including the five classification methods (i.e B
 
 ### Usage
 
-1. Launch an instance with approporiate specifications using the public AMI [ami-0f873d75](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;search=ami-0f873d75;sort=tag:Name).
+1. Launch an instance with approporiate specifications using the public AMI [ami-34fba54e](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;search=ami-34fba54e;sort=name).
 
 2. From the Amazon Web Console, edit the security group attached to your instance by adding new **Inbound** rule with the following parameters: 
 
