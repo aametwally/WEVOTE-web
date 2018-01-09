@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/aametwally/WEVOTE-web.svg?branch=master)](https://travis-ci.org/aametwally/WEVOTE-web)
 
-WEVOTE-web is cloud-based framework of the WEVOTE ensemble taxonomic identification method. The framework to improves the usability of WEVOTE algorithm. In addition, it provides an interactive visual analytics tool to ease the interpretation of the classification results. WEVOTE-web application can also be used by researchers as a repository to store their experimental history for further revisions. A complete setup for the project and its dependencies as a web application is available as an Amazon Machine Image (AMI) for a direct deployment on AWS EC2 machine. The latest AMI is [ami-0f873d75](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;search=ami-0f873d75;sort=tag:Name)
+WEVOTE-web is cloud-based framework of the WEVOTE ensemble taxonomic identification method. The framework to improves the usability of WEVOTE algorithm. In addition, it provides an interactive visual analytics tool to ease the interpretation of the classification results. WEVOTE-web application can also be used by researchers as a repository to store their experimental history for further revisions. A complete setup for the project and its dependencies as a web application is available as an Amazon Machine Image (AMI) for a direct deployment on AWS EC2 machine. The latest AMI is [ami-34fba54e](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;search=ami-34fba54e;sort=name)
 
 ## Publication
 
