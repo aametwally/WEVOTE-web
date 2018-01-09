@@ -51,12 +51,13 @@ Custom TCP Rule | TCP | 8080 | ::/0, 0.0.0.0/0
 
 
 In summary:
-`cd /projects/wevote/bin  
+```
+cd /projects/wevote/bin  
 nohup ./wevoteREST -d ~/WEVOTE_PACKAGE/WEVOTE_DB & 
 sudo service mongod start  
 cd ~/wevote/web  
 npm run pipeline-amazon  
-`
+```
 
 
 ## WEVOTE Computational Module: building from source<div id='wevote-computational'></div>
