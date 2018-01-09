@@ -47,6 +47,18 @@ Custom TCP Rule | TCP | 8080 | ::/0, 0.0.0.0/0
 5. Change directory to `cd ~/wevote/web` then run `npm run pipeline-amazon`.
 6. Finally, from the browser, access to your instance url at protocol 8080 (e.g `http://ec2-54-157-9-86.compute-1.amazonaws.com:8080`).
 
+
+
+
+In summary:
+`cd /projects/wevote/bin
+nohup ./wevoteREST -d ~/WEVOTE_PACKAGE/WEVOTE_DB &
+sudo service mongod start
+cd ~/wevote/web
+npm run pipeline-amazon
+`
+
+
 ## WEVOTE Computational Module: building from source<div id='wevote-computational'></div>
 
 ### Getting Started <div id='computational-getting-started'></div>
