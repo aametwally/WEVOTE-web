@@ -40,24 +40,24 @@ Type | Protocol | Port Range | Source
 ------------ | ------------- | ------------- | ------------- 
 Custom TCP Rule | TCP | 8080 | ::/0, 0.0.0.0/0 
 
-3. Connect to machine with a terminal and run the WEVOTE computational server in background:
-    1. Change the directory to the executable: `cd /projects/wevote/bin`
-    2. Run `nohup ./wevoteREST -d ~/WEVOTE_PACKAGE/WEVOTE_DB &` , then hit `[ENTER]`.
-4. Activate the `MongoDB` service: by running `sudo service mongod start`.
-5. Change directory to `cd ~/wevote/web` then run `npm run pipeline-amazon`.
-6. Finally, from the browser, access to your instance url at protocol 8080 (e.g `http://ec2-54-157-9-86.compute-1.amazonaws.com:8080`).
+3. Connect to the launched machine with a terminal 
 
-
-
-
-In summary:
+4. Write the following to the instance's terminal
 ```
+screen
 cd /projects/wevote/bin  
 nohup ./wevoteREST -d ~/WEVOTE_PACKAGE/WEVOTE_DB & 
 sudo service mongod start  
 cd ~/wevote/web  
 npm run pipeline-amazon  
 ```
+
+5. Now, you can access the web interface from any web-browser on any machine:
+```
+http://<the-launched-instance-Public-DNS>:8080>
+e.g., (e.g `http://ec2-54-157-9-86.compute-1.amazonaws.com:8080`)
+```
+
 
 
 ## WEVOTE Computational Module: building from source<div id='wevote-computational'></div>
