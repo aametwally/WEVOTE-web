@@ -16,10 +16,10 @@
     "config-client": "node node_modules/gulp/bin/gulp.js --gulpfile app/client/gulpfile.js config",
     "config-ec2": "WEVOTE_WEB_PORT=8080 node node_modules/gulp/bin/gulp.js --gulpfile app/client/gulpfile.js config-ec2",
     "config": "npm run config-client",
-    "build-ec2" : "npm run build-server && npm run build-metaviz && npm run build-client-ec2",
+    "build-ec2": "npm run build-server && npm run build-metaviz && npm run build-client-ec2",
     "build": "npm run build-server && npm run build-metaviz && npm run build-client",
     "watch": "node node_modules/gulp/bin/gulp.js watch",
-    "pipeline-amazon":"npm run config-ec2 && npm run build-ec2 && npm run start-ec2"
+    "pipeline-amazon": "npm run config-ec2 && npm run build-ec2 && npm run start-ec2"
   },
   "repository": {
     "type": "git",
