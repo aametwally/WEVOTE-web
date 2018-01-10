@@ -45,11 +45,9 @@ Custom TCP Rule | TCP | 8080 | ::/0, 0.0.0.0/0
 4. Write the following to the instance's terminal
 ```
 screen
-cd /projects/wevote/bin  
-nohup ./wevoteREST -d ~/WEVOTE_PACKAGE/WEVOTE_DB & 
+nohup ./WEVOTE_PACKAGE/WEVOTE/bin/wevoteREST -d ~/WEVOTE_PACKAGE/WEVOTE_DB & 
 sudo service mongod start  
-cd ~/wevote/web  
-npm run pipeline-amazon  
+cd ~/wevote/web && npm run pipeline-amazon  
 ```
 
 5. Now, you can access the web interface from any web-browser on any machine:
