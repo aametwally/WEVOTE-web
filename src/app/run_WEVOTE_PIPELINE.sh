@@ -15,15 +15,16 @@
 ###******************************************************************###
 
 ######## parse each tool parameters from wevote.cfg
-eval $(grep "^blastDB=" wevote.cfg)
-eval $(grep "^krakenDB=" wevote.cfg)
-eval $(grep "^clarkDB=" wevote.cfg)
-eval $(grep "^taxonomyDB=" wevote.cfg)
-eval $(grep "^clarkPath=" wevote.cfg)
-eval $(grep "^krakenPath=" wevote.cfg)
-eval $(grep "^blastnPath=" wevote.cfg)
-eval $(grep "^metaphlanPath=" wevote.cfg)
-eval $(grep "^tippPath=" wevote.cfg)
+my_dir=`dirname $0`
+eval $(grep "^blastDB=" $my_dir/wevote.cfg)
+eval $(grep "^krakenDB=" $my_dir/wevote.cfg)
+eval $(grep "^clarkDB=" $my_dir/wevote.cfg)
+eval $(grep "^taxonomyDB=" $my_dir/wevote.cfg)
+eval $(grep "^clarkPath=" $my_dir/wevote.cfg)
+eval $(grep "^krakenPath=" $my_dir/wevote.cfg)
+eval $(grep "^blastnPath=" $my_dir/wevote.cfg)
+eval $(grep "^metaphlanPath=" $my_dir/wevote.cfg)
+eval $(grep "^tippPath=" $my_dir/wevote.cfg)
 
 
 
@@ -48,7 +49,6 @@ Implemented options:
 -c|--classfy               \t Start the pipeline from the classification step. i.e., skip running individual tools
 "
 
-my_dir=`dirname $0`
 query=""
 outputPrefix=""
 blastnFlag=0
