@@ -45,13 +45,13 @@ export class Server {
         this.routes();
         this.api();
 
+        /**
         const params = {
             host: config.cppWevoteUrl,
             port: config.cppWevotePort,
             interval: 1000,
             timeout: 120000
         }
-
         waitPort(params)
             .then((open: any) => {
                 if (open) {
@@ -98,6 +98,7 @@ export class Server {
             .catch((err: any) => {
                 console.error(`An unknown error occured while waiting for the port: ${err}`);
             });
+            */
 
 
     }

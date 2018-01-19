@@ -22,12 +22,6 @@
                     Info</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li ng-if="!loggedIn"><a ng-click="openLogin()">
-                        <span class="glyphicon glyphicon-log-in"></span> Login</a>
-                </li>
-                <li ng-if="!loggedIn">
-                    <a ng-click="openRegister()"> Register </a>
-                </li>
                 <li ng-if="loggedIn">
                     <a>{{username}}</a>
                 </li>

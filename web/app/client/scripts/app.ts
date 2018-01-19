@@ -58,6 +58,26 @@ module wevote {
                             }
                         })
 
+                        .state('app.login' , {
+                            url: 'login' , 
+                            views: {
+                                'content@':{
+                                    templateUrl: 'views/login.html' , 
+                                    controller: 'LoginController'
+                                }
+                            }
+                        })
+
+                        .state('app.register' , {
+                            url: 'register' , 
+                            views: {
+                                'content@' :{
+                                    templateUrl: 'views/register.html' , 
+                                    controller: 'RegisterController'
+                                }
+                            }
+                        })
+
                         ;
                     $urlRouterProvider.otherwise('/');
                 }])
