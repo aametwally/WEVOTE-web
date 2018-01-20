@@ -1,79 +1,148 @@
-.row-header {
-    margin: 0px auto;
-    padding: 0px 0px;
+@font-face {
+    font-family: 'Ubuntu';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Ubuntu'), url(http://example.com/fonts/ubuntu.woff) format('woff');
 }
 
-.row-content {
-    margin: 0px auto;
-    padding: 50px 0px;
-    min-height: 400px;
-}
-
-.row-footer {
-    margin: 0px auto;
-    padding: 20px 0px;
-    background-color: #AfAfAf;
-}
-
-.jumbotron {
-margin: 0px auto;
-padding: 70px 30px;
-background: #1b1b55;
-color: floralwhite;
-}
-
-.navbar-inverse {
-background: #222222;
-color: #ffffff;
-}
-.navbar-inverse .navbar-nav > .active > a {
-background: #070707;
-color: #ffffff;
-}
-.navbar-inverse .navbar-nav > .active > a:hover {
-background: #000000;
-color: #ffffff;
-}
-.navbar-inverse .navbar-nav > .active > a:focus {
-background: #000000;
-color: #ffffff;
-}
-.navbar-inverse .navbar-nav > .open > a {
-background: #585858;
-color: #ffffff;
-}
-.navbar-inverse .navbar-nav > .open > a:hover {
-background: #585858;
-color: #ffffff;
-}
-.navbar-inverse .navbar-nav > .open > a:focus {
-background: #585858;
-color: #ffffff;
-}
-.navbar-inverse .navbar-nav .open .dropdown-menu > li > a {
-background-color: #303f9f;
-color: #eeeeee;
-}
-.navbar-inverse .navbar-nav .open .dropdown-menu > li > a:hover {
-color: #000000;
-}
-.navbar-inverse .navbar-nav .open .dropdown-menu {
-background-color: #303f9f;
-color: #eeeeee;
-}
-address {
-    color: #0f0f0f;
-    font-size: 80%;
-    margin: 0px;
+html {
+    margin: 0;
+    padding: 0;
+    font-family: Ubuntu;
 }
 
 body {
-    align: center;
-    padding: 0px 0px 0px 0px;
-    z-index: 0;
-    min-width: 700px;
-    width: auto !important;
-    width: 1000px;
+    font-family: inherit;
+    line-height: 2.5;
+    color: #8b8b8b;
+    background: rgba(214, 214, 206, 0.589);
+    margin: inherit;
+    padding: inherit;
+}
+
+.row-header {
+    margin: inherit;
+    padding: inherit;
+}
+
+.row-content {
+    margin: inherit;
+    padding: 50px 0;
+    min-height: 400px;
+}
+
+header {
+    font-family: inherit;
+}
+
+footer {
+    margin: inherit;
+    padding: 40px 0;
+    background-color: #AfAfAf;
+}
+
+.row-footer {
+    margin: inherit;
+    padding: inherit;
+    background-color: inherit;
+}
+
+.login-box,
+.register-box {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    background-color: inherit;
+    padding: 10px 100px;
+    max-width: 500px;
+}
+
+.login-title,
+.register-title {
+    font-size: 2.5em;
+    font-weight: bold;
+    padding-bottom: 30px;
+    padding-top: 30px;
+}
+
+body a:link {
+    color: inherit;
+}
+
+body a:hover,
+body a:focus,
+body a:active {
+    text-decoration-line: none;
+    color: rgb(230, 230, 230);
+    background-color: #487ef39a
+}
+
+.jumbotron {
+    margin: 0 auto;
+    padding: 70px 30px;
+    background: transparent floralwhite;
+    background-image: url(../images/logo2.svg) no-repeat;
+    background-position: 75% 50%;
+    color: rgb(65, 65, 65);
+}
+
+.jumbotron h1 {
+    color: rgba(0, 0, 0, 0.575); text-shadow: 0 0 0.2em rgba(250, 157, 143, 0.753), 0 0 0.2em rgba(228, 154, 143, 0.973)
+}
+
+.navbar-inverse {
+    background: #222222;
+    color: #ffffff;
+}
+
+.navbar-inverse .navbar-nav>.active>a {
+    background: #070707;
+    color: #ffffff;
+}
+
+.navbar-inverse .navbar-nav>.active>a:hover {
+    background: #000000;
+    color: #ffffff;
+}
+
+.navbar-inverse .navbar-nav>.active>a:focus {
+    background: #000000;
+    color: #ffffff;
+}
+
+.navbar-inverse .navbar-nav>.open>a {
+    background: #585858;
+    color: #ffffff;
+}
+
+.navbar-inverse .navbar-nav>.open>a:hover {
+    background: #585858;
+    color: #ffffff;
+}
+
+.navbar-inverse .navbar-nav>.open>a:focus {
+    background: #585858;
+    color: #ffffff;
+}
+
+.navbar-inverse .navbar-nav .open .dropdown-menu>li>a {
+    background-color: #303f9f;
+    color: #eeeeee;
+}
+
+.navbar-inverse .navbar-nav .open .dropdown-menu>li>a:hover {
+    color: #000000;
+}
+
+.navbar-inverse .navbar-nav .open .dropdown-menu {
+    background-color: #303f9f;
+    color: #eeeeee;
+}
+
+address {
+    color: #0f0f0f;
+    font-size: 80%;
+    margin: 0;
 }
 
 .tab-content {
@@ -92,13 +161,11 @@ body {
     border: dotted 3px red;
 }
 
+
 /* Default class applied to drop zones on over */
+
 .another-file-over-class {
     border: dotted 3px green;
-}
-
-html, body {
-    height: 100%;
 }
 
 .panel-submission-form {
@@ -106,37 +173,20 @@ html, body {
 }
 
 .data-submission-form {
-    padding: 20px 0px 0px 40px;
+    padding: 20px 0 0 40px;
 }
 
 .table-scrollable {
-    padding: 0px 0px;
     max-height: 800px;
     overflow-y: scroll;
 }
 
 .well-scrollable {
-    padding: 0px 0px;
     max-height: 100px;
     max-width: 350px;
     overflow-y: scroll;
 }
-td .my-cell{
-    min-width:120px;
-}
 
-.login-box, .register-box{
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: flex-start;
-    background-color: #fff;
-    padding: 10px 100px;
-    max-width: 500px;
-}
-
-.login-title , .register-title{
-    font-size: 2.5 em;
-    font-weight: bold;
-    padding-bottom: 30px;
-    padding-top: 30px;
+td .my-cell {
+    min-width: 120px;
 }
