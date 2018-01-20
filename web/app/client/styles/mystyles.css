@@ -9,14 +9,6 @@
     min-height: 400px;
 }
 
-/*.row-form {*/
-    /*margin: 0px auto;*/
-    /*padding: 50px 0px;*/
-    /*border-bottom: 1px ridge;*/
-    /*min-height: 400px;*/
-    /*width: 800px;*/
-/*}*/
-
 .row-footer {
     margin: 0px auto;
     padding: 20px 0px;
@@ -132,11 +124,19 @@ html, body {
 td .my-cell{
     min-width:120px;
 }
-/*input,textarea{width:100%;display:block}*/
-/*.crop{*/
-    /*background-color:transparent;*/
-    /*width:100%;*/
-    /*max-width:100px;*/
-    /*border: 0;*/
-    /*font-size: 100%;*/
-/*}*/
+
+.login-box, .register-box{
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    background-color: #fff;
+    padding: 10px 100px;
+    max-width: 500px;
+}
+
+.login-title , .register-title{
+    font-size: 2.5 em;
+    font-weight: bold;
+    padding-bottom: 30px;
+    padding-top: 30px;
+}

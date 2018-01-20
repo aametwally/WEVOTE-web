@@ -4,6 +4,151 @@
 "use strict";
 module wevote {
 
+    interface HeaderControllerScope extends ng.IScope {
+        loggedIn: boolean,
+        username: string,
+        isState: (state: any) => boolean;
+        logOut: () => void;
+    }
+
+    export class HeaderController {
+        static readonly $inject = ['$scope', '$state', '$rootScope', 'ngDialog', 'AuthService', HeaderController];
+        private _scope: HeaderControllerScope;
+        private _state: ng.ui.IStateService;
+        private _rootScope: ng.IRootScopeService;
+        private _ngDialog: ng.dialog.IDialogService;
+        private _auth: AuthFactory;
+
+        constructor($scope: ng.IScope, $state: ng.ui.IStateService,
+            $rootScope: ng.IRootScopeService, ngDialog: ng.dialog.IDialogService,
+            auth: AuthFactory) {
+            this._scope = <HeaderControllerScope>$scope;
+            this._scope.loggedIn = false;
+            this._scope.username = '';
+            this._state = $state;
+            this._rootScope = $rootScope;
+            this._ngDialog = ngDialog;
+            this._auth = auth;
+
+            this._scope.isState = (state: string) => {
+                return this._state.is(state);
+            }
+
+            this._scope.logOut = () => {
+                this._auth.logout();
+                this._scope.loggedIn = false;
+                this._scope.username = '';
+            }
+
+            this._rootScope.$on('$locationChangeStart', (event) => {
+                if (!this._auth.isAuthenticated()) {
+                    if (!this._state.is('app.login') && !this._state.is('app.register')) {
+                        event.preventDefault();
+                        this._state.go('app.login');
+                    }
+                }
+            });
+
+            this._rootScope.$on('login:Successful', () => {
+                this._scope.loggedIn = this._auth.isAuthenticated();
+                this._scope.username = this._auth.getUsername();
+                this._state.go('app');
+            });
+
+            this._rootScope.$on('registration:Successful', () => {
+                this._scope.loggedIn = this._auth.isAuthenticated();
+                this._scope.username = this._auth.getUsername();
+                this._state.go('app');
+            });
+
+            if (this._auth.isAuthenticated()) {
+                this._scope.loggedIn = true;
+                this._scope.username = this._auth.getUsername();
+            }
+
+        }
+    }
+
+    interface ILoginData {
+        username: string;
+        password: string;
+    }
+
+    interface LoginControllerScope extends ng.IScope {
+        rememberMe: boolean;
+        loginData: ILoginData;
+        doLogin: () => void;
+    }
+
+    export class LoginController {
+        static readonly $inject = ['$scope', 'ngDialog', 'LocalStorageService', 'AuthService', LoginController];
+        private _scope: LoginControllerScope;
+        private _ngDialog: ng.dialog.IDialogService;
+        private _localStorage: LocalStorageFactory;
+        private _auth: AuthFactory;
+
+        constructor($scope: ng.IScope, ngDialog: ng.dialog.IDialogService,
+            $localStorage: LocalStorageFactory, auth: AuthFactory) {
+            this._scope = <LoginControllerScope>$scope;
+            this._ngDialog = ngDialog;
+            this._localStorage = $localStorage;
+            this._auth = auth;
+
+            this._scope.loginData = this._localStorage.getObject('userinfo');
+            this._scope.doLogin = () => {
+                if (this._scope.rememberMe)
+                    this._localStorage.storeObject('userinfo', {
+                        username: this._scope.loginData.username,
+                        password: this._scope.loginData.password
+                    });
+
+                this._auth.login(this._scope.loginData,
+                    () => {
+                        this._ngDialog.closeAll();
+                    });
+            }
+        }
+    }
+
+    interface IRegistration {
+        username: string,
+        password: string,
+        email: string,
+        firstname: string,
+        lastname: string,
+        rememberMr: boolean
+    }
+
+    interface RegisterControllerScope extends ng.IScope {
+        registration: IRegistration;
+        doRegister: () => void;
+    }
+
+    export class RegisterController {
+        static readonly $inject = ['$scope', 'ngDialog', 'LocalStorageService', 'AuthService', RegisterController];
+        private _scope: RegisterControllerScope;
+        private _ngDialog: ng.dialog.IDialogService;
+        private _localStorage: LocalStorageFactory;
+        private _auth: AuthFactory;
+
+        constructor($scope: ng.IScope, ngDialog: ng.dialog.IDialogService,
+            $localStorage: LocalStorageFactory, auth: AuthFactory) {
+            this._scope = <RegisterControllerScope>$scope;
+            this._ngDialog = ngDialog;
+            this._localStorage = $localStorage;
+            this._auth = auth;
+
+            this._scope.doRegister = () => {
+                console.log('Doing registration', this._scope.registration);
+                this._auth.register(this._scope.registration,
+                    () => {
+                        this._ngDialog.closeAll();
+                    });
+            };
+        }
+    }
+
+
     interface MainControllerScope extends ng.IScope {
         showInput: boolean,
         error: boolean,
@@ -470,154 +615,6 @@ module wevote {
                 });
             }, 500);
         };
-    }
-
-    interface HeaderControllerScope extends ng.IScope {
-        loggedIn: boolean,
-        username: string,
-        loginDialog: ng.dialog.IDialogOpenResult,
-        registerDialog: ng.dialog.IDialogOpenResult,
-        isState: (state: any) => boolean;
-        logOut: () => void;
-        openLogin: () => void;
-        openRegister: () => void;
-    }
-
-    export class HeaderController {
-        static readonly $inject = ['$scope', '$state', '$rootScope', 'ngDialog', 'AuthService', HeaderController];
-        private _scope: HeaderControllerScope;
-        private _state: ng.ui.IStateService;
-        private _rootScope: ng.IRootScopeService;
-        private _ngDialog: ng.dialog.IDialogService;
-        private _auth: AuthFactory;
-
-        constructor($scope: ng.IScope, $state: ng.ui.IStateService,
-            $rootScope: ng.IRootScopeService, ngDialog: ng.dialog.IDialogService,
-            auth: AuthFactory) {
-            this._scope = <HeaderControllerScope>$scope;
-            this._scope.loggedIn = false;
-            this._scope.username = '';
-            this._state = $state;
-            this._rootScope = $rootScope;
-            this._ngDialog = ngDialog;
-            this._auth = auth;
-
-            this._scope.isState = (state: string) => {
-                return $state.is(state);
-            }
-
-            this._scope.logOut = () => {
-                this._auth.logout();
-                this._scope.loggedIn = false;
-                this._scope.username = '';
-            }
-
-
-            this._rootScope.$on('$locationChangeStart', function (event) {
-                if (!this._auth.isAuthenticated()) {
-                    if ( !$state.is('app.login') && !$state.is('app.register') ) {
-                         event.preventDefault();
-                         $state.go('login');
-                    }
-                }
-            });
-
-            this._rootScope.$on('login:Successful', () => {
-                this._scope.loggedIn = this._auth.isAuthenticated();
-                this._scope.username = this._auth.getUsername();
-            });
-
-            this._rootScope.$on('registration:Successful', () => {
-                this._scope.loggedIn = this._auth.isAuthenticated();
-                this._scope.username = this._auth.getUsername();
-            });
-
-            if (this._auth.isAuthenticated()) {
-                this._scope.loggedIn = true;
-                this._scope.username = this._auth.getUsername();
-            }
-
-        }
-    }
-
-    interface ILoginData {
-        username: string;
-        password: string;
-    }
-
-    interface LoginControllerScope extends ng.IScope {
-        rememberMe: boolean;
-        loginData: ILoginData;
-        doLogin: () => void;
-        openRegister: () => void;
-    }
-
-    export class LoginController {
-        static readonly $inject = ['$scope', 'ngDialog', 'LocalStorageService', 'AuthService', LoginController];
-        private _scope: LoginControllerScope;
-        private _ngDialog: ng.dialog.IDialogService;
-        private _localStorage: LocalStorageFactory;
-        private _auth: AuthFactory;
-
-        constructor($scope: ng.IScope, ngDialog: ng.dialog.IDialogService,
-            $localStorage: LocalStorageFactory, auth: AuthFactory) {
-            this._scope = <LoginControllerScope>$scope;
-            this._ngDialog = ngDialog;
-            this._localStorage = $localStorage;
-            this._auth = auth;
-
-            this._scope.loginData = this._localStorage.getObject('userinfo');
-            this._scope.doLogin = () => {
-                if (this._scope.rememberMe)
-                    this._localStorage.storeObject('userinfo', {
-                        username: this._scope.loginData.username,
-                        password: this._scope.loginData.password
-                    });
-
-                this._auth.login(this._scope.loginData,
-                    () => {
-                        this._ngDialog.closeAll();
-                    });
-            }
-        }
-    }
-
-    interface IRegistration {
-        username: string,
-        password: string,
-        email: string,
-        firstname: string,
-        lastname: string,
-        rememberMr: boolean
-    }
-
-    interface RegisterControllerScope extends ng.IScope {
-        registration: IRegistration;
-        doRegister: () => void;
-    }
-
-    export class RegisterController {
-        static readonly $inject = ['$scope', 'ngDialog', 'LocalStorageService', 'AuthService', RegisterController];
-        private _scope: RegisterControllerScope;
-        private _ngDialog: ng.dialog.IDialogService;
-        private _localStorage: LocalStorageFactory;
-        private _auth: AuthFactory;
-
-        constructor($scope: ng.IScope, ngDialog: ng.dialog.IDialogService,
-            $localStorage: LocalStorageFactory, auth: AuthFactory) {
-            this._scope = <RegisterControllerScope>$scope;
-            this._ngDialog = ngDialog;
-            this._localStorage = $localStorage;
-            this._auth = auth;
-
-            this._scope.doRegister = () => {
-                console.log('Doing registration', this._scope.registration);
-                this._auth.register(this._scope.registration,
-                    () => {
-                        this._ngDialog.closeAll();
-                    });
-            };
-        }
     }
 
     interface ExperimentsListControllerScope extends ng.IScope {
