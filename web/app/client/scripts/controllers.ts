@@ -176,11 +176,6 @@ module wevote {
         readonly hint: string
     }
 
-    interface ITaxonomySource {
-        readonly value: string,
-        readonly label: string
-    }
-
     interface InputControllerScope extends ng.IScope {
         state: ng.ui.IStateService,
         availableDatabaseLoaded: boolean,
@@ -190,31 +185,23 @@ module wevote {
         areDataLoaded: any,
         error: boolean,
         message: string,
-        formError: boolean,
-        formErrorMessage: string,
         usageError: boolean,
         usageErrorMessage: string,
-        emailError: boolean,
-        emailErrorMessage: string,
+        fileUploaded: boolean,
         selectiveAlgorithms: boolean,
         noAlgorithmChosen: boolean,
         supportedAlgorithms: any,
         experiment: common.IExperiment,
         inputForm: any,
         usageScenarios: IUsageScenario[],
-        taxonomySources: ITaxonomySource[],
         postExperiment: any,
-        readsUploader: any,
-        ensembleUploader: any,
-        classificationUploader: any,
+        uploader: any
     }
 
     export class InputController {
 
-        static readonly $inject = ['$scope', '$state',
+        static readonly $inject = ['$rootScope', '$scope' , '$state',
             'AlgorithmsService', 'ExperimentService', InputController];
-
-        private _scope: InputControllerScope;
 
         private readonly usageScenarios: IUsageScenario[] = [{
             value: "pipelineFromReads",
@@ -241,23 +228,8 @@ module wevote {
             reads: {
                 name: "",
                 description: "",
-                uri: "",
-                data: "",
-                size: 0,
-                count: 0
-            },
-            ensemble: {
-                name: "",
-                description: "",
-                uri: "",
-                data: "",
-                size: 0,
-                count: 0
-            },
-            classification: {
-                name: "",
-                description: "",
-                uri: "",
+                cdnUrl: "",
+                uuid: "",
                 data: "",
                 size: 0,
                 count: 0
@@ -270,189 +242,129 @@ module wevote {
             }
         };
 
-        constructor($scope: ng.IScope, $state: ng.ui.IStateService,
+        private rootScope: InputControllerScope;
+
+        constructor($rootScope: ng.IRootScopeService, $scope: any , $state: ng.ui.IStateService,
             private AlgorithmsService: any, private ExperimentService: any) {
-            this._scope = <InputControllerScope>$scope;
-            this._scope.inputForm = {};
-            this._scope.state = $state;
-            this._scope.formError = false;
-            this._scope.formErrorMessage = '';
+            $scope.global = $rootScope;
+            var root = <InputControllerScope>$rootScope;
+            this.rootScope = <InputControllerScope>$rootScope;
 
-            this._scope.emailError = false;
-            this._scope.emailErrorMessage = '';
+            root.inputForm = {};
+            root.state = $state;
 
-            this._scope.usageScenarios = this.usageScenarios;
+            root.fileUploaded = false;
+            root.usageError = false;
 
-            this._scope.selectiveAlgorithms = true;
-            this._scope.supportedAlgorithms = [];
-            this._scope.supportedAlgorithmsLoaded = false;
-            this._scope.areDataLoaded = this.areDataLoaded;
+            root.usageScenarios = this.usageScenarios;
+
+            root.selectiveAlgorithms = true;
+            root.supportedAlgorithms = [];
+            root.supportedAlgorithmsLoaded = false;
+            root.areDataLoaded = this.areDataLoaded;
             AlgorithmsService.retrieve(this.onSupportedAlgorithmsSuccess, this.onSupportedAlgorithmsFail);
-            this._scope.experiment = JSON.parse(JSON.stringify(this.emptyExperiment));
+            root.experiment = JSON.parse(JSON.stringify(this.emptyExperiment));
 
-            this._scope.postExperiment = () => {
-                if (!this._scope.formError) {
-                    this._scope.experiment.usageScenario = this.getUsageScenarioOrReturn(this.usageScenarios[0]);
-                    this._scope.experiment.config.algorithms = this.getUsedAlgorithms();
-                    const email = `${this._scope.experiment.email}`;
-                    this.ExperimentService.submit(
-                        this._scope.experiment,
-                        () => {
-                            $('#submission-message').empty();
-                            $('#submission-message').append(
-                                `<div class="alert alert-success alert-dismissible show" role="alert"> 
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                                </button>
-                            Experiment is <strong>successfully!</strong> submitted!<br>
-                            You can track you experiment progress from 'Track Experiments' dash board.<br>
-                            Anyway, after experiment finished, you will be received a notification at your email: ${email}.
-                            You may need to check the junk mail. 
-                            </div>`
-                            );
+            root.postExperiment = () => {
+                if( root.fileUploaded )
+                {
+                    const noAlgorithmChosen =  this.getUsedAlgorithms().length === 0;
+                    root.usageError = root.experiment.usageScenario.value === 'pipelineFromReads' && noAlgorithmChosen;
+                    
 
-                            $('#submission-message').get(0).scrollIntoView();
-                            this._scope.$on('$stateChangeStart', () => {
+                    if ( !root.usageError) {
+                        root.experiment.usageScenario = this.getUsageScenarioOrReturn(this.usageScenarios[0]);
+                        root.experiment.config.algorithms = this.getUsedAlgorithms();
+                        const email = `${root.experiment.email}`;
+                        this.ExperimentService.submit(
+                            root.experiment,
+                            () => {
                                 $('#submission-message').empty();
-                            });
-                        },
-                        () => {
-                            $('#submission-message').empty();
-                            $('#submission-message').append(
-                                `<div class="alert alert-danger alert-dismissible show" role="alert"> 
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                                </button>                                
-                            Experiment is <strong>not</strong> submitted!<br>
-                            You may need to login or check the connection to the server.
-                            </div>`
-                            );
-                            $('#submission-message').get(0).scrollIntoView();
-                            this._scope.$on('$stateChangeStart', () => {
+                                $('#submission-message').append(
+                                    `<div class="alert alert-success alert-dismissible show" role="alert"> 
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                    </button>
+                                Experiment is <strong>successfully!</strong> submitted!<br>
+                                You can track you experiment progress from 'Track Experiments' dash board.<br>
+                                Anyway, after experiment finished, you will be received a notification at your email: ${email}.
+                                You may need to check the junk mail. 
+                                </div>`
+                                );
+    
+                                $('#submission-message').get(0).scrollIntoView();
+                                root.$on('$stateChangeStart', () => {
+                                    $('#submission-message').empty();
+                                });
+                            },
+                            () => {
                                 $('#submission-message').empty();
+                                $('#submission-message').append(
+                                    `<div class="alert alert-danger alert-dismissible show" role="alert"> 
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                    </button>                                
+                                Experiment is <strong>not</strong> submitted!<br>
+                                You may need to login or check the connection to the server.
+                                </div>`
+                                );
+                                $('#submission-message').get(0).scrollIntoView();
+                                root.$on('$stateChangeStart', () => {
+                                    $('#submission-message').empty();
+                                });
+    
                             });
-
-                        });
-
-                    $('#advanced').collapse("hide");
+    
+                        $('#advanced').collapse("hide");
+                    }
                 }
+                
             };
 
-            this._scope.readsUploader = null;
-            this._scope.ensembleUploader = null;
-            this._scope.classificationUploader = null;
+            // root.uploader = null;
             // Watchers!
             // this._scope.experiment.usageScenario.value;
-            this._scope.$watch('experiment.usageScenario.value', (usage: string) => {
+            root.$watch('experiment.usageScenario.value', (usage: string) => {
                 switch (usage) {
                     case 'pipelineFromReads': {
-                        this._scope.selectiveAlgorithms = true;
+                        root.selectiveAlgorithms = true;
                     }
                         break;
                     case 'abundanceFromClassification': {
-                        this._scope.selectiveAlgorithms = false;
+                        root.selectiveAlgorithms = false;
                     }
                         break;
                     case 'classificationFromEnsemble': {
-                        this._scope.selectiveAlgorithms = false;
+                        root.selectiveAlgorithms = false;
                     }
                         break;
                 }
             });
-
-
-            this._scope.$watchGroup(
-                [
-                    'readsUploader.uploaded',
-                    'ensembleUploader.uploaded',
-                    'classificationUploader.uploaded',
-                ],
-                (newVal: any, oldVal: any, scope: ng.IScope) => {
-                    const noAlgorithmChosen =
-                        (this._scope.supportedAlgorithms.length === 0) ? false : this.getUsedAlgorithms().length === 0;
-                    this._scope.usageError = noAlgorithmChosen;
-                    if (this._scope.inputForm.form)
-                        switch (this._scope.experiment.usageScenario.value) {
-                            case 'pipelineFromReads': {
-                                if (this._scope.readsUploader)
-                                    this._scope.usageError =
-                                        this._scope.usageError ||
-                                        !this._scope.readsUploader.uploaded;
-
-                            }
-                                break;
-                            case 'abundanceFromClassification': {
-                                this._scope.usageError =
-                                    !this._scope.classificationUploader.uploaded;
-                                console.log(this._scope.classificationUploader);
-                                console.log('at least', this._scope.classificationUploader.uploaded);
-                            }
-                                break;
-                            case 'classificationFromEnsemble': {
-                                if (this._scope.ensembleUploader) {
-                                    {
-                                        this._scope.usageError =
-                                            !this._scope.ensembleUploader.uploaded;
-                                        console.log(this._scope.ensembleUploader);
-                                        console.log('at least', this._scope.ensembleUploader.uploaded);
-                                    }
-                                }
-                            }
-                                break;
-                        }
-                });
-
-            this._scope.$watchGroup(
-                [
-                    'emailError',
-                    'usageError'
-                ],
-                (newVal: any, oldVal: any, scope: ng.IScope) => {
-                    this._scope.formError =
-                        this._scope.usageError ||
-                        this._scope.emailError;
-                });
-
-            this._scope.$watchGroup(
-                [
-                    'inputForm.form.emailid.$error.required',
-                    'inputForm.form.emailid.$invalid',
-                    'inputForm.form.emailid.$pristine'
-                ]
-                ,
-                (newVal: any, oldVal: any, scope: ng.IScope) => {
-                    this._scope.emailError = false;
-                    if (this._scope.inputForm.form)
-                        this._scope.emailError =
-                            (this._scope.inputForm.form.emailid.$error.required ||
-                                this._scope.inputForm.form.emailid.$invalid)
-                            && !this._scope.inputForm.form.emailid.$pristine;
-                }
-            );
         }
 
         private areDataLoaded = () => {
-            return this._scope.supportedAlgorithmsLoaded;
+            return this.rootScope.supportedAlgorithmsLoaded;
         };
 
         private onSupportedAlgorithmsSuccess: Function = (response: any) => {
-            this._scope.supportedAlgorithms = response;
-            this._scope.supportedAlgorithms.forEach(function (alg: any) {
+
+            this.rootScope.supportedAlgorithms = response;
+            this.rootScope.supportedAlgorithms.forEach(function (alg: any) {
                 alg.used = true;
             });
-            this._scope.supportedAlgorithmsLoaded = true;
-            this._scope.showInput = this._scope.areDataLoaded();
-            console.log(this._scope.showInput);
+            this.rootScope.supportedAlgorithmsLoaded = true;
+            this.rootScope.showInput = this.rootScope.areDataLoaded();
+            console.log(this.rootScope.showInput);
         }
 
         private onSupportedAlgorithmsFail: Function = (response: any) => {
-            this._scope.error = true;
-            this._scope.message = "Error: " + response.status + " " + response.statusText;
+            this.rootScope.error = true;
+            this.rootScope.message = "Error: " + response.status + " " + response.statusText;
         }
 
         private getUsedAlgorithms = () => {
-            if (this._scope.supportedAlgorithms)
-                return this._scope.supportedAlgorithms.filter(function (alg: any) {
+            if (this.rootScope.supportedAlgorithms)
+                return this.rootScope.supportedAlgorithms.filter(function (alg: any) {
                     return alg.used;
                 });
             else return [];
@@ -460,7 +372,7 @@ module wevote {
 
         private getUsageScenarioOrReturn = (otherwise: IUsageScenario): IUsageScenario => {
             for (const usage of this.usageScenarios)
-                if (usage.value === this._scope.experiment.usageScenario.value)
+                if (usage.value === this.rootScope.experiment.usageScenario.value)
                     return usage;
             return otherwise;
         }
@@ -468,152 +380,45 @@ module wevote {
 
     }
 
-    interface OnSuccessCBType {
-        (fileItem: any, response: any, status: any, headers: any): void;
+    interface OnUCUploadCompleteCallback {
+        (info: any): void;
     }
 
-    interface OnAfterAddingFileCBType {
-        (fileItem: any): void;
+    interface OnUCWidgetReadyCallback {
+        (widget: any): void;
     }
-
 
     interface UploaderControllerScope extends InputControllerScope {
-        uploader: any,
-        experiment: any
+        onUCWidgetReady: OnUCWidgetReadyCallback,
+        onUCUploadComplete: OnUCUploadCompleteCallback
     }
 
-    abstract class UploaderController {
-        protected _scope: UploaderControllerScope;
-        protected _uploader: any;
-        protected _inputScope: InputControllerScope;
-        protected abstract onSuccessItemCB: OnSuccessCBType;
+    export class UploaderController {
+        static readonly $inject = ['$rootScope', '$scope' , UploaderController];
 
-        protected abstract onAfterAddingFileCB: OnAfterAddingFileCBType;
+        private rootScope: UploaderControllerScope;
 
-        constructor($scope: ng.IScope, FileUploaderService: any) {
-            this._scope = <UploaderControllerScope>$scope;
-            this._inputScope = <any>$scope.$parent.$parent.$parent;
-        }
-    }
+        constructor($rootScope: ng.IRootScopeService, $scope: any ) {
+            // this._uploader = FileUploaderService.getFileUploader(
+            //     'upload/reads', 'Drop file here', 'External dataset uploader');
+            $scope.global = $rootScope;
+            this.rootScope = <UploaderControllerScope> $rootScope;
+            this.rootScope.onUCUploadComplete = this.onUCUploadComplete;
+            this.rootScope.onUCWidgetReady = this.onUCWidgetReady;
 
-    export class ReadsUploaderController extends UploaderController {
-        static readonly $inject = ['$scope', 'FileUploaderService', ReadsUploaderController];
-
-        constructor($scope: UploaderControllerScope, FileUploaderService: any) {
-            super($scope, FileUploaderService);
-            this._uploader = FileUploaderService.getFileUploader(
-                'upload/reads', 'Drop reads file here', 'External dataset uploader');
-            this._uploader.onSuccessItem = this.onSuccessItemCB;
-            this._uploader.onAfterAddingFile = this.onAfterAddingFileCB;
-            this._inputScope.readsUploader = this._uploader;
-            this._scope.uploader = this._uploader;
+            // var singleWidget = uploadcare.SingleWidget('[role=uploadcare-uploader]');
+            // this.rootScope.uploader = singleWidget;
         };
 
-        protected onSuccessItemCB = (fileItem: any, response: any, status: any, header: any) => {
+        protected onUCUploadComplete = ( info: any ) => {
             // console.info('onSuccessItem', fileItem, response, status, headers);
-            console.log('success', response, header);
-            this._scope.experiment.reads.uri =
-                JSON.parse(JSON.stringify(header.filename));
-            this._scope.experiment.reads.count =
-                parseInt(header.readscount, 10);
+            console.log('success', info );
+            // this.rootScope.experiment.reads.uuid =
+            //     JSON.parse(JSON.stringify(header.filename));
         };
 
-        protected onAfterAddingFileCB = (fileItem: any) => {
-            console.info('onAfterAddingFile', fileItem);
-
-            this._scope.uploader.queue = [fileItem];
-
-            this._scope.experiment.reads.name =
-                JSON.parse(JSON.stringify(fileItem.file.name));
-            this._scope.experiment.reads.size =
-                JSON.parse(JSON.stringify(fileItem.file.size));
-
-            setTimeout(function () {
-                $("[data-toggle='tooltip']").tooltip({
-                    trigger: 'hover'
-                });
-            }, 500);
-        };
-    }
-
-
-    export class EnsembleUploaderController extends UploaderController {
-        static readonly $inject = ['$scope', 'FileUploaderService', EnsembleUploaderController];
-
-        constructor($scope: UploaderControllerScope, FileUploaderService: any) {
-            super($scope, FileUploaderService);
-            this._uploader = FileUploaderService.getFileUploader(
-                'upload/ensemble', 'Drop ensemble file here', 'Ensemble file uploader');
-            this._uploader.onSuccessItem = this.onSuccessItemCB;
-            this._uploader.onAfterAddingFile = this.onAfterAddingFileCB;
-            this._inputScope.ensembleUploader = this._uploader;
-            this._scope.uploader = this._uploader;
-        };
-
-        protected onSuccessItemCB = (fileItem: any, response: any, status: any, header: any) => {
-            // console.info('onSuccessItem', fileItem, response, status, headers);
-            console.log('success', response, header);
-            this._scope.experiment.ensemble.uri =
-                JSON.parse(JSON.stringify(header.filename));
-            this._scope.experiment.ensemble.count =
-                parseInt(header.ensemblecount, 10);
-        };
-
-        protected onAfterAddingFileCB = (fileItem: any) => {
-            console.info('onAfterAddingFile', fileItem);
-
-            this._scope.uploader.queue = [fileItem];
-
-            this._scope.experiment.ensemble.name =
-                JSON.parse(JSON.stringify(fileItem.file.name));
-            this._scope.experiment.ensemble.size =
-                JSON.parse(JSON.stringify(fileItem.file.size));
-
-            setTimeout(function () {
-                $("[data-toggle='tooltip']").tooltip({
-                    trigger: 'hover'
-                });
-            }, 500);
-        };
-    }
-
-    export class ClassificationUploaderController extends UploaderController {
-        static readonly $inject = ['$scope', 'FileUploaderService', ClassificationUploaderController];
-
-        constructor($scope: UploaderControllerScope, FileUploaderService: any) {
-            super($scope, FileUploaderService);
-            this._uploader = FileUploaderService.getFileUploader(
-                'upload/classification', 'Drop classifcation file here', 'Classification file uploader');
-            this._uploader.onSuccessItem = this.onSuccessItemCB;
-            this._uploader.onAfterAddingFile = this.onAfterAddingFileCB;
-            this._inputScope.classificationUploader = this._uploader;
-            this._scope.uploader = this._uploader;
-        };
-
-        protected onSuccessItemCB = (fileItem: any, response: any, status: any, header: any) => {
-            // console.info('onSuccessItem', fileItem, response, status, headers);
-            console.log('success', response, header);
-            this._scope.experiment.classification.uri =
-                JSON.parse(JSON.stringify(header.filename));
-            this._scope.experiment.ensemble.count =
-                parseInt(header.ensemblecount, 10);
-        };
-
-        protected onAfterAddingFileCB = (fileItem: any) => {
-            console.info('onAfterAddingFile', fileItem);
-
-            this._scope.uploader.queue = [fileItem];
-
-            this._scope.experiment.classification.name =
-                JSON.parse(JSON.stringify(fileItem.file.name));
-            this._scope.experiment.classification.size =
-                JSON.parse(JSON.stringify(fileItem.file.size));
-
-            setTimeout(function () {
-                $("[data-toggle='tooltip']").tooltip({
-                    trigger: 'hover'
-                });
-            }, 500);
+        protected onUCWidgetReady = (widget: any) => {
+            console.log('widget created', widget );
         };
     }
 
@@ -784,9 +589,7 @@ module wevote {
     wevoteApp
         .controller('MainController', MainController.$inject)
         .controller('InputController', InputController.$inject)
-        .controller('ReadsUploaderController', ReadsUploaderController.$inject)
-        .controller('EnsembleUploaderController', EnsembleUploaderController.$inject)
-        .controller('ClassificationUploaderController', ClassificationUploaderController.$inject)
+        .controller('UploaderController', UploaderController.$inject)
         .controller('HeaderController', HeaderController.$inject)
         .controller('LoginController', LoginController.$inject)
         .controller('RegisterController', RegisterController.$inject)

@@ -102,7 +102,8 @@ declare namespace common {
         name: string;
         description: string;
         onServer?: Boolean;
-        uri: string;
+        cdnUrl: string;
+        uuid: string;
         data: string;
         size: number;
         tag?: string;
@@ -113,8 +114,6 @@ declare namespace common {
         email: string;
         description: string;
         reads: IRemoteFile;
-        classification: IRemoteFile;
-        ensemble: IRemoteFile;
         config: IConfig;
         status?: IStatus;
         results?: IResults;

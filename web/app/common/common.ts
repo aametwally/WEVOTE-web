@@ -63,8 +63,8 @@ export interface IWevoteSubmitEnsemble {
     status: IStatus,
     score: number,
     penalty: number,
-    minNumAgreed: number , 
-    distances: number[] 
+    minNumAgreed: number,
+    distances: number[]
 }
 
 export interface IWevoteClassification {
@@ -74,8 +74,8 @@ export interface IWevoteClassification {
     numToolsReported?: number,
     numToolsAgreed?: number,
     numToolsUsed?: number,
-    score?: number ,
-    distances?: number[] ,
+    score?: number,
+    distances?: number[],
     cost?: number
 }
 
@@ -113,7 +113,8 @@ export interface IRemoteFile {
     name: string,
     description: string,
     onServer?: Boolean,
-    uri: string,
+    cdnUrl: string,
+    uuid: string,
     data: string,
     size: number,
     tag?: string,
@@ -125,8 +126,6 @@ export interface IExperiment {
     email: string;
     description: string;
     reads: IRemoteFile;
-    classification: IRemoteFile;
-    ensemble: IRemoteFile;
     config: IConfig;
     status?: IStatus;
     results?: IResults;

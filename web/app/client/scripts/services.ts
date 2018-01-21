@@ -201,76 +201,6 @@ module wevote {
         };
     }
 
-    export class FileUploaderFactory {
-
-        static readonly $inject = ['FileUploader', FileUploaderFactory.factory()];
-
-        private _FileUploader: any;
-
-        constructor(private FileUploader: any) {
-            this._FileUploader = FileUploader;
-        }
-
-        static factory() {
-            let instance = (FileUploader: any) => new FileUploaderFactory(FileUploader);
-            return instance;
-        }
-
-        public getFileUploader(url: string, label: string, description: string): any {
-            let uploader = new this.FileUploader({
-                url: url
-            });
-
-            uploader.label = label;
-            uploader.description = description;
-            uploader.uploaded = false;
-            // FILTERS
-
-            uploader.filters.push({
-                name: 'customFilter',
-                fn: function (item: any /*{File|FileLikeObject}*/, options: any) {
-                    return this.queue.length < 10;
-                }
-            });
-
-            // CALLBACKS
-            uploader.onWhenAddingFileFailed = function (item: any /*{File|FileLikeObject}*/, filter: any, options: any) {
-                console.info('onWhenAddingFileFailed', item, filter, options);
-            };
-
-            uploader.onAfterAddingAll = function (addedFileItems: any) {
-                console.info('onAfterAddingAll', addedFileItems);
-            };
-            uploader.onBeforeUploadItem = function (item: any) {
-                console.info('onBeforeUploadItem', item);
-            };
-            uploader.onProgressItem = function (fileItem: any, progress: any) {
-                console.info('onProgressItem', fileItem, progress);
-            };
-            uploader.onProgressAll = function (progress: any) {
-                console.info('onProgressAll', progress);
-            };
-
-            uploader.onErrorItem = function (fileItem: any, response: any, status: any, headers: any) {
-                console.info('onErrorItem', fileItem, response, status, headers);
-            };
-            uploader.onCancelItem = function (fileItem: any, response: any, status: any, headers: any) {
-                console.info('onCancelItem', fileItem, response, status, headers);
-            };
-            uploader.onCompleteItem = function (fileItem: any, response: any, status: any, headers: any) {
-                // console.info('onCompleteItem', fileItem, response, status, headers);
-                // console.log(headers);
-                this.atLeastSingleFileUploaded = true;
-            };
-            uploader.onCompleteAll =  () => {
-                console.info('onCompleteAll');
-                uploader.uploaded = true;
-            };
-
-            return uploader;
-        }
-    }
-
     abstract class DataRetriever {
         protected _resource: ng.resource.IResourceService;
 
@@ -376,7 +306,6 @@ module wevote {
     wevoteApp
         .factory('LocalStorageService', LocalStorageFactory.$inject)
         .factory('AuthService', AuthFactory.$inject)
-        .factory('FileUploaderService', FileUploaderFactory.$inject)
         .factory('AlgorithmsService', AlgorithmsFactory.$inject)
         .factory('ExperimentService', ExperimentFactory.$inject)
         .factory('UserService', UserFactory.$inject)

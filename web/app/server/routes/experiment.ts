@@ -87,28 +87,12 @@ export class ExperimentRouter extends BaseRoute {
                     name: exp.reads.name,
                     description: "reads file",
                     onServer: true,
-                    uri: exp.reads.uri,
+                    uri: exp.reads.uuid,
                     data: exp.reads.data,
                     size: exp.reads.size,
                     count: exp.reads.count
                 };
-                const _ensemble: IRemoteFile = <any>{
-                    name: exp.ensemble.name,
-                    description: "ensmble file",
-                    onServer: true,
-                    uri: exp.ensemble.uri,
-                    data: exp.ensemble.data,
-                    size: exp.ensemble.size,
-                    count: exp.reads.count
-                };
-                const _classification: IRemoteFile = <any>{
-                    name: exp.classification.name,
-                    description: "classification file",
-                    onServer: true,
-                    uri: exp.classification.uri,
-                    data: exp.classification.size,
-                    size: exp.classification.count
-                };
+                
                 const _config: IConfig = <any>{
                     algorithms: exp.config.algorithms,
                     minScore: exp.config.minScore,
@@ -120,8 +104,6 @@ export class ExperimentRouter extends BaseRoute {
                     email: exp.email,
                     description: exp.description,
                     reads: _reads,
-                    classification: _classification,
-                    ensemble: _ensemble,
                     config: _config,
                     results: {},
                     usageScenario: exp.usageScenario
@@ -239,7 +221,7 @@ export class ExperimentRouter extends BaseRoute {
         switch (usageScenario.value) {
             case 'pipelineFromReads':
                 {
-                    const reads = fs.readFileSync(UploadRouter.uploadsDir + '/' + exp.reads.uri).toString().trim();
+                    const reads = fs.readFileSync(UploadRouter.uploadsDir + '/' + exp.reads.uuid).toString().trim();
                     // split on newlines...
                     let sequences = reads.split('\n');
                     const algorithms: string[] = exp.config.algorithms.map((alg: IAlgorithm) => {
@@ -290,7 +272,7 @@ export class ExperimentRouter extends BaseRoute {
                 } break;
             case 'abundanceFromClassification':
                 {
-                    const classification = fs.readFileSync(UploadRouter.uploadsDir + '/' + exp.classification.uri).toString().trim();
+                    const classification = fs.readFileSync(UploadRouter.uploadsDir + '/' + exp.reads.uuid).toString().trim();
                     // split on newlines...
                     let lines = classification.split('\n');
                     if (!WevoteClassificationPatchModel.isClassified(lines[0])) {
@@ -375,7 +357,7 @@ export class ExperimentRouter extends BaseRoute {
                 } break;
             case 'classificationFromEnsemble':
                 {
-                    const ensemble = fs.readFileSync(UploadRouter.uploadsDir + '/' + exp.ensemble.uri).toString().trim();
+                    const ensemble = fs.readFileSync(UploadRouter.uploadsDir + '/' + exp.reads.uuid).toString().trim();
                     // split on newlines...
                     let lines = ensemble.split('\n');
                     const algorithms: string[] = WevoteClassificationPatchModel.extractAlgorithms(lines[0]);

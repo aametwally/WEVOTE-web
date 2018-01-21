@@ -70,7 +70,9 @@ gulp.task('config-ec2', function () {
 gulp.task('ts', function () {
     return tsClientProject.src()
         .pipe(tsClientProject())
-        .js.pipe(gulp.dest("../build/public"));
+        .js.pipe(gulp.dest("../build/public")) ,
+        gulp.src('scripts/angular-uploadcare.js')
+        .pipe( gulp.dest("../build/public"));
 });
 
 // Images

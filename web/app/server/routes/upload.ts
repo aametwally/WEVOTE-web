@@ -49,36 +49,6 @@ export class UploadRouter extends BaseRoute {
             res.status(204).end();
             // console.log(res);
         });
-
-        // Will handle POST requests to /upload
-        this._router.post('/ensemble', this._upload.single('file'), (req: Request, res: Response) => {
-            console.log(req.file.filename);
-
-            let seq = fs.readFileSync( UploadRouter.uploadsDir + '/' + req.file.filename ).toString();
-            
-            // immediately remove trailing spaces
-            seq = seq.trim();
-
-            // split on newlines...
-            const lines = seq.split('\n');
-
-            res.setHeader("ensemblecount", `${lines.length}`);
-            res.setHeader("filename", req.file.filename);
-            res.status(204).end();
-        });
-
-        this._router.post('/classification', this._upload.single('file'), (req: Request, res: Response) => {
-            console.log(req.file.filename);
-
-            /**
-             * For the moment, include the filename in the http header.
-             * It is a bad practice. For some unknown reasons the response
-             * body is always received empty at client side.
-             */
-            res.setHeader("filename", req.file.filename);
-            res.status(204).end();
-            // console.log(res);
-        })
     }
 
     public static router() :any {

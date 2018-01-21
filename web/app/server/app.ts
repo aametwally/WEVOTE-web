@@ -17,7 +17,6 @@ import { UserRouter } from './routes/user';
 import { ReadsRouter } from './routes/reads';
 import { UploadRouter } from './routes/upload';
 import { AlgorithmRouter } from './routes/algorithm';
-import { TaxonomyRouter } from './routes/taxonomy';
 import { ExperimentRouter } from './routes/experiment';
 import { TaxonomyAbundanceProfileRouter } from './routes/taxprofile';
 import { init } from './models/initdb';
@@ -148,7 +147,6 @@ export class Server {
         this._app.use('/reads', ReadsRouter.router());
         this._app.use('/algorithm', AlgorithmRouter.router());
         this._app.use('/experiment', ExperimentRouter.router());
-        this._app.use('/taxonomy', TaxonomyRouter.router());
         this._app.use('/upload', UploadRouter.router());
         this._app.use('/taxprofile', TaxonomyAbundanceProfileRouter.router());
         this._app.use('/users', UserRouter.router());

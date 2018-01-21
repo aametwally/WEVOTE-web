@@ -1,8 +1,6 @@
 // grab the things we need
 import { AlgorithmModel, IAlgorithm } from './algorithm';
 import { ReadModel  } from './reads';
-import { EnsembleFileModel } from './ensemblefile';
-import { TaxonomyModel } from './taxonomy';
 import { IRemoteFile , RemoteFileModel } from './remotefile';
 import { WevoteClassificationPatchModel, IWevoteClassificationPatch } from './wevote';
 import { TaxonomyAbundanceProfileModel, ITaxonomyAbundanceProfile } from './taxprofile';
@@ -101,12 +99,6 @@ export class ExperimentModel {
         reads: {
             type: ReadModel.schema 
         },
-        classification: {
-            type: EnsembleFileModel.schema
-        },
-        ensemble: {
-            type: EnsembleFileModel.schema
-        },
         config: {
             type: configSchema
         },
@@ -142,22 +134,6 @@ export class ExperimentModel {
                         size: 0,
                         count: 0
                     };
-                    const _classification: IRemoteFile = <any>{
-                        name: "todo",
-                        description: "todo",
-                        onServer: true,
-                        uri: "todo",
-                        data: "todo",
-                        size: 0
-                    };
-                    const _ensemble: IRemoteFile = <any>{
-                        name: "todo",
-                        description: "todo",
-                        onServer: false,
-                        uri: "todo",
-                        data: "todo",
-                        size: 0
-                    }
 
                     const _config: IConfig = <any>{
                         algorithms: [
@@ -179,8 +155,6 @@ export class ExperimentModel {
                         description: "todo",
                         usageScenario: <IUsageScenario>{ value: "classificationFromEnsemble" ,  usage: "Classification" },
                         reads: _reads,
-                        ensemble: _ensemble,
-                        classification: _classification,
                         status: <common.IStatus> { code: common.EStatus.NOT_STARTED , message: common.EStatus[common.EStatus.NOT_STARTED] },
                         config: _config
                     }, (err: any, exp: any) => {

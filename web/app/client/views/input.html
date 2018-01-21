@@ -1,142 +1,115 @@
 <div class="row row-form">
-    <form class="form-horizontal" role="form" name="inputForm.form" ng-submit="postExperiment()" novalidate>
+    <form class="form-horizontal" role="form" name="inputForm.form" ng-submit="global.postExperiment()" novalidate>
 
-            <div class="panel panel-default panel-submission-form">
-                <div class="panel-heading" role="tab" id="headingInput">
-                    <h3 class="panel-title">
-                        Data Submission
-                    </h3>
-                </div>
-                <div role="tabpanel" class="tab-pane">
-                    <div class="panel-body data-submission-form">
-                        <div class="form-group" >
-                            <div class="form-group" ng-class="{'has-error has-feedback': usageError }">
-                                <label><h4><strong>Select a usage scenario of WEVOTE pipeline.</strong></h4>
-                                    <select class="form-control" ng-model="experiment.usageScenario.value"
-                                            name="usageScenariosSelect" >
-                                            <option ng-repeat="usageScenario in usageScenarios" value="{{usageScenario.value}}">[{{usageScenario.usage | uppercase }}]:{{usageScenario.hint}}</option>                                            
-                                        </select>
-                                </label>
-                                <div class="col-xs-8 col-sm-6 col-md-5">
-                                    <div ng-controller="ReadsUploaderController">
-                                        <div ng-include="'views/readsupload.html'" ng-show="experiment.usageScenario.value==='pipelineFromReads'" nv-file-drop="" uploader="uploader"
-                                            filters="queueLimit, customFilter">
-                                        </div>
-                                    </div>
-                                    <div ng-controller="EnsembleUploaderController">
-                                        <div ng-include="'views/readsupload.html'" ng-show="experiment.usageScenario.value==='classificationFromEnsemble'" nv-file-drop="" uploader="uploader"
-                                            filters="queueLimit, customFilter">
-                                        </div>
-                                    </div>
-                                    <div ng-controller="ClassificationUploaderController">
-                                        <div ng-include="'views/readsupload.html'" ng-show="experiment.usageScenario.value==='abundanceFromClassification'" nv-file-drop="" uploader="uploader"
-                                            filters="queueLimit, customFilter">
-                                        </div>
-                                    </div>
-                                    
+        <div class="panel panel-default panel-submission-form">
+            <div class="panel-heading" role="tab" id="headingInput">
+                <h3 class="panel-title">
+                    Data Submission
+                </h3>
+            </div>
+            <div role="tabpanel" class="tab-pane">
+                <div class="panel-body data-submission-form">
+                    <div class="form-group">
+                        <div class="form-group" ng-class="{'has-error has-feedback': global.usageError }">
+                            <label>
+                                <h4>
+                                    <strong>Select a usage scenario of WEVOTE pipeline.</strong>
+                                </h4>
+                            </label>
+
+                            <label ng-repeat="usageScenario in global.usageScenarios">
+                                <input type="radio" name="usageScenariosSelect" ng-model="global.experiment.usageScenario.value" ng-value="usageScenario.value"
+                                />[{{usageScenario.usage | uppercase }}]:{{usageScenario.hint}}
+                            </label>
+
+                            <div class="col-xs-8 col-sm-6 col-md-5">
+                                <div ng-controller="UploaderController">
+                                    <input uploadcare-widget ng-model="global.experiment.reads.uuid" data-tabs="file url" data-preview-step="true" data-clearable="true"
+                                        data-multiple="false" on-upload-complete="global.onUCUploadComplete(info)" on-widget-ready="global.onUCWidgetReady(widget)"
+                                        value="{{ global.experiment.reads.cdnUrl }}" />
                                 </div>
-                                </div>
-                                
+
+
                             </div>
+                        </div>
 
-                            <div class="form-group">
-                                <div class="col-xs-11">
-                                    <button type="button" role="button" data-toggle="collapse"
-                                            data-target="#advanced" class="btn btn-warning">
-                                        Advanced options
-                                    </button>
-                                    <div class="collapse" id="advanced">
-                                        <div class="well">
-                                            <div class="form-group"
-                                                 ng-class="{ 'has-error has-feedback': noAlgorithmChosen }">
-                                                <strong>WEVOTE algorithms bucket <span class="badge">{{ (supportedAlgorithms | filter:{used:'true'}).length }}</span></strong>
-                                                <ul class="list-inline">
-                                                    <li ng-repeat="algorithm in supportedAlgorithms">
-                                                        <div class="checkbox">
-                                                            <label class="checkbox-inline">
-                                                                <input ng-model="algorithm.used" type="checkbox" 
-                                                                ng-disabled='experiment.usageScenario.value != "pipelineFromReads"'>
-                                                                <span class="label label-warning">{{algorithm.name}}</span>
-                                                            </label>
-                                                        </div>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            <ul class="list-group">
-                                                <li class="list-group-item">
-                                                    <div class="form-inline"
-                                                         ng-class="{ 'has-error has-feedback':false}">
-                                                        <label for="scorethreshold" class="control-label">Score
-                                                            Threshold</label>
-                                                        <input type="number" class="form-control"
-                                                               id="scorethreshold"
-                                                               name="scorethreshold" placeholder="Score Threshold"
-                                                               ng-model="experiment.config.minScore" required>
-                                                    </div>
-                                                </li>
-                                                <li class="list-group-item">
-                                                    <div class="form-inline"
-                                                         ng-class="{ 'has-error has-feedback':false}">
-                                                        <label for="minNumAgreed" class="control-label">Min. no.
-                                                            agreement</label>
-                                                        <input type="number" class="form-control" id="minNumAgreed"
-                                                               name="minNumAgreed" placeholder=""
-                                                               ng-model="experiment.config.minNumAgreed" required>
-                                                    </div>
-                                                </li>
-                                                <li class="list-group-item">
-                                                    <div class="form-inline"
-                                                         ng-class="{ 'has-error has-feedback':false}">
-                                                        <label for="penalty" class="control-label">Disagreement
-                                                            penalty</label>
-                                                        <input type="number" class="form-control" id="penalty"
-                                                               name="penalty" placeholder="Disagreement penalty"
-                                                               ng-model="experiment.config.penalty" required>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-xs-11">
+                            <strong>WEVOTE algorithms bucket
+                                <span class="badge">{{ (global.supportedAlgorithms | filter:{used:'true'}).length }}</span>
+                            </strong>
+                            <ul class="list-inline">
+                                <li ng-repeat="algorithm in global.supportedAlgorithms">
+                                    <div class="checkbox">
+                                        <label class="checkbox-inline">
+                                            <input ng-model="algorithm.used" type="checkbox" ng-disabled='global.experiment.usageScenario.value != "pipelineFromReads"'>
+                                            <span class="label label-warning">{{algorithm.name}}</span>
+                                        </label>
                                     </div>
-                                </div>
-                            </div>
+                                </li>
+                            </ul>
 
-
-                            <div class="form-group" ng-class="{ 'has-error has-feedback': emailError}">
-                                <div class="col-xs-11">
-                                    <div class="input-group input-group-lg">
-                                            <span class="input-group-addon"><span
-                                                    class="glyphicon glyphicon-info-sign"></span></span>
-                                        <input type="text" class="form-control" id="description"
-                                               name="description" placeholder="Description"
-                                               ng-model="experiment.description">
+                            <ul class="list-group">
+                                <li class="list-group-item">
+                                    <div class="form-inline" ng-class="{ 'has-error has-feedback':false}">
+                                        <label for="scorethreshold" class="control-label">Score Threshold
+                                        </label>
+                                        <input type="number" class="form-control" id="scorethreshold" name="scorethreshold" placeholder="Score Threshold" ng-model="global.experiment.config.minScore"
+                                            required>
                                     </div>
-                                    <br>
-                                    <div class="input-group input-group-lg">
-                                            <span class="input-group-addon"><span
-                                                    class="glyphicon glyphicon-envelope"></span></span>
-                                        <input type="email" class="form-control" id="emailid"
-                                               name="emailid" placeholder="Email"
-                                               ng-model="experiment.email" required>
-                                        <span ng-show="emailError"
-                                              class="glyphicon glyphicon-remove form-control-feedback"
-                                              aria-hidden="true"></span>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="form-inline" ng-class="{ 'has-error has-feedback':false}">
+                                        <label for="minNumAgreed" class="control-label">Min. no. agreement
+                                        </label>
+                                        <input type="number" class="form-control" id="minNumAgreed" name="minNumAgreed" placeholder="" ng-model="global.experiment.config.minNumAgreed"
+                                            required>
                                     </div>
-                                    <span ng-show="emailError"
-                                              class="help-block">Enter a valid email address</span>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="submit" ng-disabled="inputForm.form.$invalid || formError"
-                                            class="btn btn-primary">Post Experiment
-                                    </button>
-                                </div>
-                            </div>
-
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="form-inline" ng-class="{ 'has-error has-feedback':false}">
+                                        <label for="penalty" class="control-label">Disagreement penalty
+                                        </label>
+                                        <input type="number" class="form-control" id="penalty" name="penalty" placeholder="Disagreement penalty" ng-model="global.experiment.config.penalty"
+                                            required>
+                                    </div>
+                                </li>
+                            </ul>
                         </div>
                     </div>
+
+
+                    <div class="form-group">
+                        <div class="col-xs-11">
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-info-sign"></span>
+                                </span>
+                                <input type="text" class="form-control" id="description" name="description" placeholder="Description" ng-model="global.experiment.description">
+                            </div>
+                            <br>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-envelope"></span>
+                                </span>
+                                <input type="email" class="form-control" id="emailid" name="emailid" placeholder="Email" ng-model="global.experiment.email"
+                                    required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="submit" ng-disabled="inputForm.form.$invalid || global.formError" class="btn btn-primary">Post Experiment
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
-    </form>
+        </div>
+</div>
+</form>
 </div>

@@ -16,7 +16,11 @@ export class RemoteFileModel {
             type: Boolean,
             default: true
         },
-        uri: {
+        cdnUrl: {
+            type: String,
+            default: ""
+        },
+        uuid: {
             type: String,
             default: ""
         },
