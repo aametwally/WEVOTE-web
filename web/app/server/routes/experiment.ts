@@ -87,7 +87,7 @@ export class ExperimentRouter extends BaseRoute {
                     name: exp.reads.name,
                     description: "reads file",
                     onServer: true,
-                    uri: exp.reads.uuid,
+                    uuid: exp.reads.uuid,
                     data: exp.reads.data,
                     size: exp.reads.size,
                     count: exp.reads.count
@@ -357,6 +357,8 @@ export class ExperimentRouter extends BaseRoute {
                 } break;
             case 'classificationFromEnsemble':
                 {
+                    console.log( UploadRouter.uploadsDir + '/' + exp.reads.uuid );
+
                     const ensemble = fs.readFileSync(UploadRouter.uploadsDir + '/' + exp.reads.uuid).toString().trim();
                     // split on newlines...
                     let lines = ensemble.split('\n');

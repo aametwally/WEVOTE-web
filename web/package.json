@@ -112,6 +112,7 @@
     "morgan": "~1.8.1",
     "multer": "^1.3.0",
     "ng-dialog": "^1.3.0",
+    "ng-file-upload": "^12.2.13",
     "nodemailer": "^4.1.3",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
@@ -119,7 +120,6 @@
     "plotly.js": "^1.30.1",
     "serve-favicon": "~2.4.2",
     "session-file-store": "^1.0.0",
-    "uploadcare-widget": "^3.2.1",
     "venn.js": "^0.2.14",
     "wait-port": "^0.2.2"
   }

@@ -153,19 +153,17 @@ address {
     top: 100px;
 }
 
-.my-drop-zone {
-    border: dotted 3px lightgray;
+.drop-box {
+    background: #F8F8F8;
+    border: 5px dashed #DDD;
+    width: 200px;
+    height: 120px;
+    text-align: center;
+    padding-top: 25px;
+    margin: 10px;
 }
-
-.nv-file-over {
-    border: dotted 3px red;
-}
-
-
-/* Default class applied to drop zones on over */
-
-.another-file-over-class {
-    border: dotted 3px green;
+.dragover {
+    border: 5px dashed blue;
 }
 
 .panel-submission-form {

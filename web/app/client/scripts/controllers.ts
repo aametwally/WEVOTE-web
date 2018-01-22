@@ -200,7 +200,7 @@ module wevote {
 
     export class InputController {
 
-        static readonly $inject = ['$rootScope', '$scope' , '$state',
+        static readonly $inject = ['$rootScope', '$scope', '$state',
             'AlgorithmsService', 'ExperimentService', InputController];
 
         private readonly usageScenarios: IUsageScenario[] = [{
@@ -244,7 +244,7 @@ module wevote {
 
         private rootScope: InputControllerScope;
 
-        constructor($rootScope: ng.IRootScopeService, $scope: any , $state: ng.ui.IStateService,
+        constructor($rootScope: ng.IRootScopeService, $scope: any, $state: ng.ui.IStateService,
             private AlgorithmsService: any, private ExperimentService: any) {
             $scope.global = $rootScope;
             var root = <InputControllerScope>$rootScope;
@@ -266,13 +266,12 @@ module wevote {
             root.experiment = JSON.parse(JSON.stringify(this.emptyExperiment));
 
             root.postExperiment = () => {
-                if( root.fileUploaded )
-                {
-                    const noAlgorithmChosen =  this.getUsedAlgorithms().length === 0;
+                if (root.fileUploaded) {
+                    const noAlgorithmChosen = this.getUsedAlgorithms().length === 0;
                     root.usageError = root.experiment.usageScenario.value === 'pipelineFromReads' && noAlgorithmChosen;
-                    
 
-                    if ( !root.usageError) {
+
+                    if (!root.usageError) {
                         root.experiment.usageScenario = this.getUsageScenarioOrReturn(this.usageScenarios[0]);
                         root.experiment.config.algorithms = this.getUsedAlgorithms();
                         const email = `${root.experiment.email}`;
@@ -291,7 +290,7 @@ module wevote {
                                 You may need to check the junk mail. 
                                 </div>`
                                 );
-    
+
                                 $('#submission-message').get(0).scrollIntoView();
                                 root.$on('$stateChangeStart', () => {
                                     $('#submission-message').empty();
@@ -312,13 +311,13 @@ module wevote {
                                 root.$on('$stateChangeStart', () => {
                                     $('#submission-message').empty();
                                 });
-    
+
                             });
-    
+
                         $('#advanced').collapse("hide");
                     }
                 }
-                
+
             };
 
             // root.uploader = null;
@@ -380,46 +379,65 @@ module wevote {
 
     }
 
-    interface OnUCUploadCompleteCallback {
-        (info: any): void;
-    }
-
-    interface OnUCWidgetReadyCallback {
-        (widget: any): void;
-    }
-
     interface UploaderControllerScope extends InputControllerScope {
-        onUCWidgetReady: OnUCWidgetReadyCallback,
-        onUCUploadComplete: OnUCUploadCompleteCallback
+        uploadProgress: string,
     }
 
     export class UploaderController {
-        static readonly $inject = ['$rootScope', '$scope' , UploaderController];
+        static readonly $inject = ['$rootScope', '$scope', 'Upload', '__env', '$timeout', UploaderController];
 
         private rootScope: UploaderControllerScope;
 
-        constructor($rootScope: ng.IRootScopeService, $scope: any ) {
-            // this._uploader = FileUploaderService.getFileUploader(
-            //     'upload/reads', 'Drop file here', 'External dataset uploader');
+        constructor($rootScope: ng.IRootScopeService, $scope: any, Upload: any, __env: any, $timeout: ng.ITimeoutService) {
             $scope.global = $rootScope;
-            this.rootScope = <UploaderControllerScope> $rootScope;
-            this.rootScope.onUCUploadComplete = this.onUCUploadComplete;
-            this.rootScope.onUCWidgetReady = this.onUCWidgetReady;
+            this.rootScope = <UploaderControllerScope>$rootScope;
+            let root = <any>$rootScope;
+            root.fileUploaded = false;
+            root.uploadProgress = 0;
 
-            // var singleWidget = uploadcare.SingleWidget('[role=uploadcare-uploader]');
-            // this.rootScope.uploader = singleWidget;
+            $scope.$watch('file', function () {
+                if (root.file != null) {
+                    root.file = $scope.file;
+                    root.upload(root.file);
+                    root.fileUploaded = false;
+                }
+            });
+            root.log = '';
+
+
+            root.upload = (file: any) => {
+                if (file) {
+                    if (!file.$error) {
+                        Upload.upload({
+                            url: __env.baseUrl + 'upload/reads',
+                            data: {
+                                file: file
+                            }
+                        }).then((resp: any) => {
+                            root.log = 'file: ' +
+                                resp.config.data.file.name +
+                                ', Response: ' + JSON.stringify(resp.data) +
+                                '\n' + $scope.log;
+                            root.fileUploaded = true;
+                            root.experiment.reads.uuid =
+                                JSON.parse(JSON.stringify(resp.data.filename));
+                            root.experiment.reads.count =
+                                parseInt(resp.data.readscount, 10);
+                            console.log(resp);
+                        }, null, (evt: any) => {
+                            const progressPercentage = 100.0 * parseInt(evt.loaded) / parseInt(evt.total);
+                            root.log = 'progress: ' + progressPercentage +
+                                '% ' + evt.config.data.file.name + '\n' +
+                                root.log;
+                            root.uploadProgress = progressPercentage;
+                            console.log(root.uploadProgress);
+                        });
+                    }
+                }
+            };
         };
 
-        protected onUCUploadComplete = ( info: any ) => {
-            // console.info('onSuccessItem', fileItem, response, status, headers);
-            console.log('success', info );
-            // this.rootScope.experiment.reads.uuid =
-            //     JSON.parse(JSON.stringify(header.filename));
-        };
 
-        protected onUCWidgetReady = (widget: any) => {
-            console.log('widget created', widget );
-        };
     }
 
     interface ExperimentsListControllerScope extends ng.IScope {

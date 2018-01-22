@@ -10,7 +10,7 @@ module wevote {
 
 
     export let wevoteApp =
-        angular.module('wevote', ['ui.router', 'ngResource','ng-uploadcare', 'ui.bootstrap.popover', 'ui.bootstrap.tpls', 'ngDialog', 'metaviz'])
+        angular.module('wevote', ['ui.router', 'ngResource','ngFileUpload', 'ui.bootstrap.popover', 'ui.bootstrap.tpls', 'ngDialog', 'metaviz'])
             .config(['$stateProvider', '$urlRouterProvider',
                 function ($stateProvider: ng.ui.IStateProvider, $urlRouterProvider: ng.ui.IUrlRouterProvider) {
                     $stateProvider
