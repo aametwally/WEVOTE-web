@@ -41,6 +41,10 @@ module wevote {
                 this._state.go('app.login');
             }
 
+            if (!this._auth.isAuthenticated()) {
+                this._state.go('app.login');
+            }
+
             this._rootScope.$on('$locationChangeStart', (event) => {
                 if (!this._auth.isAuthenticated()) {
                     if (!this._state.is('app.login') && !this._state.is('app.register')) {
