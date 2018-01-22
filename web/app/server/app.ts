@@ -44,7 +44,7 @@ export class Server {
         this.routes();
         this.api();
 
-        /**
+        
         const params = {
             host: config.cppWevoteUrl,
             port: config.cppWevotePort,
@@ -97,7 +97,7 @@ export class Server {
             .catch((err: any) => {
                 console.error(`An unknown error occured while waiting for the port: ${err}`);
             });
-            */
+            
 
 
     }

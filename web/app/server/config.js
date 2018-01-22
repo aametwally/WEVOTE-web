@@ -12,5 +12,5 @@ module.exports = {
     'cppWevoteClassificationPath': '/wevote/submit/ensemble',
     'cppWevoteFullPipelinePath': '/wevote/submit/fullpipeline',    
     'wevoteGmail' : 'wevote.taxonomy@gmail.com',
-    'wevoteGmailPassword' : 'qeadwrsf'
+    'wevoteGmailPassword' : 'uuvhtrfgyaihhjbu'
 }

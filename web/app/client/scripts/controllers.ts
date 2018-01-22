@@ -38,6 +38,7 @@ module wevote {
                 this._auth.logout();
                 this._scope.loggedIn = false;
                 this._scope.username = '';
+                this._state.go('app.login');
             }
 
             this._rootScope.$on('$locationChangeStart', (event) => {

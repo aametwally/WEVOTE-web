@@ -124,7 +124,11 @@ export class WevoteClassificationPatchModel {
             if (err) throw err;
             let unclassifiedReads = WevoteClassificationPatchModel.parseUnclassifiedEnsemble(data);
 
-            const port = (process.env.WEVOTE_WEB_PORT === 'undefined')? config.port : parseInt( <string>process.env.WEVOTE_WEB_PORT );
+            const port = (typeof process.env.WEVOTE_WEB_PORT == 'undefined')? config.port : parseInt( <string>process.env.WEVOTE_WEB_PORT );
+
+            console.log( process.env.WEVOTE_WEB_PORT );
+            console.log( config.port );
+
             const submission: common.IWevoteSubmitEnsemble = {
                 jobID: experiment._id,
                 resultsRoute: {

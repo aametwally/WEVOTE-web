@@ -29,6 +29,7 @@ export class ExperimentRouter extends BaseRoute {
         this._router.route('/classification')
             .post(function (req: Request, res: Response, next: NextFunction) {
 
+                console.log('results received..');
                 const submission = <IWevoteSubmitEnsemble>req.body;
                 const expId = mongoose.Types.ObjectId.createFromHexString(submission.jobID);
 
@@ -216,7 +217,8 @@ export class ExperimentRouter extends BaseRoute {
 
     private static _handleExperiment(exp: IExperimentModel) {
         const usageScenario = exp.usageScenario;
-        const resutlsPort = (process.env.WEVOTE_WEB_PORT === 'undefined')? config.port : parseInt( <string>process.env.WEVOTE_WEB_PORT );
+        const resutlsPort = (process.env.WEVOTE_WEB_PORT == '')? config.port : parseInt( <string>process.env.WEVOTE_WEB_PORT );
+
 
         switch (usageScenario.value) {
             case 'pipelineFromReads':
@@ -366,8 +368,8 @@ export class ExperimentRouter extends BaseRoute {
                     exp.config.algorithms = <IAlgorithm[]>algorithms.map((value: string) => {
                         return <IAlgorithm>{ name: value, used: true };
                     });
-                    if (!WevoteClassificationPatchModel.isClassified(lines[0])) {
-                        console.error('File must include header, and must be classified.');
+                    if (!WevoteClassificationPatchModel.isHeaderLine(lines[0])) {
+                        console.error('File must include header.');
                     }
                     const headerLine = lines[0];
                     lines = lines.slice(1);
@@ -459,6 +461,7 @@ export class ExperimentRouter extends BaseRoute {
                     subject: `[WEVOTE Experiment finished] ${exp.description.slice(0, 100) + '..'}`, // Subject line
                     html: mailContent
                 };
+                console.log('sending email..');
                 transporter.sendMail(mailOptions, function (error, info) {
                     if (error) {
                         console.log(error);
