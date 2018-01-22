@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/aametwally/WEVOTE-web.svg?branch=master)](https://travis-ci.org/aametwally/WEVOTE-web)
 
-WEVOTE-web is cloud-based framework of the WEVOTE ensemble taxonomic identification method. The framework to improves the usability of WEVOTE algorithm. In addition, it provides an interactive visual analytics tool to ease the interpretation of the classification results. WEVOTE-web application can also be used by researchers as a repository to store their experimental history for further revisions. A complete setup for the project and its dependencies as a web application is available as an Amazon Machine Image (AMI) for a direct deployment on AWS EC2 machine. The latest AMI is [ami-0f873d75](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;search=ami-0f873d75;sort=tag:Name)
+WEVOTE-web is cloud-based framework of the WEVOTE ensemble taxonomic identification method. The framework to improves the usability of WEVOTE algorithm. In addition, it provides an interactive visual analytics tool to ease the interpretation of the classification results. WEVOTE-web application can also be used by researchers as a repository to store their experimental history for further revisions. A complete setup for the project and its dependencies as a web application is available as an Amazon Machine Image (AMI) for a direct deployment on AWS EC2 machine. The latest AMI is [ami-93d78fe9](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;search=ami-93d78fe9;sort=name)
 
 ## Publication
 
@@ -32,7 +32,7 @@ A complete setup of the project including the five classification methods (i.e B
 
 ### Usage
 
-1. Launch an instance with approporiate specifications using the public AMI [ami-0f873d75](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;search=ami-0f873d75;sort=tag:Name).
+1. Launch an instance with approporiate specifications using the public AMI [ami-93d78fe9](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;search=ami-93d78fe9;sort=name).
 
 2. From the Amazon Web Console, edit the security group attached to your instance by adding new **Inbound** rule with the following parameters: 
 
@@ -40,12 +40,23 @@ Type | Protocol | Port Range | Source
 ------------ | ------------- | ------------- | ------------- 
 Custom TCP Rule | TCP | 8080 | ::/0, 0.0.0.0/0 
 
-3. Connect to machine with a terminal and run the WEVOTE computational server in background:
-    1. Change the directory to the executable: `cd /projects/wevote/bin`
-    2. Run `nohup ./wevoteREST -d ~/WEVOTE_PACKAGE/WEVOTE_DB &` , then hit `[ENTER]`.
-4. Activate the `MongoDB` service: by running `sudo service mongod start`.
-5. Change directory to `wevote/web` then run `npm run pipeline-amazon`.
-6. Finally, from the browser, access to your instance url at protocol 8080 (e.g `http://ec2-54-157-9-86.compute-1.amazonaws.com:8080`).
+3. Connect to the launched machine with a terminal 
+
+4. Write the following to the instance's terminal
+```
+screen
+nohup ./WEVOTE_PACKAGE/WEVOTE/bin/wevoteREST -d ~/WEVOTE_PACKAGE/WEVOTE_DB & 
+sudo service mongod start  
+cd ~/wevote/web && npm run pipeline-amazon  
+```
+
+5. Now, you can access the web interface from any web-browser on any machine:
+```
+http://<the-launched-instance-Public-DNS>:8080>
+e.g., (e.g `http://ec2-54-157-9-86.compute-1.amazonaws.com:8080`)
+```
+
+
 
 ## WEVOTE Computational Module: building from source<div id='wevote-computational'></div>
 
