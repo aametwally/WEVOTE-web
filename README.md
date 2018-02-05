@@ -52,8 +52,8 @@ cd ~/wevote/web && npm run pipeline-amazon
 
 5. Now, you can access the web interface from any web-browser on any machine:
 ```
-http://<the-launched-instance-Public-DNS>:8080>
-e.g., (e.g `http://ec2-54-157-9-86.compute-1.amazonaws.com:8080`)
+http://<the-launched-instance-Public-DNS>:8080
+(e.g., `http://ec2-54-157-9-86.compute-1.amazonaws.com:8080`)
 ```
 
 
