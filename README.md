@@ -6,7 +6,7 @@ WEVOTE-web is cloud-based framework of the WEVOTE ensemble taxonomic identificat
 
 ## Publication
 
-1. Asem Alaa, Ahmed A. Metwally. "Cloud-based Solution for Improving Usability and Interactivity of Metagenomic Ensemble Taxonomic Identification Methods", IEEE Biomedical and Health Informatics, Accepted, 2018.
+1. Asem Alaa, Ahmed A. Metwally. "Cloud-based Solution for Improving Usability and Interactivity of Metagenomic Ensemble Taxonomic Identification Methods", IEEE Biomedical and Health Informatics (2018). [[online](https://ieeexplore.ieee.org/document/8333403/)]
 
 2. Ahmed A. Metwally, Yang Dai, Patricia W. Finn, and David L. Perkins. "WEVOTE: Weighted Voting Taxonomic Identification Method of Microbial Sequences." PloS one 11, no. 9 (2016): e0163527. [[online](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0163527)]
 
