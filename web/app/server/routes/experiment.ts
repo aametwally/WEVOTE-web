@@ -70,6 +70,11 @@ export class ExperimentRouter extends BaseRoute {
                                 });
                             
                             experiment.save((err: any, exp: IExperimentModel) => {
+                                if( err )
+                                {
+                                    console.log( err );
+                                    return
+                                }
                                 res.writeHead(200, { 'Content-Type': 'text/plain' });
                                 res.end();
                                 return ExperimentRouter._sendEmail(exp);
@@ -327,7 +332,7 @@ export class ExperimentRouter extends BaseRoute {
                             reads: classifiedReads,
                             abundance: [],
                             sequences: [],
-                            algorithms: [],
+                            algorithms: algorithms,
                             status: <any>{},
                             score: exp.config.minScore,
                             minNumAgreed: exp.config.minNumAgreed,
@@ -396,7 +401,7 @@ export class ExperimentRouter extends BaseRoute {
                             reads: unclassifiedReads,
                             abundance: [],
                             sequences: [],
-                            algorithms: [],
+                            algorithms: algorithms,
                             status: <any>{},
                             score: exp.config.minScore,
                             minNumAgreed: exp.config.minNumAgreed,
