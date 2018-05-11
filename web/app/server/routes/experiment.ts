@@ -217,7 +217,8 @@ export class ExperimentRouter extends BaseRoute {
 
     private static _handleExperiment(exp: IExperimentModel) {
         const usageScenario = exp.usageScenario;
-        const resutlsPort = (process.env.WEVOTE_WEB_PORT == '')? config.port : parseInt( <string>process.env.WEVOTE_WEB_PORT );
+
+        let resutlsPort = (typeof process.env.WEVOTE_WEB_PORT == 'undefined')? config.port : parseInt( <string>process.env.WEVOTE_WEB_PORT );
 
 
         switch (usageScenario.value) {
