@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/aametwally/WEVOTE-web.svg?branch=master)](https://travis-ci.org/aametwally/WEVOTE-web)
 
-WEVOTE-web is cloud-based framework of the WEVOTE ensemble taxonomic identification method. The framework to improves the usability of WEVOTE algorithm. In addition, it provides an interactive visual analytics tool to ease the interpretation of the classification results. WEVOTE-web application can also be used by researchers as a repository to store their experimental history for further revisions. A complete setup for the project and its dependencies as a web application is available as an Amazon Machine Image (AMI) for a direct deployment on AWS EC2 machine. The latest AMI is [ami-063c7ad453867f7d4](https://console.aws.amazon.com/ec2/home?region=us-east-1#Images:visibility=owned-by-me;search=ami-063c7ad453867f7d4;sort=name)
+WEVOTE-web is cloud-based framework of the WEVOTE ensemble taxonomic identification method. The framework to improves the usability of WEVOTE algorithm. In addition, it provides an interactive visual analytics tool to ease the interpretation of the classification results. WEVOTE-web application can also be used by researchers as a repository to store their experimental history for further revisions. A complete setup for the project and its dependencies as a web application is available as an Amazon Machine Image (AMI) for a direct deployment on AWS EC2 machine. The latest AMI is [ami-063c7ad453867f7d4](https://console.aws.amazon.com/ec2/home?region=us-east-1#Images:search=ami-063c7ad453867f7d4;sort=name)
 
 ## Publication
 
@@ -32,7 +32,7 @@ A complete setup of the project including the five classification methods (i.e B
 
 ### Usage
 
-1. Launch an instance with approporiate specifications using the public AMI [ami-063c7ad453867f7d4](https://console.aws.amazon.com/ec2/home?region=us-east-1#Images:visibility=owned-by-me;search=ami-063c7ad453867f7d4;sort=name).
+1. Launch an instance with approporiate specifications using the public AMI [ami-063c7ad453867f7d4](https://console.aws.amazon.com/ec2/home?region=us-east-1#Images:search=ami-063c7ad453867f7d4;sort=name).
 
 2. From the Amazon Web Console, edit the security group attached to your instance by adding new **Inbound** rule with the following parameters: 
 
