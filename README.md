@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/aametwally/WEVOTE-web.svg?branch=master)](https://travis-ci.org/aametwally/WEVOTE-web)
 
-WEVOTE-web is cloud-based framework of the WEVOTE ensemble taxonomic identification method. The framework to improves the usability of WEVOTE algorithm. In addition, it provides an interactive visual analytics tool to ease the interpretation of the classification results. WEVOTE-web application can also be used by researchers as a repository to store their experimental history for further revisions. A complete setup for the project and its dependencies as a web application is available as an Amazon Machine Image (AMI) for a direct deployment on AWS EC2 machine. The latest AMI is [ami-0826692f3b5ff8d7b](https://console.aws.amazon.com/ec2/home?region=us-east-1#Images:search=ami-0826692f3b5ff8d7b;sort=name)
+WEVOTE-web is cloud-based framework of the WEVOTE ensemble taxonomic identification method. The framework to improves the usability of WEVOTE algorithm. In addition, it provides an interactive visual analytics tool to ease the interpretation of the classification results. WEVOTE-web application can also be used by researchers as a repository to store their experimental history for further revisions. A complete setup for the project and its dependencies as a web application is available as an Amazon Machine Image (AMI) for a direct deployment on AWS EC2 machine. The latest AMI is [ami-0dab1ab8b4111de4d](https://console.aws.amazon.com/ec2/home?region=us-east-1#Images:search=ami-0dab1ab8b4111de4d;sort=name)
 
 ## Publication
 
@@ -28,11 +28,11 @@ WEVOTE-web is cloud-based framework of the WEVOTE ensemble taxonomic identificat
 
 ## Amazon AMI with a complete setup <div id='ami'></div>
 
-A complete setup of the project including the five classification methods (i.e BLASTN, KRAKEN, CLARK, MetaPhlAn, TIPP), is available through Amazon Machine Image (AMI), using a **500 GB EBS** storage. The memory budget of the instance is subject to the intended methods to use. For example, if the methods are used, but KRAKEN and CLARK, an instance with memory of **1 GiB**. Whereas, incorporating KRAKEN and CLARK would require an instance of **80 GiB** memory budget.
+A complete setup of the project including the five classification methods (i.e BLASTN, KRAKEN, CLARK, MetaPhlAn, TIPP), is available through Amazon Machine Image (AMI), where the associated large databases are downloadable through scripts located in the `$HOME` directory, i.e `/home/ubuntu`. The initial size of the image is **10 GB EBS** storage, while you may need to reserve **400 GB EBS** to account for downloading the associated databases. The memory budget of the instance is subject to the intended methods to use. For example, if the methods are used, but KRAKEN and CLARK, an instance with memory of **1 GiB**. Whereas, incorporating KRAKEN and CLARK would require an instance of **80 GiB** memory budget.
 
 ### Usage
 
-1. Launch an instance with approporiate specifications using the public AMI [ami-0826692f3b5ff8d7b](https://console.aws.amazon.com/ec2/home?region=us-east-1#Images:search=ami-0826692f3b5ff8d7b;sort=name).
+1. Launch an instance with approporiate specifications using the public AMI [ami-0dab1ab8b4111de4d](https://console.aws.amazon.com/ec2/home?region=us-east-1#Images:search=ami-0dab1ab8b4111de4d;sort=name).
 
 2. From the Amazon Web Console, edit the security group attached to your instance by adding new **Inbound** rule with the following parameters: 
 
@@ -42,7 +42,16 @@ Custom TCP Rule | TCP | 8080 | ::/0, 0.0.0.0/0
 
 3. Connect to the launched machine with a terminal 
 
-4. Write the following to the instance's terminal
+4. From the home directory, download the associated databases subject to your interest using the following scripts:
+
+```
+./addBlastDB.sh
+./addCLARKDB.sh
+./addKrakenDB.sh
+./addWEVOTEDB.sh
+```
+
+5. Write the following to the instance's terminal
 ```
 screen
 nohup ./WEVOTE_PACKAGE/WEVOTE/bin/wevoteREST -d ~/WEVOTE_PACKAGE/WEVOTE_DB & 
@@ -50,7 +59,7 @@ sudo service mongod start
 cd ~/wevote/web && npm run pipeline-amazon  
 ```
 
-5. Now, you can access the web interface from any web-browser on any machine:
+6. Now, you can access the web interface from any web-browser on any machine:
 ```
 http://<the-launched-instance-Public-DNS>:8080
 (e.g., `http://ec2-54-157-9-86.compute-1.amazonaws.com:8080`)
